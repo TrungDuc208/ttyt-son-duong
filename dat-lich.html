@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đặt lịch khám - Trung tâm Y tế khu vực Sơn Dương</title>
+  <link rel="icon" href="img/logo.jpg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="booking">
+  <div id="site-header"></div>
+
+  <div class="page-head">
+    <div class="container">
+      <h2>Đăng ký khám bệnh trực tuyến</h2>
+      <div class="breadcrumb"><a href="index.html">Trang chủ</a> / Đặt lịch khám</div>
+    </div>
+  </div>
+
+  <section class="block">
+    <div class="container">
+      <div class="form-card">
+        <p style="font-size:14px;color:var(--muted);margin-bottom:18px">
+          📋 Hồ sơ đăng ký được gửi trực tiếp sang <strong>hệ thống quản lý bệnh viện (HIS)</strong> của Trung tâm.
+          Sau khi đặt lịch thành công, quý khách sẽ nhận được <strong>mã đặt lịch</strong> và <strong>số thứ tự dự kiến</strong> —
+          khi đến khám chỉ cần đọc mã tại quầy tiếp đón. Các trường đánh dấu <span style="color:var(--red)">*</span> là bắt buộc.
+        </p>
+
+        <form id="booking-form">
+          <div class="form-grid">
+            <div>
+              <label class="fld">Họ và tên người khám <span class="req">*</span></label>
+              <input name="name" required placeholder="Nguyễn Văn A">
+            </div>
+            <div>
+              <label class="fld">Ngày sinh <span class="req">*</span></label>
+              <input type="date" name="dob" required>
+            </div>
+            <div>
+              <label class="fld">Số điện thoại <span class="req">*</span></label>
+              <input name="phone" required placeholder="0912345678" maxlength="10">
+            </div>
+            <div>
+              <label class="fld">Số CCCD</label>
+              <input name="cccd" placeholder="12 chữ số" maxlength="12">
+            </div>
+            <div class="full">
+              <label class="fld">Mã thẻ BHYT (nếu có)</label>
+              <input name="bhyt" placeholder="VD: GD4080812345678">
+              <div class="form-note">Mang theo thẻ BHYT/CCCD gắn chip khi đến khám để hưởng quyền lợi BHYT.</div>
+            </div>
+            <div>
+              <label class="fld">Khoa khám <span class="req">*</span></label>
+              <select name="dept" id="bk-dept" required></select>
+            </div>
+            <div>
+              <label class="fld">Bác sĩ</label>
+              <select name="doctor" id="bk-doctor">
+                <option value="">— Chọn khoa trước —</option>
+              </select>
+            </div>
+            <div>
+              <label class="fld">Ngày khám <span class="req">*</span></label>
+              <input type="date" name="date" id="bk-date" required>
+            </div>
+            <div>
+              <label class="fld">Khung giờ <span class="req">*</span></label>
+              <select name="slot" id="bk-slot" required>
+                <option value="">— Chọn ngày khám trước —</option>
+              </select>
+            </div>
+            <div class="full">
+              <label class="fld">Triệu chứng / Lý do khám <span class="req">*</span></label>
+              <textarea name="symptom" rows="3" required placeholder="Mô tả ngắn gọn triệu chứng hoặc nhu cầu khám (tái khám, khám sức khỏe...)"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" id="bk-submit" class="btn btn-primary">Xác nhận đặt lịch</button>
+            <span style="font-size:12.5px;color:var(--muted)">Bằng việc đặt lịch, bạn đồng ý cho Trung tâm sử dụng thông tin để phục vụ khám chữa bệnh.</span>
+          </div>
+        </form>
+
+        <div id="bk-result" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer" id="site-footer"></footer>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/his-adapter.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

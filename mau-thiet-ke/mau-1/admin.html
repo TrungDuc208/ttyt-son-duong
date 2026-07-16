@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản trị - Trung tâm Y tế khu vực Sơn Dương</title>
+  <link rel="icon" href="img/logo.jpg">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin">
+
+  <!-- ====== MÀN HÌNH ĐĂNG NHẬP ====== -->
+  <div class="login-wrap" id="login-screen">
+    <div class="login-card">
+      <img src="img/logo.jpg" alt="Logo" class="logo-img" style="width:64px;height:64px;margin:0 auto 16px">
+
+      <h2>Đăng nhập Quản trị</h2>
+      <p class="sub">Trung tâm Y tế khu vực Sơn Dương</p>
+      <form id="login-form">
+        <div style="display:grid;gap:12px">
+          <div>
+            <label class="fld">Tên đăng nhập</label>
+            <input id="login-user" required autocomplete="username" placeholder="admin">
+          </div>
+          <div>
+            <label class="fld">Mật khẩu</label>
+            <input type="password" id="login-pass" required autocomplete="current-password" placeholder="••••••••">
+          </div>
+          <button class="btn btn-blue" type="submit" style="width:100%">Đăng nhập</button>
+        </div>
+      </form>
+      <div class="demo-hint">
+        🔑 <strong>Tài khoản demo:</strong> admin / admin@123<br>
+        Bản chính thức sẽ xác thực qua server với mật khẩu mã hóa.
+      </div>
+      <p style="text-align:center;margin-top:14px;font-size:13px"><a href="index.html">← Về trang chủ</a></p>
+    </div>
+  </div>
+
+  <!-- ====== GIAO DIỆN QUẢN TRỊ ====== -->
+  <div class="admin-shell" id="admin-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="img/logo.jpg" alt="Logo" class="logo-img" style="width:40px;height:40px">
+        <div>TTYT KHU VỰC<br>SƠN DƯƠNG</div>
+      </div>
+      <nav class="sidebar-nav" id="admin-nav">
+        <button data-panel="dashboard" class="active">📊 Tổng quan</button>
+        <button data-panel="appointments">📅 Lịch hẹn khám</button>
+        <button data-panel="doctors">👨‍⚕️ Bác sĩ</button>
+        <button data-panel="departments">🏥 Khoa phòng</button>
+        <button data-panel="services">💰 Dịch vụ & giá</button>
+        <button data-panel="news">📰 Tin tức</button>
+        <button data-panel="files">📁 Kho tệp</button>
+        <button data-panel="settings">⚙️ Cài đặt & HIS</button>
+        <button data-panel="backup">💾 Sao lưu dữ liệu</button>
+      </nav>
+      <div class="sidebar-foot">
+        <a href="index.html" target="_blank">🌐 Xem website</a><br><br>
+        <a href="#" id="btn-logout">🚪 Đăng xuất</a>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <h2 id="panel-title">Tổng quan</h2>
+        <div class="admin-user">👤 <span id="admin-name"></span> · <span id="today-str"></span></div>
+      </div>
+
+      <!-- Tổng quan -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="dash-grid" id="dash-stats"></div>
+        <div class="card">
+          <div class="card-head"><h3>Lịch hẹn chờ xác nhận</h3></div>
+          <div class="table-wrap" style="box-shadow:none" id="dash-pending"></div>
+        </div>
+      </div>
+
+      <!-- Lịch hẹn -->
+      <div class="panel" id="panel-appointments">
+        <div class="card">
+          <div class="card-head">
+            <h3>Danh sách lịch hẹn khám</h3>
+            <div class="filter-bar" style="margin:0">
+              <select id="appt-status-filter">
+                <option value="">Tất cả trạng thái</option>
+                <option value="pending">Chờ xác nhận</option>
+                <option value="confirmed">Đã xác nhận</option>
+                <option value="done">Đã khám</option>
+                <option value="cancelled">Đã hủy</option>
+              </select>
+              <input id="appt-search" placeholder="🔍 Tìm theo tên, SĐT, mã...">
+            </div>
+          </div>
+          <div class="table-wrap" style="box-shadow:none" id="appt-table"></div>
+        </div>
+      </div>
+
+      <!-- Bác sĩ -->
+      <div class="panel" id="panel-doctors">
+        <div class="card">
+          <div class="card-head">
+            <h3>Quản lý bác sĩ</h3>
+            <button class="btn btn-primary btn-sm" onclick="openDoctorModal()">➕ Thêm bác sĩ</button>
+          </div>
+          <div class="table-wrap" style="box-shadow:none" id="doctor-table"></div>
+        </div>
+      </div>
+
+      <!-- Khoa phòng -->
+      <div class="panel" id="panel-departments">
+        <div class="card">
+          <div class="card-head">
+            <h3>Quản lý khoa phòng</h3>
+            <button class="btn btn-primary btn-sm" onclick="openDeptModal()">➕ Thêm khoa</button>
+          </div>
+          <div class="table-wrap" style="box-shadow:none" id="dept-table"></div>
+        </div>
+      </div>
+
+      <!-- Dịch vụ -->
+      <div class="panel" id="panel-services">
+        <div class="card">
+          <div class="card-head">
+            <h3>Quản lý dịch vụ & bảng giá</h3>
+            <button class="btn btn-primary btn-sm" onclick="openServiceModal()">➕ Thêm dịch vụ</button>
+          </div>
+          <div class="table-wrap" style="box-shadow:none" id="svc-table"></div>
+        </div>
+      </div>
+
+      <!-- Tin tức -->
+      <div class="panel" id="panel-news">
+        <div class="card">
+          <div class="card-head">
+            <h3>Quản lý tin tức</h3>
+            <button class="btn btn-primary btn-sm" onclick="openNewsModal()">➕ Viết bài mới</button>
+          </div>
+          <div class="table-wrap" style="box-shadow:none" id="news-table"></div>
+        </div>
+      </div>
+
+      <!-- Kho tệp -->
+      <div class="panel" id="panel-files">
+        <div class="card">
+          <div class="card-head">
+            <h3>Kho tệp — thư mục nhận file</h3>
+            <button class="btn btn-primary btn-sm" onclick="libUpload()">📤 Tải tệp lên</button>
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px">
+            Nơi tiếp nhận ảnh và tệp dùng cho website (ảnh nhân viên, ảnh bài viết, tệp đính kèm...).
+            Bản demo lưu tệp trong trình duyệt; bản chính thức tệp sẽ được tải lên thư mục <code>/uploads</code> trên máy chủ.
+            Ảnh tự động nén về tối đa 900px. Tệp khác giới hạn 3MB.
+          </p>
+          <div class="table-wrap" style="box-shadow:none" id="files-table"></div>
+        </div>
+      </div>
+
+      <!-- Cài đặt -->
+      <div class="panel" id="panel-settings">
+        <div class="card">
+          <div class="card-head"><h3>Thông tin website</h3></div>
+          <form id="settings-form">
+            <div class="form-grid">
+              <div class="full"><label class="fld">Tên đơn vị</label><input name="siteName"></div>
+              <div class="full"><label class="fld">Khẩu hiệu</label><input name="slogan"></div>
+              <div class="full"><label class="fld">Địa chỉ</label><input name="address"></div>
+              <div><label class="fld">Điện thoại</label><input name="phone"></div>
+              <div><label class="fld">Hotline đặt khám</label><input name="hotline"></div>
+              <div><label class="fld">Số cấp cứu</label><input name="emergency"></div>
+              <div><label class="fld">Email</label><input name="email"></div>
+              <div class="full"><label class="fld">Giờ làm việc</label><input name="workingHours"></div>
+              <div class="full"><label class="fld">Dòng thông báo chạy trên trang chủ</label><input name="announcement"></div>
+            </div>
+            <div class="form-actions"><button class="btn btn-blue" type="submit">💾 Lưu thông tin</button></div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Kết nối phần mềm HIS</h3></div>
+          <form id="his-form">
+            <div class="form-grid">
+              <div>
+                <label class="fld">Chế độ hoạt động</label>
+                <select name="mode">
+                  <option value="mock">Mô phỏng (demo)</option>
+                  <option value="real">Kết nối HIS thật</option>
+                </select>
+              </div>
+              <div><label class="fld">Mã cơ sở KCB</label><input name="facilityCode"></div>
+              <div class="full"><label class="fld">Địa chỉ API (endpoint)</label><input name="endpoint" placeholder="https://his.benhvien.vn/api/v1"></div>
+              <div class="full">
+                <label class="fld">API Key</label><input name="apiKey" type="password" placeholder="Khóa xác thực do đơn vị HIS cấp">
+                <div class="form-note">Thông số do nhà cung cấp HIS (VNPT-HIS, Viettel HIS, FPT.eHospital...) cấp khi ký hợp đồng tích hợp.</div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-blue" type="submit">💾 Lưu cấu hình</button>
+              <button class="btn btn-ghost" type="button" id="btn-test-his">🔌 Kiểm tra kết nối</button>
+              <span id="his-test-result" style="font-size:13.5px"></span>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Sao lưu -->
+      <div class="panel" id="panel-backup">
+        <div class="card">
+          <div class="card-head"><h3>Sao lưu / Phục hồi dữ liệu</h3></div>
+          <p style="font-size:14px;color:var(--muted);margin-bottom:16px">
+            Bản demo lưu toàn bộ dữ liệu trong trình duyệt (localStorage). Có thể xuất ra file JSON để sao lưu,
+            nhập lại từ file, hoặc khôi phục dữ liệu mẫu ban đầu.
+          </p>
+          <div class="form-actions" style="margin:0">
+            <button class="btn btn-blue" id="btn-export">⬇️ Xuất dữ liệu (JSON)</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">⬆️ Nhập từ file</button>
+            <input type="file" id="import-file" accept=".json" style="display:none">
+            <button class="btn btn-danger" id="btn-reset">♻️ Khôi phục dữ liệu mẫu</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ====== MODAL DÙNG CHUNG ====== -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="modal-title">Chỉnh sửa</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <form id="modal-form">
+        <div class="modal-body" id="modal-body"></div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-ghost" onclick="closeModal()">Hủy</button>
+          <button type="submit" class="btn btn-primary">💾 Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ====== TRÌNH CHỈNH SỬA ẢNH (crop/zoom kiểu mạng xã hội) ====== -->
+  <div class="crop-overlay" id="crop-overlay">
+    <div class="crop-modal">
+      <div class="crop-head">
+        <h3 id="crop-title">Chỉnh sửa ảnh</h3>
+        <button class="modal-close" onclick="cropCancel()">×</button>
+      </div>
+      <div class="crop-viewport" id="crop-viewport">
+        <img id="crop-img" src="" alt="">
+        <div class="crop-mask" id="crop-mask"></div>
+      </div>
+      <div class="crop-controls">
+        <span style="font-size:18px">➖</span>
+        <input type="range" id="crop-zoom" min="100" max="300" value="100">
+        <span style="font-size:18px">➕</span>
+      </div>
+      <p class="crop-hint">Kéo ảnh để căn vị trí · thanh trượt hoặc lăn chuột để phóng to/thu nhỏ</p>
+      <div class="crop-foot">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="cropCancel()">Hủy</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="cropApply()">✔ Áp dụng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input file ẩn dùng chung cho mọi thao tác import -->
+  <input type="file" id="file-pick-input" style="display:none">
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/his-adapter.js"></script>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>

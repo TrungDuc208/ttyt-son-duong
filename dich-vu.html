@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng giá dịch vụ - Trung tâm Y tế khu vực Sơn Dương</title>
+  <link rel="icon" href="img/logo.jpg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="services">
+  <div id="site-header"></div>
+
+  <div class="page-head">
+    <div class="container">
+      <h2>Bảng giá dịch vụ khám chữa bệnh</h2>
+      <div class="breadcrumb"><a href="index.html">Trang chủ</a> / Bảng giá dịch vụ</div>
+    </div>
+  </div>
+
+  <section class="block">
+    <div class="container">
+      <div class="filter-bar">
+        <input type="text" id="svc-search" placeholder="🔍 Tìm dịch vụ theo tên hoặc mã...">
+        <span style="font-size:13px;color:var(--muted)">Giá niêm yết công khai theo quy định hiện hành. Người có thẻ BHYT được quỹ BHYT chi trả theo mức hưởng.</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr>
+              <th style="width:90px">Mã DV</th>
+              <th>Tên dịch vụ</th>
+              <th style="width:130px">Đơn giá</th>
+              <th style="width:110px">BHYT</th>
+              <th style="width:220px">Ghi chú</th>
+            </tr>
+          </thead>
+          <tbody id="svc-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer" id="site-footer"></footer>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/his-adapter.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

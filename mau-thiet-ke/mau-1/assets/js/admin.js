@@ -1,0 +1,872 @@
+/* ============================================================
+   TRANG QUẢN TRỊ - LOGIC
+   Toàn quyền thêm / sửa / xóa mọi dữ liệu website.
+   Demo: phiên đăng nhập lưu sessionStorage; bản thật dùng
+   xác thực phía server (JWT/session) + phân quyền.
+   ============================================================ */
+
+const SESSION_KEY = "ttyt_admin_session";
+
+function toast(msg, isErr = false) {
+  let t = document.getElementById("toast");
+  if (!t) {
+    t = document.createElement("div");
+    t.id = "toast";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.className = isErr ? "err show" : "show";
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove("show"), 3500);
+}
+
+function deptName(id)   { const d = Store.get("departments", id); return d ? d.name : "—"; }
+function doctorName(id) { const d = Store.get("doctors", id);     return d ? `${d.title}. ${d.name}` : "(chưa chọn)"; }
+
+/* ================= ĐĂNG NHẬP ================= */
+function currentUser() {
+  try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch { return null; }
+}
+
+function showAdmin() {
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("admin-shell").classList.add("active");
+  document.getElementById("admin-name").textContent = currentUser().fullName;
+  document.getElementById("today-str").textContent =
+    new Date().toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
+  renderAll();
+}
+
+document.getElementById("login-form").onsubmit = (ev) => {
+  ev.preventDefault();
+  const u = document.getElementById("login-user").value.trim();
+  const p = document.getElementById("login-pass").value;
+  const user = Store.all("users").find(x => x.username === u && x.password === p);
+  if (!user) { toast("Sai tên đăng nhập hoặc mật khẩu.", true); return; }
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ username: user.username, fullName: user.fullName, role: user.role }));
+  showAdmin();
+};
+
+document.getElementById("btn-logout").onclick = (ev) => {
+  ev.preventDefault();
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+};
+
+/* ================= ĐIỀU HƯỚNG PANEL ================= */
+const PANEL_TITLES = {
+  dashboard: "Tổng quan", appointments: "Lịch hẹn khám", doctors: "Quản lý bác sĩ",
+  departments: "Quản lý khoa phòng", services: "Dịch vụ & bảng giá",
+  news: "Quản lý tin tức", files: "Kho tệp — thư mục nhận file",
+  settings: "Cài đặt & kết nối HIS", backup: "Sao lưu dữ liệu"
+};
+
+document.getElementById("admin-nav").addEventListener("click", (ev) => {
+  const btn = ev.target.closest("button[data-panel]");
+  if (!btn) return;
+  document.querySelectorAll("#admin-nav button").forEach(b => b.classList.toggle("active", b === btn));
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("panel-" + btn.dataset.panel).classList.add("active");
+  document.getElementById("panel-title").textContent = PANEL_TITLES[btn.dataset.panel];
+});
+
+/* ================= MODAL DÙNG CHUNG ================= */
+let modalSubmit = null;
+
+function openModal(title, bodyHTML, onSubmit) {
+  document.getElementById("modal-title").textContent = title;
+  document.getElementById("modal-body").innerHTML = bodyHTML;
+  modalSubmit = onSubmit;
+  document.getElementById("modal-overlay").classList.add("open");
+}
+function closeModal() {
+  document.getElementById("modal-overlay").classList.remove("open");
+  modalSubmit = null;
+}
+document.getElementById("modal-form").onsubmit = (ev) => {
+  ev.preventDefault();
+  if (modalSubmit) modalSubmit(new FormData(ev.target));
+};
+document.getElementById("modal-overlay").addEventListener("click", (ev) => {
+  if (ev.target.id === "modal-overlay") closeModal();
+});
+
+function fld(label, name, value = "", opts = {}) {
+  const { type = "text", required = false, full = false, placeholder = "" } = opts;
+  const input = type === "textarea"
+    ? `<textarea name="${name}" rows="${opts.rows || 4}" ${required ? "required" : ""} placeholder="${placeholder}">${Fmt.esc(value)}</textarea>`
+    : `<input type="${type}" name="${name}" value="${Fmt.esc(value)}" ${required ? "required" : ""} placeholder="${placeholder}">`;
+  return `<div class="${full ? "full" : ""}"><label class="fld">${label}${required ? ' <span class="req">*</span>' : ""}</label>${input}</div>`;
+}
+
+function deptOptions(selected) {
+  return Store.all("departments").map(d =>
+    `<option value="${d.id}" ${d.id === selected ? "selected" : ""}>${Fmt.esc(d.name)}</option>`).join("");
+}
+
+/* ================= TỔNG QUAN ================= */
+function renderDashboard() {
+  const appts = Store.all("appointments");
+  const pending = appts.filter(a => a.status === "pending");
+  const todayISO = new Date().toISOString().slice(0, 10);
+
+  document.getElementById("dash-stats").innerHTML = `
+    <div class="dash-card amber"><div class="num">${pending.length}</div><div class="lbl">Lịch hẹn chờ xác nhận</div></div>
+    <div class="dash-card green"><div class="num">${appts.filter(a => a.date >= todayISO && a.status === "confirmed").length}</div><div class="lbl">Lịch đã xác nhận sắp tới</div></div>
+    <div class="dash-card"><div class="num">${Store.all("doctors").length}</div><div class="lbl">Bác sĩ</div></div>
+    <div class="dash-card violet"><div class="num">${Store.all("services").length}</div><div class="lbl">Dịch vụ niêm yết</div></div>`;
+
+  document.getElementById("dash-pending").innerHTML = pending.length ? `
+    <table class="data">
+      <thead><tr><th>Mã</th><th>Người khám</th><th>Khoa / Ngày / Giờ</th><th>Thao tác</th></tr></thead>
+      <tbody>${pending.map(a => `
+        <tr>
+          <td>${a.code}</td>
+          <td>${Fmt.esc(a.name)}<div class="cell-sub">📞 ${Fmt.esc(a.phone)}</div></td>
+          <td>${Fmt.esc(deptName(a.dept))}<div class="cell-sub">${Fmt.date(a.date)} · ${a.slot}</div></td>
+          <td><div class="row-actions">
+            <button class="icon-btn" onclick="setApptStatus('${a.id}','confirmed')">✅ Xác nhận</button>
+            <button class="icon-btn danger" onclick="setApptStatus('${a.id}','cancelled')">❌ Hủy</button>
+          </div></td>
+        </tr>`).join("")}</tbody>
+    </table>` : `<div class="empty-note">Không có lịch hẹn nào chờ xác nhận. 🎉</div>`;
+}
+
+/* ================= LỊCH HẸN ================= */
+function renderAppointments() {
+  const st = document.getElementById("appt-status-filter").value;
+  const q = document.getElementById("appt-search").value.toLowerCase();
+  const list = [...Store.all("appointments")]
+    .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""))
+    .filter(a => (!st || a.status === st) &&
+      (!q || a.name.toLowerCase().includes(q) || a.phone.includes(q) || (a.code || "").toLowerCase().includes(q)));
+
+  document.getElementById("appt-table").innerHTML = list.length ? `
+    <table class="data">
+      <thead><tr>
+        <th>Mã đặt lịch</th><th>Người khám</th><th>Khám</th><th>Lý do</th><th>HIS</th><th>Trạng thái</th><th>Thao tác</th>
+      </tr></thead>
+      <tbody>${list.map(a => {
+        const s = APPT_STATUS[a.status] || APPT_STATUS.pending;
+        return `
+        <tr>
+          <td>${a.code || "—"}<div class="cell-sub">${Fmt.date(a.createdAt)}</div></td>
+          <td>${Fmt.esc(a.name)}
+            <div class="cell-sub">🎂 ${Fmt.date(a.dob)} · 📞 ${Fmt.esc(a.phone)}</div>
+            ${a.bhyt ? `<div class="cell-sub">🪪 BHYT: ${Fmt.esc(a.bhyt)}</div>` : ""}</td>
+          <td>${Fmt.esc(deptName(a.dept))}
+            <div class="cell-sub">${Fmt.esc(doctorName(a.doctor))}</div>
+            <div class="cell-sub">${Fmt.date(a.date)} · ${a.slot}</div></td>
+          <td style="max-width:200px;font-size:13px">${Fmt.esc(a.symptom)}</td>
+          <td>${a.hisCode ? `<span class="badge badge-info">${a.hisCode}</span>` : '<span class="cell-sub">chưa đồng bộ</span>'}</td>
+          <td><span class="badge ${s.cls}">${s.label}</span></td>
+          <td><div class="row-actions">
+            ${a.status === "pending" ? `<button class="icon-btn" title="Xác nhận" onclick="setApptStatus('${a.id}','confirmed')">✅</button>` : ""}
+            ${a.status === "confirmed" ? `<button class="icon-btn" title="Đã khám xong" onclick="setApptStatus('${a.id}','done')">🏁</button>` : ""}
+            ${a.status !== "cancelled" && a.status !== "done" ? `<button class="icon-btn" title="Hủy lịch" onclick="cancelAppt('${a.id}')">❌</button>` : ""}
+            <button class="icon-btn danger" title="Xóa bản ghi" onclick="removeItem('appointments','${a.id}','lịch hẹn của ${Fmt.esc(a.name)}')">🗑</button>
+          </div></td>
+        </tr>`;
+      }).join("")}</tbody>
+    </table>` : `<div class="empty-note">Không có lịch hẹn phù hợp.</div>`;
+}
+
+function setApptStatus(id, status) {
+  Store.update("appointments", id, { status });
+  toast("Đã cập nhật trạng thái lịch hẹn.");
+  renderAll();
+}
+
+async function cancelAppt(id) {
+  const a = Store.get("appointments", id);
+  if (!confirm(`Hủy lịch hẹn ${a.code} của ${a.name}?`)) return;
+  try {
+    if (a.hisCode) await HIS.cancelAppointment(a.hisCode); // báo hủy sang HIS
+    Store.update("appointments", id, { status: "cancelled" });
+    toast("Đã hủy lịch hẹn" + (a.hisCode ? " và đồng bộ sang HIS." : "."));
+  } catch (e) {
+    toast("Lỗi khi báo hủy sang HIS: " + e.message, true);
+  }
+  renderAll();
+}
+
+document.getElementById("appt-status-filter").onchange = renderAppointments;
+document.getElementById("appt-search").oninput = renderAppointments;
+
+/* ================= XÓA DÙNG CHUNG ================= */
+function removeItem(col, id, label) {
+  if (!confirm(`Xóa vĩnh viễn ${label}?`)) return;
+  Store.remove(col, id);
+  toast("Đã xóa.");
+  renderAll();
+}
+
+/* ================= KHO TỆP (thư mục nhận file) ================= */
+/* Import file dùng chung: mọi ảnh/tệp tải lên đều đi vào Kho tệp,
+   các nơi khác (ảnh bác sĩ, ảnh bài viết, đính kèm) tham chiếu từ đây. */
+
+let filePickCb = null;
+
+function pickFile(accept, multiple, cb) {
+  const inp = document.getElementById("file-pick-input");
+  inp.accept = accept;
+  inp.multiple = multiple;
+  inp.value = "";
+  filePickCb = cb;
+  inp.click();
+}
+
+function readAsDataURL(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = () => rej(new Error("Không đọc được tệp " + file.name));
+    r.readAsDataURL(file);
+  });
+}
+
+/* Nén ảnh về tối đa 900px, JPEG - tránh đầy localStorage */
+function shrinkImage(dataUrl, maxW = 900, quality = 0.82) {
+  return new Promise((res) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxW / img.width);
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * scale);
+      c.height = Math.round(img.height * scale);
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#fff";               // nền trắng cho ảnh PNG trong suốt
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      res(c.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = () => res(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+async function importToLibrary(file) {
+  const isImage = file.type.startsWith("image/");
+  if (!isImage && file.size > 3 * 1024 * 1024)
+    throw new Error(`Tệp "${file.name}" vượt quá 3MB.`);
+  let dataUrl = await readAsDataURL(file);
+  if (isImage) dataUrl = await shrinkImage(dataUrl);
+  return Store.add("files", {
+    name: file.name,
+    type: file.type || "khác",
+    size: Math.round(dataUrl.length * 0.75), // dung lượng thực sau nén (base64 ~ 4/3)
+    uploadedAt: new Date().toISOString(),
+    dataUrl
+  });
+}
+
+document.getElementById("file-pick-input").onchange = async (ev) => {
+  const files = [...ev.target.files];
+  if (!files.length) return;
+  const recs = [];
+  for (const f of files) {
+    try { recs.push(await importToLibrary(f)); }
+    catch (e) { toast(e.message, true); }
+  }
+  if (recs.length) toast(`Đã nhận ${recs.length} tệp vào Kho tệp.`);
+  renderFilesTable();
+  if (filePickCb) { filePickCb(recs); filePickCb = null; }
+};
+
+function libUpload() { pickFile("*/*", true, null); }
+
+function libImageOptions() {
+  const imgs = Store.all("files").filter(f => f.type.startsWith("image/"));
+  return `<option value="">🖼 Chọn ảnh từ kho tệp...</option>` +
+    imgs.map(f => `<option value="${f.id}">${Fmt.esc(f.name)}</option>`).join("");
+}
+
+function libDownload(id) {
+  const f = Store.get("files", id);
+  if (!f) return;
+  const a = document.createElement("a");
+  a.href = f.dataUrl;
+  a.download = f.name;
+  a.click();
+}
+
+function renderFilesTable() {
+  const list = [...Store.all("files")].sort((a, b) => (b.uploadedAt || "").localeCompare(a.uploadedAt || ""));
+  document.getElementById("files-table").innerHTML = list.length ? `
+    <table class="data">
+      <thead><tr><th style="width:70px">Xem</th><th>Tên tệp</th><th>Loại</th><th>Dung lượng</th><th>Ngày nhận</th><th>Thao tác</th></tr></thead>
+      <tbody>${list.map(f => `
+        <tr>
+          <td>${f.type.startsWith("image/")
+            ? `<img src="${f.dataUrl}" style="width:52px;height:38px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">`
+            : `<span style="font-size:24px">📄</span>`}</td>
+          <td><strong>${Fmt.esc(f.name)}</strong></td>
+          <td style="font-size:12.5px;color:var(--muted)">${Fmt.esc(f.type)}</td>
+          <td>${Fmt.bytes(f.size)}</td>
+          <td>${Fmt.date(f.uploadedAt)}</td>
+          <td><div class="row-actions">
+            <button class="icon-btn" onclick="libDownload('${f.id}')">⬇️ Tải về</button>
+            <button class="icon-btn danger" onclick="removeItem('files','${f.id}','tệp ${Fmt.esc(f.name)}')">🗑 Xóa</button>
+          </div></td>
+        </tr>`).join("")}</tbody>
+    </table>` : `<div class="empty-note">Chưa có tệp nào. Bấm "Tải tệp lên" để nhận tệp vào kho.</div>`;
+}
+
+/* ================= BÁC SĨ ================= */
+function renderDoctorTable() {
+  const list = Store.all("doctors");
+  document.getElementById("doctor-table").innerHTML = list.length ? `
+    <table class="data">
+      <thead><tr><th>Họ tên</th><th>Khoa</th><th>Chức vụ</th><th>KN</th><th>Lịch khám</th><th>Thao tác</th></tr></thead>
+      <tbody>${list.map(d => `
+        <tr>
+          <td>
+            <div style="display:flex;gap:10px;align-items:center">
+              ${d.avatar
+                ? `<img src="${Fmt.esc(d.avatar)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0">`
+                : `<span style="width:36px;height:36px;border-radius:50%;background:${Fmt.avatarColor(d.name)};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${Fmt.initials(d.name)}</span>`}
+              <div><strong>${Fmt.esc(d.title)}. ${Fmt.esc(d.name)}</strong><div class="cell-sub">📞 ${Fmt.esc(d.phone || "")}</div></div>
+            </div>
+          </td>
+          <td>${Fmt.esc(deptName(d.dept))}</td>
+          <td>${Fmt.esc(d.position)}</td>
+          <td>${d.exp} năm</td>
+          <td style="font-size:13px">${Fmt.esc(d.schedule)}</td>
+          <td><div class="row-actions">
+            <button class="icon-btn" onclick="openDoctorModal('${d.id}')">✏️ Sửa</button>
+            <button class="icon-btn danger" onclick="removeItem('doctors','${d.id}','bác sĩ ${Fmt.esc(d.name)}')">🗑 Xóa</button>
+          </div></td>
+        </tr>`).join("")}</tbody>
+    </table>` : `<div class="empty-note">Chưa có bác sĩ nào.</div>`;
+}
+
+function openDoctorModal(id) {
+  const d = id ? Store.get("doctors", id) : {};
+  openModal(id ? "Sửa thông tin bác sĩ" : "Thêm bác sĩ mới", `
+    <div class="form-grid">
+      ${fld("Họ và tên", "name", d.name || "", { required: true })}
+      ${fld("Học hàm/chức danh (BS, BSCKI, ThS.BS...)", "title", d.title || "", { required: true, placeholder: "BSCKI" })}
+      <div><label class="fld">Khoa <span class="req">*</span></label>
+        <select name="dept" required>${deptOptions(d.dept)}</select></div>
+      ${fld("Chức vụ", "position", d.position || "", { placeholder: "Bác sĩ điều trị" })}
+      ${fld("Số năm kinh nghiệm", "exp", d.exp ?? "", { type: "number" })}
+      ${fld("Điện thoại", "phone", d.phone || "")}
+      ${fld("Lịch khám", "schedule", d.schedule || "", { full: true, placeholder: "Thứ 2 - Thứ 6" })}
+      ${photoFieldHTML("avatar", "Ảnh đại diện — ảnh tròn trên thẻ thông tin", d.avatar)}
+      ${photoFieldHTML("photo", "Ảnh mở rộng — phủ toàn thẻ khi trỏ/click (trang chủ)", d.photo)}
+      ${fld("Giới thiệu ngắn", "intro", d.intro || "", { type: "textarea", rows: 3, full: true })}
+    </div>`,
+    (f) => {
+      const data = {
+        name: f.get("name").trim(), title: f.get("title").trim(), dept: f.get("dept"),
+        position: f.get("position").trim(), exp: Number(f.get("exp")) || 0,
+        phone: f.get("phone").trim(), schedule: f.get("schedule").trim(),
+        avatar: f.get("avatar").trim(), photo: f.get("photo").trim(),
+        intro: f.get("intro").trim()
+      };
+      id ? Store.update("doctors", id, data) : Store.add("doctors", data);
+      toast(id ? "Đã cập nhật bác sĩ." : "Đã thêm bác sĩ mới.");
+      closeModal(); renderAll();
+    });
+}
+
+/* ================= TRƯỜNG ẢNH CÓ CHỈNH SỬA (avatar tròn / ảnh fill thẻ) ================= */
+const PP_CONF = {
+  avatar: { mode: "avatar", empty: "👤" },  // 1:1, mặt nạ tròn
+  photo:  { mode: "card",   empty: "🖼" }   // 3:4, phủ toàn thẻ
+};
+
+function photoFieldHTML(key, label, value) {
+  const conf = PP_CONF[key];
+  return `
+    <div class="full">
+      <label class="fld">${label}</label>
+      <div class="photo-picker">
+        <div class="pp-preview ${conf.mode === "avatar" ? "pp-round" : ""}" id="pp-prev-${key}">
+          ${value ? `<img src="${Fmt.esc(value)}">` : conf.empty}
+        </div>
+        <div class="pp-actions">
+          <button type="button" class="icon-btn" onclick="ppPick('${key}')">📤 Tải ảnh từ máy</button>
+          <select onchange="ppFromLib('${key}', this)" style="max-width:200px">${libImageOptions()}</select>
+          <button type="button" class="icon-btn" onclick="ppEdit('${key}')">✂️ Chỉnh sửa</button>
+          <button type="button" class="icon-btn danger" onclick="ppSet('${key}','')">🗑</button>
+        </div>
+      </div>
+      <input type="hidden" name="${key}" id="pp-in-${key}" value="${Fmt.esc(value || "")}">
+    </div>`;
+}
+
+function ppSet(key, src) {
+  document.getElementById("pp-in-" + key).value = src;
+  document.getElementById("pp-prev-" + key).innerHTML =
+    src ? `<img src="${src}">` : PP_CONF[key].empty;
+}
+function ppPick(key) {
+  pickFile("image/*", false, recs => {
+    if (recs[0]) cropOpen(recs[0].dataUrl, PP_CONF[key].mode, url => ppSet(key, url));
+  });
+}
+function ppFromLib(key, sel) {
+  const f = Store.get("files", sel.value);
+  sel.value = "";
+  if (f) cropOpen(f.dataUrl, PP_CONF[key].mode, url => ppSet(key, url));
+}
+function ppEdit(key) {
+  const src = document.getElementById("pp-in-" + key).value;
+  if (!src) { toast("Chưa có ảnh để chỉnh sửa — hãy tải ảnh lên trước.", true); return; }
+  cropOpen(src, PP_CONF[key].mode, url => ppSet(key, url));
+}
+
+/* ================= TRÌNH CHỈNH SỬA ẢNH (kéo + zoom, kiểu mạng xã hội) =================
+   mode "avatar": khung vuông + mặt nạ tròn, xuất 400x400
+   mode "card":   khung 3:4 (đúng tỉ lệ thẻ bác sĩ), xuất 600x800 */
+let Crop = null;
+
+function cropOpen(src, mode, cb) {
+  const im = new Image();
+  im.onload = () => {
+    const vw = mode === "avatar" ? 300 : 285;
+    const vh = mode === "avatar" ? 300 : 380;
+    Crop = { mode, vw, vh, natW: im.naturalWidth, natH: im.naturalHeight, cb, zoom: 1 };
+    Crop.cover = Math.max(vw / Crop.natW, vh / Crop.natH); // zoom 100% = ảnh vừa phủ kín khung
+    const s = Crop.cover;
+    Crop.left = (vw - Crop.natW * s) / 2;
+    Crop.top = (vh - Crop.natH * s) / 2;
+
+    const vp = document.getElementById("crop-viewport");
+    vp.style.width = vw + "px";
+    vp.style.height = vh + "px";
+    document.getElementById("crop-mask").style.display = mode === "avatar" ? "" : "none";
+    document.getElementById("crop-title").textContent =
+      mode === "avatar" ? "Chỉnh sửa ảnh đại diện" : "Chỉnh sửa ảnh mở rộng";
+    document.getElementById("crop-img").src = src;
+    document.getElementById("crop-zoom").value = 100;
+    cropRender();
+    document.getElementById("crop-overlay").classList.add("open");
+  };
+  im.onerror = () => toast("Không tải được ảnh.", true);
+  im.src = src;
+}
+
+function cropScale() { return Crop.cover * Crop.zoom; }
+
+function cropRender() {
+  // Giữ ảnh luôn phủ kín khung (không lộ nền)
+  const s = cropScale(), dw = Crop.natW * s, dh = Crop.natH * s;
+  Crop.left = Math.min(0, Math.max(Crop.vw - dw, Crop.left));
+  Crop.top = Math.min(0, Math.max(Crop.vh - dh, Crop.top));
+  const ci = document.getElementById("crop-img");
+  ci.style.width = dw + "px";
+  ci.style.height = dh + "px";
+  ci.style.left = Crop.left + "px";
+  ci.style.top = Crop.top + "px";
+}
+
+function cropZoomTo(zoom) {
+  // Phóng to quanh tâm khung nhìn
+  const s0 = cropScale();
+  const cx = (Crop.vw / 2 - Crop.left) / s0;
+  const cy = (Crop.vh / 2 - Crop.top) / s0;
+  Crop.zoom = zoom;
+  const s1 = cropScale();
+  Crop.left = Crop.vw / 2 - cx * s1;
+  Crop.top = Crop.vh / 2 - cy * s1;
+  cropRender();
+}
+
+function cropApply() {
+  const s = cropScale();
+  const outW = Crop.mode === "avatar" ? 400 : 600;
+  const outH = Crop.mode === "avatar" ? 400 : 800;
+  const c = document.createElement("canvas");
+  c.width = outW; c.height = outH;
+  c.getContext("2d").drawImage(
+    document.getElementById("crop-img"),
+    -Crop.left / s, -Crop.top / s, Crop.vw / s, Crop.vh / s,
+    0, 0, outW, outH);
+  const url = c.toDataURL("image/jpeg", 0.85);
+  document.getElementById("crop-overlay").classList.remove("open");
+  const cb = Crop.cb;
+  Crop = null;
+  cb(url);
+}
+
+function cropCancel() {
+  document.getElementById("crop-overlay").classList.remove("open");
+  Crop = null;
+}
+
+/* Kéo ảnh + lăn chuột để zoom */
+(() => {
+  const vp = document.getElementById("crop-viewport");
+  const zoomInp = document.getElementById("crop-zoom");
+  let dragging = false, px = 0, py = 0;
+
+  vp.addEventListener("pointerdown", (e) => {
+    if (!Crop) return;
+    dragging = true; px = e.clientX; py = e.clientY;
+    vp.setPointerCapture(e.pointerId);
+  });
+  vp.addEventListener("pointermove", (e) => {
+    if (!dragging || !Crop) return;
+    Crop.left += e.clientX - px;
+    Crop.top += e.clientY - py;
+    px = e.clientX; py = e.clientY;
+    cropRender();
+  });
+  vp.addEventListener("pointerup", () => { dragging = false; });
+  vp.addEventListener("wheel", (e) => {
+    if (!Crop) return;
+    e.preventDefault();
+    const v = Math.min(300, Math.max(100, Number(zoomInp.value) - Math.sign(e.deltaY) * 15));
+    zoomInp.value = v;
+    cropZoomTo(v / 100);
+  }, { passive: false });
+  zoomInp.addEventListener("input", () => { if (Crop) cropZoomTo(Number(zoomInp.value) / 100); });
+})();
+
+/* ================= KHOA PHÒNG ================= */
+function renderDeptTable() {
+  const list = Store.all("departments");
+  document.getElementById("dept-table").innerHTML = `
+    <table class="data">
+      <thead><tr><th style="width:60px">Icon</th><th>Tên khoa</th><th>Mô tả</th><th>Thao tác</th></tr></thead>
+      <tbody>${list.map(d => `
+        <tr>
+          <td style="font-size:22px">${d.icon}</td>
+          <td><strong>${Fmt.esc(d.name)}</strong></td>
+          <td style="font-size:13px">${Fmt.esc(d.desc)}</td>
+          <td><div class="row-actions">
+            <button class="icon-btn" onclick="openDeptModal('${d.id}')">✏️ Sửa</button>
+            <button class="icon-btn danger" onclick="removeItem('departments','${d.id}','khoa ${Fmt.esc(d.name)}')">🗑 Xóa</button>
+          </div></td>
+        </tr>`).join("")}</tbody>
+    </table>`;
+}
+
+function openDeptModal(id) {
+  const d = id ? Store.get("departments", id) : {};
+  openModal(id ? "Sửa khoa phòng" : "Thêm khoa phòng", `
+    <div class="form-grid">
+      ${fld("Tên khoa", "name", d.name || "", { required: true, full: true })}
+      ${fld("Biểu tượng (emoji)", "icon", d.icon || "🏥", { placeholder: "🩺" })}
+      ${fld("Mô tả", "desc", d.desc || "", { type: "textarea", rows: 3, full: true })}
+    </div>`,
+    (f) => {
+      const data = { name: f.get("name").trim(), icon: f.get("icon").trim() || "🏥", desc: f.get("desc").trim() };
+      id ? Store.update("departments", id, data) : Store.add("departments", data);
+      toast(id ? "Đã cập nhật khoa phòng." : "Đã thêm khoa phòng.");
+      closeModal(); renderAll();
+    });
+}
+
+/* ================= DỊCH VỤ ================= */
+function renderServiceTable() {
+  const list = Store.all("services");
+  document.getElementById("svc-table").innerHTML = list.length ? `
+    <table class="data">
+      <thead><tr><th>Mã</th><th>Nhóm</th><th>Tên dịch vụ</th><th>Đơn giá</th><th>BHYT</th><th>Thao tác</th></tr></thead>
+      <tbody>${list.map(s => `
+        <tr>
+          <td>${Fmt.esc(s.code)}</td>
+          <td style="font-size:13px">${Fmt.esc(s.group)}</td>
+          <td>${Fmt.esc(s.name)}${s.note ? `<div class="cell-sub">${Fmt.esc(s.note)}</div>` : ""}</td>
+          <td class="price">${Fmt.money(s.price)}</td>
+          <td>${s.bhyt ? '<span class="badge badge-ok">Có</span>' : '<span class="badge badge-warn">Không</span>'}</td>
+          <td><div class="row-actions">
+            <button class="icon-btn" onclick="openServiceModal('${s.id}')">✏️ Sửa</button>
+            <button class="icon-btn danger" onclick="removeItem('services','${s.id}','dịch vụ ${Fmt.esc(s.name)}')">🗑 Xóa</button>
+          </div></td>
+        </tr>`).join("")}</tbody>
+    </table>` : `<div class="empty-note">Chưa có dịch vụ nào.</div>`;
+}
+
+function openServiceModal(id) {
+  const s = id ? Store.get("services", id) : {};
+  openModal(id ? "Sửa dịch vụ" : "Thêm dịch vụ mới", `
+    <div class="form-grid">
+      ${fld("Mã dịch vụ", "code", s.code || "", { required: true, placeholder: "KB01" })}
+      ${fld("Nhóm dịch vụ", "group", s.group || "", { required: true, placeholder: "Khám bệnh / Xét nghiệm..." })}
+      ${fld("Tên dịch vụ", "name", s.name || "", { required: true, full: true })}
+      ${fld("Đơn giá (VNĐ)", "price", s.price ?? "", { type: "number", required: true })}
+      <div><label class="fld">BHYT chi trả</label>
+        <select name="bhyt">
+          <option value="1" ${s.bhyt ? "selected" : ""}>Có</option>
+          <option value="0" ${s.bhyt === false ? "selected" : ""}>Không (dịch vụ)</option>
+        </select></div>
+      ${fld("Ghi chú", "note", s.note || "", { full: true })}
+    </div>`,
+    (f) => {
+      const data = {
+        code: f.get("code").trim(), group: f.get("group").trim(), name: f.get("name").trim(),
+        price: Number(f.get("price")) || 0, bhyt: f.get("bhyt") === "1", note: f.get("note").trim()
+      };
+      id ? Store.update("services", id, data) : Store.add("services", data);
+      toast(id ? "Đã cập nhật dịch vụ." : "Đã thêm dịch vụ.");
+      closeModal(); renderAll();
+    });
+}
+
+/* ================= TIN TỨC ================= */
+function renderNewsTable() {
+  const list = [...Store.all("news")].sort((a, b) => b.date.localeCompare(a.date));
+  document.getElementById("news-table").innerHTML = list.length ? `
+    <table class="data">
+      <thead><tr><th>Ngày</th><th>Chuyên mục</th><th>Tiêu đề</th><th>Thao tác</th></tr></thead>
+      <tbody>${list.map(n => `
+        <tr>
+          <td style="white-space:nowrap">${Fmt.date(n.date)}</td>
+          <td><span class="badge badge-info">${Fmt.esc(n.cat)}</span></td>
+          <td><strong>${Fmt.esc(n.title)}</strong><div class="cell-sub">${Fmt.esc(n.summary)}</div></td>
+          <td><div class="row-actions">
+            <button class="icon-btn" onclick="window.open('tin-tuc.html?id=${n.id}','_blank')">👁 Xem</button>
+            <button class="icon-btn" onclick="openNewsModal('${n.id}')">✏️ Sửa</button>
+            <button class="icon-btn danger" onclick="removeItem('news','${n.id}','bài viết này')">🗑 Xóa</button>
+          </div></td>
+        </tr>`).join("")}</tbody>
+    </table>` : `<div class="empty-note">Chưa có bài viết nào.</div>`;
+}
+
+/* Bản nháp bài viết đang soạn trong modal: các phần (section) + tệp đính kèm */
+let newsDraft = { sections: [], attachments: [] };
+
+function openNewsModal(id) {
+  const n = id ? Store.get("news", id) : {};
+  const cats = ["Thông báo", "Hoạt động", "Y tế dự phòng", "Kỹ thuật mới"];
+
+  // Bài cũ chỉ có content dạng text -> chuyển thành 1 phần để sửa tiếp
+  newsDraft = {
+    sections: n.sections ? JSON.parse(JSON.stringify(n.sections))
+      : [{ heading: "", body: n.content || "", image: "" }],
+    attachments: n.attachments ? JSON.parse(JSON.stringify(n.attachments)) : []
+  };
+
+  openModal(id ? "Sửa bài viết" : "Viết bài mới", `
+    <div class="form-grid">
+      ${fld("Tiêu đề", "title", n.title || "", { required: true, full: true })}
+      <div><label class="fld">Chuyên mục</label>
+        <select name="cat">${cats.map(c => `<option ${n.cat === c ? "selected" : ""}>${c}</option>`).join("")}</select></div>
+      ${fld("Ngày đăng", "date", n.date || new Date().toISOString().slice(0, 10), { type: "date", required: true })}
+      ${fld("Tóm tắt (hiện ở danh sách tin)", "summary", n.summary || "", { type: "textarea", rows: 2, full: true })}
+      <div class="full">
+        <label class="fld">Nội dung bài viết — chia theo phần</label>
+        <div id="ns-list"></div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="nsAdd()">➕ Thêm phần mới</button>
+      </div>
+      <div class="full">
+        <label class="fld">Tệp đính kèm (người đọc tải về ở cuối bài)</label>
+        <div id="na-list" class="attach-chips"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+          <button type="button" class="icon-btn" onclick="naUpload()">📤 Tải tệp lên</button>
+          <select onchange="naFromLib(this)" style="max-width:240px">
+            <option value="">📁 Chọn từ kho tệp...</option>
+            ${Store.all("files").map(f => `<option value="${f.id}">${Fmt.esc(f.name)}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+    </div>`,
+    (f) => {
+      const sections = newsDraft.sections
+        .map(s => ({ heading: s.heading.trim(), body: s.body.trim(), image: s.image }))
+        .filter(s => s.heading || s.body || s.image);
+      if (!sections.length) { toast("Bài viết cần ít nhất một phần có nội dung.", true); return; }
+      const data = {
+        title: f.get("title").trim(), cat: f.get("cat"), date: f.get("date"),
+        summary: f.get("summary").trim(),
+        sections,
+        attachments: newsDraft.attachments,
+        // content dạng text giữ cho tương thích cũ (tìm kiếm, tóm tắt)
+        content: sections.map(s => (s.heading ? s.heading + "\n" : "") + s.body).join("\n\n").trim()
+      };
+      id ? Store.update("news", id, data) : Store.add("news", data);
+      toast(id ? "Đã cập nhật bài viết." : "Đã đăng bài mới.");
+      closeModal(); renderAll();
+    });
+
+  nsRender();
+  naRender();
+}
+
+/* ----- Trình soạn theo phần ----- */
+function nsRender() {
+  const wrap = document.getElementById("ns-list");
+  if (!wrap) return;
+  wrap.innerHTML = newsDraft.sections.map((s, i) => `
+    <div class="ns-item">
+      <div class="ns-head">
+        <strong>Phần ${i + 1}</strong>
+        <span class="row-actions">
+          <button type="button" class="icon-btn" title="Chuyển lên" onclick="nsMove(${i},-1)" ${i === 0 ? "disabled" : ""}>↑</button>
+          <button type="button" class="icon-btn" title="Chuyển xuống" onclick="nsMove(${i},1)" ${i === newsDraft.sections.length - 1 ? "disabled" : ""}>↓</button>
+          <button type="button" class="icon-btn danger" title="Xóa phần" onclick="nsRemove(${i})">🗑</button>
+        </span>
+      </div>
+      <input placeholder="Tiêu đề phần (không bắt buộc)" value="${Fmt.esc(s.heading)}"
+             oninput="newsDraft.sections[${i}].heading = this.value">
+      <textarea rows="4" placeholder="Nội dung phần này (mỗi đoạn cách nhau 1 dòng trống)..."
+                oninput="newsDraft.sections[${i}].body = this.value">${Fmt.esc(s.body)}</textarea>
+      <div class="ns-img-row">
+        ${s.image ? `<img class="ns-thumb" src="${s.image}">` : ""}
+        <button type="button" class="icon-btn" onclick="nsPickImage(${i})">📤 Ảnh minh họa</button>
+        <select onchange="nsImageFromLib(${i}, this)" style="max-width:200px">${libImageOptions()}</select>
+        ${s.image ? `<button type="button" class="icon-btn danger" onclick="nsSetImage(${i},'')">🗑 Bỏ ảnh</button>` : ""}
+      </div>
+    </div>`).join("");
+}
+function nsAdd() {
+  newsDraft.sections.push({ heading: "", body: "", image: "" });
+  nsRender();
+}
+function nsRemove(i) {
+  if (newsDraft.sections.length === 1) { toast("Bài viết cần ít nhất một phần.", true); return; }
+  newsDraft.sections.splice(i, 1);
+  nsRender();
+}
+function nsMove(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= newsDraft.sections.length) return;
+  [newsDraft.sections[i], newsDraft.sections[j]] = [newsDraft.sections[j], newsDraft.sections[i]];
+  nsRender();
+}
+function nsSetImage(i, src) { newsDraft.sections[i].image = src; nsRender(); }
+function nsPickImage(i) {
+  pickFile("image/*", false, recs => { if (recs[0]) nsSetImage(i, recs[0].dataUrl); });
+}
+function nsImageFromLib(i, sel) {
+  const f = Store.get("files", sel.value);
+  if (f) nsSetImage(i, f.dataUrl); else sel.value = "";
+}
+
+/* ----- Tệp đính kèm ----- */
+function naRender() {
+  const wrap = document.getElementById("na-list");
+  if (!wrap) return;
+  wrap.innerHTML = newsDraft.attachments.length
+    ? newsDraft.attachments.map((a, i) => `
+        <span class="attach-chip">📄 ${Fmt.esc(a.name)}
+          <button type="button" onclick="naRemove(${i})" title="Gỡ tệp">×</button>
+        </span>`).join("")
+    : `<span style="font-size:12.5px;color:var(--muted)">Chưa có tệp đính kèm.</span>`;
+}
+function naAdd(rec) {
+  if (newsDraft.attachments.some(a => a.fileId === rec.id)) return;
+  newsDraft.attachments.push({ fileId: rec.id, name: rec.name, src: rec.dataUrl });
+  naRender();
+}
+function naUpload() {
+  pickFile("*/*", true, recs => recs.forEach(naAdd));
+}
+function naFromLib(sel) {
+  const f = Store.get("files", sel.value);
+  if (f) naAdd(f);
+  sel.value = "";
+}
+function naRemove(i) {
+  newsDraft.attachments.splice(i, 1);
+  naRender();
+}
+
+/* ================= CÀI ĐẶT ================= */
+function fillSettingsForms() {
+  const s = Store.settings();
+  const sf = document.getElementById("settings-form");
+  for (const k of ["siteName", "slogan", "address", "phone", "hotline", "emergency", "email", "workingHours", "announcement"])
+    sf.elements[k].value = s[k] || "";
+
+  const hf = document.getElementById("his-form");
+  hf.elements.mode.value = s.his.mode;
+  hf.elements.endpoint.value = s.his.endpoint || "";
+  hf.elements.apiKey.value = s.his.apiKey || "";
+  hf.elements.facilityCode.value = s.his.facilityCode || "";
+}
+
+document.getElementById("settings-form").onsubmit = (ev) => {
+  ev.preventDefault();
+  const f = new FormData(ev.target);
+  const patch = {};
+  for (const [k, v] of f.entries()) patch[k] = v.trim();
+  Store.saveSettings(patch);
+  toast("Đã lưu thông tin website.");
+};
+
+document.getElementById("his-form").onsubmit = (ev) => {
+  ev.preventDefault();
+  const f = new FormData(ev.target);
+  const s = Store.settings();
+  Store.saveSettings({
+    his: {
+      ...s.his,
+      mode: f.get("mode"),
+      endpoint: f.get("endpoint").trim(),
+      apiKey: f.get("apiKey").trim(),
+      facilityCode: f.get("facilityCode").trim()
+    }
+  });
+  toast("Đã lưu cấu hình HIS.");
+};
+
+document.getElementById("btn-test-his").onclick = async () => {
+  const out = document.getElementById("his-test-result");
+  out.textContent = "⏳ Đang kiểm tra...";
+  out.style.color = "var(--muted)";
+  try {
+    const r = await HIS.checkConnection();
+    out.textContent = "✅ " + r.message + (r.version ? ` (${r.version})` : "");
+    out.style.color = "var(--green)";
+  } catch (e) {
+    out.textContent = "❌ Kết nối thất bại: " + e.message;
+    out.style.color = "var(--red)";
+  }
+};
+
+/* ================= SAO LƯU ================= */
+document.getElementById("btn-export").onclick = () => {
+  const blob = new Blob([Store.export()], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `ttyt-sonduong-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("Đã xuất file sao lưu.");
+};
+
+document.getElementById("import-file").onchange = (ev) => {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      Store.import(reader.result);
+      toast("Đã nhập dữ liệu từ file sao lưu.");
+      renderAll(); fillSettingsForms();
+    } catch (e) {
+      toast("File không hợp lệ: " + e.message, true);
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = "";
+};
+
+document.getElementById("btn-reset").onclick = () => {
+  if (!confirm("Xóa toàn bộ dữ liệu hiện tại và khôi phục dữ liệu mẫu ban đầu?")) return;
+  Store.reset();
+  toast("Đã khôi phục dữ liệu mẫu.");
+  renderAll(); fillSettingsForms();
+};
+
+/* ================= RENDER TỔNG ================= */
+function renderAll() {
+  renderDashboard();
+  renderAppointments();
+  renderDoctorTable();
+  renderDeptTable();
+  renderServiceTable();
+  renderNewsTable();
+  renderFilesTable();
+}
+
+/* ================= KHỞI CHẠY ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  fillSettingsForms();
+  if (currentUser()) showAdmin();
+});
