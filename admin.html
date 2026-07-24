@@ -52,6 +52,7 @@
         <button data-panel="departments">🏥 Khoa phòng</button>
         <button data-panel="services">💰 Dịch vụ & giá</button>
         <button data-panel="news">📰 Tin tức</button>
+        <button data-panel="hero">🖼️ Ảnh Hero</button>
         <button data-panel="files">📁 Kho tệp</button>
         <button data-panel="settings">⚙️ Cài đặt & HIS</button>
         <button data-panel="backup">💾 Sao lưu dữ liệu</button>
@@ -138,6 +139,21 @@
             <button class="btn btn-primary btn-sm" onclick="openNewsModal()">➕ Viết bài mới</button>
           </div>
           <div class="table-wrap" style="box-shadow:none" id="news-table"></div>
+        </div>
+      </div>
+
+      <!-- Ảnh Hero (trình chiếu đầu trang chủ) -->
+      <div class="panel" id="panel-hero">
+        <div class="card">
+          <div class="card-head">
+            <h3>Ảnh trình chiếu đầu trang chủ (Hero)</h3>
+            <button class="btn btn-primary btn-sm" onclick="openHeroModal()">➕ Thêm ảnh</button>
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px">
+            Các ảnh dưới đây tự động chuyển sau mỗi 8 giây trên trang chủ; khách có thể bấm nút ‹ › hoặc chấm để xem thủ công.
+            Khi tải ảnh lên, có thể <strong>cắt (crop)</strong> và <strong>căn vị trí</strong> cho vừa khung. Kéo ⬆️⬇️ để đổi thứ tự trình chiếu.
+          </p>
+          <div class="table-wrap" style="box-shadow:none" id="hero-table"></div>
         </div>
       </div>
 
@@ -267,6 +283,11 @@
   <!-- Input file ẩn dùng chung cho mọi thao tác import -->
   <input type="file" id="file-pick-input" style="display:none">
 
+  <!-- pdf.js: dùng để chuyển tệp PDF thành ảnh từng trang (chỉ trang quản trị) -->
+  <script src="assets/js/vendor/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = "assets/js/vendor/pdf.worker.min.js";
+  </script>
   <script src="assets/js/data.js"></script>
   <script src="assets/js/his-adapter.js"></script>
   <script src="assets/js/admin.js"></script>

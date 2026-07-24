@@ -57,7 +57,8 @@ document.getElementById("btn-logout").onclick = (ev) => {
 const PANEL_TITLES = {
   dashboard: "Tổng quan", appointments: "Lịch hẹn khám", doctors: "Quản lý bác sĩ",
   departments: "Quản lý khoa phòng", services: "Dịch vụ & bảng giá",
-  news: "Quản lý tin tức", files: "Kho tệp — thư mục nhận file",
+  news: "Quản lý tin tức", hero: "Ảnh Hero — trình chiếu đầu trang chủ",
+  files: "Kho tệp — thư mục nhận file",
   settings: "Cài đặt & kết nối HIS", backup: "Sao lưu dữ liệu"
 };
 
@@ -312,6 +313,89 @@ function renderFilesTable() {
     </table>` : `<div class="empty-note">Chưa có tệp nào. Bấm "Tải tệp lên" để nhận tệp vào kho.</div>`;
 }
 
+/* ================= ẢNH HERO (trình chiếu đầu trang chủ) ================= */
+const HERO_PAGES = [
+  ["dat-lich.html", "Đặt lịch khám"], ["dich-vu.html", "Bảng giá dịch vụ"],
+  ["bac-si.html", "Đội ngũ bác sĩ"], ["khoa-phong.html", "Khoa phòng"],
+  ["gioi-thieu.html", "Giới thiệu"], ["tin-tuc.html", "Tin tức"],
+  ["lien-he.html", "Liên hệ"], ["index.html", "Trang chủ"]
+];
+const HERO_POS = [
+  ["center 30%", "Mặc định (hơi lệch trên)"], ["center 20%", "Lấy phần trên"],
+  ["center 50%", "Lấy phần giữa"], ["center 70%", "Lấy phần dưới"]
+];
+
+function heroLinkOptions(selected) {
+  return `<option value="">— Không gắn nút —</option>` +
+    HERO_PAGES.map(([v, l]) => `<option value="${v}" ${v === selected ? "selected" : ""}>${l}</option>`).join("");
+}
+function heroPosOptions(selected) {
+  return HERO_POS.map(([v, l]) => `<option value="${v}" ${v === selected ? "selected" : ""}>${l}</option>`).join("");
+}
+
+function renderHeroTable() {
+  const list = Store.all("hero");
+  document.getElementById("hero-table").innerHTML = list.length ? `
+    <table class="data">
+      <thead><tr><th style="width:130px">Ảnh</th><th>Nội dung</th><th style="width:150px">Nút bấm</th><th style="width:170px">Thao tác</th></tr></thead>
+      <tbody>${list.map((h, i) => `
+        <tr>
+          <td><div style="width:112px;height:46px;border-radius:6px;border:1px solid var(--border);background:#0a3a3f center/cover no-repeat url('${Fmt.esc(h.image)}');background-position:${Fmt.esc(h.position || "center 30%")}"></div></td>
+          <td><strong>${Fmt.esc(h.title)}</strong><div style="font-size:12.5px;color:var(--muted);margin-top:3px">${Fmt.esc((h.subtitle || "").slice(0, 90))}${(h.subtitle || "").length > 90 ? "…" : ""}</div></td>
+          <td style="font-size:12.5px">${h.btn1Text ? `▸ ${Fmt.esc(h.btn1Text)}<br>` : ""}${h.btn2Text ? `▸ ${Fmt.esc(h.btn2Text)}` : ""}${!h.btn1Text && !h.btn2Text ? '<span style="color:var(--muted)">—</span>' : ""}</td>
+          <td><div class="row-actions">
+            <button class="icon-btn" onclick="moveHero('${h.id}',-1)" ${i === 0 ? "disabled" : ""} title="Lên">⬆️</button>
+            <button class="icon-btn" onclick="moveHero('${h.id}',1)" ${i === list.length - 1 ? "disabled" : ""} title="Xuống">⬇️</button>
+            <button class="icon-btn" onclick="openHeroModal('${h.id}')">✏️ Sửa</button>
+            <button class="icon-btn danger" onclick="removeItem('hero','${h.id}','ảnh hero này')">🗑</button>
+          </div></td>
+        </tr>`).join("")}</tbody>
+    </table>` : `<div class="empty-note">Chưa có ảnh hero nào. Bấm "Thêm ảnh" để tạo slide đầu tiên.</div>`;
+}
+
+function moveHero(id, dir) {
+  const arr = Store.all("hero");
+  const i = arr.findIndex(h => h.id === id);
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= arr.length) return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  Store._save();
+  renderHeroTable();
+}
+
+function openHeroModal(id) {
+  const h = id ? Store.get("hero", id) : {};
+  openModal(id ? "Sửa ảnh Hero" : "Thêm ảnh Hero", `
+    <div class="form-grid">
+      ${photoFieldHTML("image", "Ảnh nền — tải lên rồi cắt/căn vị trí cho vừa khung ngang", h.image)}
+      <div><label class="fld">Vị trí hiển thị ảnh</label>
+        <select name="position">${heroPosOptions(h.position || "center 30%")}</select></div>
+      <div></div>
+      ${fld("Tiêu đề lớn", "title", h.title || "", { required: true, full: true, placeholder: "Tận tâm chăm sóc sức khỏe nhân dân..." })}
+      ${fld("Mô tả ngắn", "subtitle", h.subtitle || "", { type: "textarea", rows: 2, full: true })}
+      ${fld("Chữ trên nút 1", "btn1Text", h.btn1Text || "", { placeholder: "Đặt lịch khám ngay" })}
+      <div><label class="fld">Nút 1 dẫn tới trang</label>
+        <select name="btn1Link">${heroLinkOptions(h.btn1Link || "dat-lich.html")}</select></div>
+      ${fld("Chữ trên nút 2", "btn2Text", h.btn2Text || "", { placeholder: "Xem bảng giá dịch vụ" })}
+      <div><label class="fld">Nút 2 dẫn tới trang</label>
+        <select name="btn2Link">${heroLinkOptions(h.btn2Link || "dich-vu.html")}</select></div>
+    </div>`,
+    (f) => {
+      const data = {
+        image: f.get("image").trim(),
+        position: f.get("position"),
+        title: f.get("title").trim(),
+        subtitle: f.get("subtitle").trim(),
+        btn1Text: f.get("btn1Text").trim(), btn1Link: f.get("btn1Link"),
+        btn2Text: f.get("btn2Text").trim(), btn2Link: f.get("btn2Link")
+      };
+      if (!data.image) { toast("Hãy tải ảnh nền cho hero.", true); return; }
+      id ? Store.update("hero", id, data) : Store.add("hero", data);
+      toast(id ? "Đã cập nhật ảnh hero." : "Đã thêm ảnh hero.");
+      closeModal(); renderHeroTable();
+    });
+}
+
 /* ================= BÁC SĨ ================= */
 function renderDoctorTable() {
   const list = Store.all("doctors");
@@ -373,7 +457,8 @@ function openDoctorModal(id) {
 /* ================= TRƯỜNG ẢNH CÓ CHỈNH SỬA (avatar tròn / ảnh fill thẻ) ================= */
 const PP_CONF = {
   avatar: { mode: "avatar", empty: "👤" },  // 1:1, mặt nạ tròn
-  photo:  { mode: "card",   empty: "🖼" }   // 3:4, phủ toàn thẻ
+  photo:  { mode: "card",   empty: "🖼" },  // 3:4, phủ toàn thẻ
+  image:  { mode: "hero",   empty: "🖼" }   // ~2.5:1, ảnh hero ngang
 };
 
 function photoFieldHTML(key, label, value) {
@@ -419,14 +504,22 @@ function ppEdit(key) {
 
 /* ================= TRÌNH CHỈNH SỬA ẢNH (kéo + zoom, kiểu mạng xã hội) =================
    mode "avatar": khung vuông + mặt nạ tròn, xuất 400x400
-   mode "card":   khung 3:4 (đúng tỉ lệ thẻ bác sĩ), xuất 600x800 */
+   mode "card":   khung 3:4 (đúng tỉ lệ thẻ bác sĩ), xuất 600x800
+   mode "hero":   khung ngang ~2.5:1 (ảnh đầu trang chủ), xuất 1600x640 */
 let Crop = null;
+
+const CROP_VP = {
+  avatar: { vw: 300, vh: 300 },
+  card:   { vw: 285, vh: 380 },
+  hero:   { vw: 380, vh: 152 }
+};
 
 function cropOpen(src, mode, cb) {
   const im = new Image();
   im.onload = () => {
-    const vw = mode === "avatar" ? 300 : 285;
-    const vh = mode === "avatar" ? 300 : 380;
+    const vp0 = CROP_VP[mode] || CROP_VP.card;
+    const vw = vp0.vw;
+    const vh = vp0.vh;
     Crop = { mode, vw, vh, natW: im.naturalWidth, natH: im.naturalHeight, cb, zoom: 1 };
     Crop.cover = Math.max(vw / Crop.natW, vh / Crop.natH); // zoom 100% = ảnh vừa phủ kín khung
     const s = Crop.cover;
@@ -438,7 +531,9 @@ function cropOpen(src, mode, cb) {
     vp.style.height = vh + "px";
     document.getElementById("crop-mask").style.display = mode === "avatar" ? "" : "none";
     document.getElementById("crop-title").textContent =
-      mode === "avatar" ? "Chỉnh sửa ảnh đại diện" : "Chỉnh sửa ảnh mở rộng";
+      mode === "avatar" ? "Chỉnh sửa ảnh đại diện"
+      : mode === "hero" ? "Cắt & căn vị trí ảnh Hero"
+      : "Chỉnh sửa ảnh mở rộng";
     document.getElementById("crop-img").src = src;
     document.getElementById("crop-zoom").value = 100;
     cropRender();
@@ -474,17 +569,33 @@ function cropZoomTo(zoom) {
   cropRender();
 }
 
+const CROP_OUT = {
+  avatar: { w: 400,  h: 400 },
+  card:   { w: 600,  h: 800 },
+  hero:   { w: 1600, h: 640 }
+};
+
 function cropApply() {
+  if (!Crop) return;                       // không có ảnh đang cắt -> bỏ qua an toàn
   const s = cropScale();
-  const outW = Crop.mode === "avatar" ? 400 : 600;
-  const outH = Crop.mode === "avatar" ? 400 : 800;
+  const out = CROP_OUT[Crop.mode] || CROP_OUT.card;
+  const outW = out.w;
+  const outH = out.h;
   const c = document.createElement("canvas");
   c.width = outW; c.height = outH;
-  c.getContext("2d").drawImage(
-    document.getElementById("crop-img"),
-    -Crop.left / s, -Crop.top / s, Crop.vw / s, Crop.vh / s,
-    0, 0, outW, outH);
-  const url = c.toDataURL("image/jpeg", 0.85);
+  let url;
+  try {
+    c.getContext("2d").drawImage(
+      document.getElementById("crop-img"),
+      -Crop.left / s, -Crop.top / s, Crop.vw / s, Crop.vh / s,
+      0, 0, outW, outH);
+    url = c.toDataURL("image/jpeg", 0.85);
+  } catch (e) {
+    // Xảy ra khi mở trang bằng file:// rồi cắt ảnh có sẵn (ảnh nền mẫu) -> canvas bị "nhiễm bẩn".
+    // Ảnh tự tải lên từ máy (dạng dữ liệu) không bị lỗi này.
+    toast("Không cắt được ảnh này khi mở bằng file://. Hãy bấm 'Tải ảnh từ máy' để chọn ảnh mới, hoặc chạy website qua máy chủ.", true);
+    return;                                // giữ nguyên khung cắt để bấm Hủy hoặc thử ảnh khác
+  }
   document.getElementById("crop-overlay").classList.remove("open");
   const cb = Crop.cb;
   Crop = null;
@@ -667,8 +778,12 @@ function openNewsModal(id) {
     </div>`,
     (f) => {
       const sections = newsDraft.sections
-        .map(s => ({ heading: s.heading.trim(), body: s.body.trim(), image: s.image }))
-        .filter(s => s.heading || s.body || s.image);
+        .map(s => {
+          const sec = { heading: s.heading.trim(), body: s.body.trim(), image: s.image };
+          if (s.pdfPages && s.pdfPages.length) { sec.pdfPages = s.pdfPages; sec.pdfName = s.pdfName || ""; }
+          return sec;
+        })
+        .filter(s => s.heading || s.body || s.image || (s.pdfPages && s.pdfPages.length));
       if (!sections.length) { toast("Bài viết cần ít nhất một phần có nội dung.", true); return; }
       const data = {
         title: f.get("title").trim(), cat: f.get("cat"), date: f.get("date"),
@@ -710,7 +825,14 @@ function nsRender() {
         <button type="button" class="icon-btn" onclick="nsPickImage(${i})">📤 Ảnh minh họa</button>
         <select onchange="nsImageFromLib(${i}, this)" style="max-width:200px">${libImageOptions()}</select>
         ${s.image ? `<button type="button" class="icon-btn danger" onclick="nsSetImage(${i},'')">🗑 Bỏ ảnh</button>` : ""}
+        <button type="button" class="icon-btn" onclick="nsPickPDF(${i})">📄 Chèn PDF (hiện thành ảnh)</button>
       </div>
+      ${(s.pdfPages && s.pdfPages.length) ? `
+        <div class="ns-pdf-box">
+          <span class="ns-pdf-name">📄 ${Fmt.esc(s.pdfName || "Tài liệu PDF")} — ${s.pdfPages.length} trang</span>
+          <div class="ns-pdf-thumbs">${s.pdfPages.map(p => `<img src="${p}">`).join("")}</div>
+          <button type="button" class="icon-btn danger" onclick="nsClearPDF(${i})">🗑 Bỏ PDF</button>
+        </div>` : ""}
     </div>`).join("");
 }
 function nsAdd() {
@@ -735,6 +857,72 @@ function nsPickImage(i) {
 function nsImageFromLib(i, sel) {
   const f = Store.get("files", sel.value);
   if (f) nsSetImage(i, f.dataUrl); else sel.value = "";
+}
+
+/* ----- Chèn PDF: chuyển từng trang PDF thành ảnh JPEG để hiển thị trên trang ----- */
+const PDF_MAX_PAGES = 20;   // giới hạn số trang để tránh đầy bộ nhớ trình duyệt
+
+function nsClearPDF(i) {
+  delete newsDraft.sections[i].pdfPages;
+  delete newsDraft.sections[i].pdfName;
+  nsRender();
+}
+
+async function pdfToImages(dataUrl, maxW = 1000, quality = 0.7) {
+  if (!window.pdfjsLib) throw new Error("Chưa tải được thư viện đọc PDF (pdf.js).");
+  const data = atob(dataUrl.split(",")[1]);
+  const bytes = new Uint8Array(data.length);
+  for (let k = 0; k < data.length; k++) bytes[k] = data.charCodeAt(k);
+
+  const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+  const total = Math.min(pdf.numPages, PDF_MAX_PAGES);
+  const pages = [];
+  for (let p = 1; p <= total; p++) {
+    const page = await pdf.getPage(p);
+    const base = page.getViewport({ scale: 1 });
+    const scale = Math.min(2, maxW / base.width);   // nét vừa phải, không quá to
+    const vp = page.getViewport({ scale });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(vp.width);
+    canvas.height = Math.round(vp.height);
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+    pages.push(canvas.toDataURL("image/jpeg", quality));
+  }
+  return { pages, total: pdf.numPages };
+}
+
+/* Chọn 1 tệp trực tiếp (không lưu vào Kho tệp) — dùng cho PDF vì ta chỉ giữ ảnh đã render */
+function pickRawFile(accept, cb) {
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = accept;
+  inp.onchange = () => { if (inp.files[0]) cb(inp.files[0]); };
+  inp.click();
+}
+
+function nsPickPDF(i) {
+  pickRawFile("application/pdf", async (file) => {
+    if (!/pdf$/i.test(file.type) && !/\.pdf$/i.test(file.name)) {
+      toast("Hãy chọn tệp định dạng PDF.", true); return;
+    }
+    toast("Đang chuyển PDF thành ảnh, vui lòng chờ...");
+    try {
+      const dataUrl = await readAsDataURL(file);
+      const { pages, total } = await pdfToImages(dataUrl);
+      if (!pages.length) { toast("PDF không có trang nào.", true); return; }
+      newsDraft.sections[i].pdfPages = pages;
+      newsDraft.sections[i].pdfName = file.name;
+      nsRender();
+      toast(total > pages.length
+        ? `Đã chèn ${pages.length}/${total} trang (giới hạn ${PDF_MAX_PAGES} trang).`
+        : `Đã chèn ${pages.length} trang PDF.`);
+    } catch (e) {
+      toast("Không đọc được PDF: " + e.message, true);
+    }
+  });
 }
 
 /* ----- Tệp đính kèm ----- */
@@ -862,6 +1050,7 @@ function renderAll() {
   renderDeptTable();
   renderServiceTable();
   renderNewsTable();
+  renderHeroTable();
   renderFilesTable();
 }
 

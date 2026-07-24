@@ -27,6 +27,29 @@ const SEED = {
     }
   },
 
+  // Ảnh trình chiếu đầu trang chủ (hero). Mỗi ảnh là 1 "slide".
+  // image: đường dẫn hoặc dữ liệu base64; position: căn nền (object background-position).
+  hero: [
+    {
+      id: "h1",
+      image: "img/background.jpg",
+      position: "center 30%",
+      title: "Tận tâm chăm sóc sức khỏe nhân dân khu vực Sơn Dương",
+      subtitle: "Đội ngũ y bác sĩ giàu kinh nghiệm, trang thiết bị hiện đại, quy trình khám chữa bệnh nhanh gọn. Đặt lịch khám trực tuyến để không phải chờ đợi.",
+      btn1Text: "Đặt lịch khám ngay", btn1Link: "dat-lich.html",
+      btn2Text: "Xem bảng giá dịch vụ", btn2Link: "dich-vu.html"
+    },
+    {
+      id: "h2",
+      image: "img/background.jpg",
+      position: "center 55%",
+      title: "Đặt lịch khám trực tuyến — không phải xếp hàng chờ đợi",
+      subtitle: "Chọn khoa, bác sĩ và khung giờ mong muốn; nhận ngay mã hồ sơ và số thứ tự dự kiến. Tiện lợi cho người cao tuổi và người bệnh tái khám định kỳ.",
+      btn1Text: "Đặt lịch ngay", btn1Link: "dat-lich.html",
+      btn2Text: "Tìm bác sĩ", btn2Link: "bac-si.html"
+    }
+  ],
+
   departments: [
     { id: "d1",  name: "Khoa Khám bệnh",                    icon: "🩺", desc: "Tiếp đón, khám và phân loại người bệnh; khám sức khỏe định kỳ, khám BHYT." },
     { id: "d2",  name: "Khoa Nội tổng hợp",                 icon: "❤️", desc: "Điều trị các bệnh lý nội khoa: tim mạch, hô hấp, tiêu hóa, nội tiết, cơ xương khớp." },
@@ -127,6 +150,10 @@ const Store = {
       this._cache = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(SEED));
     } catch (e) {
       this._cache = JSON.parse(JSON.stringify(SEED));
+    }
+    // Nạp bù các collection mới cho DB cũ đã lưu trước đây (vd: hero)
+    if (!Array.isArray(this._cache.hero)) {
+      this._cache.hero = JSON.parse(JSON.stringify(SEED.hero));
     }
     return this._cache;
   },

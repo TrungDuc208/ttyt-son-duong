@@ -47,16 +47,15 @@ function renderLayout(activePage) {
         <p>${Fmt.esc(s.slogan)}</p>
       </div>
       <div class="header-cta">
-        <div class="hotline-box">Hotline đặt khám<strong>📞 ${Fmt.esc(s.hotline)}</strong></div>
+        <a href="dat-lich.html" class="btn btn-primary header-book ${activePage === "booking" ? "active" : ""}">📅 Đặt lịch khám</a>
       </div>
     </div>
     <nav class="main-nav">
       <div class="container" style="display:flex;align-items:center">
         <button class="nav-toggle" onclick="document.getElementById('nav-menu').classList.toggle('open')">☰ Menu</button>
-        <ul id="nav-menu" style="flex:1">
+        <ul id="nav-menu">
           ${nav.map(([href, label, key]) =>
             `<li><a href="${href}" class="${key === activePage ? "active" : ""}">${label}</a></li>`).join("")}
-          <li style="margin-left:auto"><a href="dat-lich.html" class="nav-book ${activePage === "booking" ? "active" : ""}">📅 Đặt lịch khám</a></li>
         </ul>
       </div>
     </nav>
@@ -154,8 +153,78 @@ function newsCardHTML(n) {
     </div>`;
 }
 
+/* ---------------- HERO: TRÌNH CHIẾU ẢNH ĐẦU TRANG ---------------- */
+function heroSlideHTML(h) {
+  const bg = `background-image:url('${Fmt.esc(h.image)}');background-position:${Fmt.esc(h.position || "center 30%")}`;
+  const btn = (text, link, cls) =>
+    (text && text.trim())
+      ? `<a href="${Fmt.esc(link || "#")}" class="btn ${cls}">${Fmt.esc(text)}</a>` : "";
+  return `
+    <div class="hero-slide" style="${bg}">
+      <div class="container">
+        <div class="hero-content">
+          <h2>${Fmt.esc(h.title)}</h2>
+          ${h.subtitle ? `<p>${Fmt.esc(h.subtitle)}</p>` : ""}
+          <div class="hero-actions">
+            ${btn(h.btn1Text, h.btn1Link, "btn-primary")}
+            ${btn(h.btn2Text, h.btn2Link, "btn-outline")}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderHero() {
+  const el = document.getElementById("hero");
+  if (!el) return;
+  const slides = Store.all("hero");
+
+  if (!slides.length) { el.style.display = "none"; return; }
+
+  const multi = slides.length > 1;
+  el.innerHTML = `
+    <div class="hero-slides">${slides.map(heroSlideHTML).join("")}</div>
+    ${multi ? `
+      <button class="hero-nav prev" type="button" aria-label="Ảnh trước">‹</button>
+      <button class="hero-nav next" type="button" aria-label="Ảnh sau">›</button>
+      <div class="hero-dots">
+        ${slides.map((_, i) => `<button type="button" class="hero-dot${i === 0 ? " active" : ""}" data-i="${i}" aria-label="Ảnh ${i + 1}"></button>`).join("")}
+      </div>` : ""}`;
+
+  const track = el.querySelector(".hero-slides");
+  const slideEls = [...el.querySelectorAll(".hero-slide")];
+  const dotEls = [...el.querySelectorAll(".hero-dot")];
+  slideEls[0].classList.add("active");
+
+  let cur = 0, timer = null;
+  const INTERVAL = 8000;
+
+  function show(i) {
+    cur = (i + slideEls.length) % slideEls.length;
+    track.style.transform = `translateX(${-cur * 100}%)`;   // trượt ngang mượt
+    slideEls.forEach((s, k) => s.classList.toggle("active", k === cur));
+    dotEls.forEach((d, k) => d.classList.toggle("active", k === cur));
+  }
+  function next() { show(cur + 1); }
+  function prev() { show(cur - 1); }
+  function play() { if (multi) { stop(); timer = setInterval(next, INTERVAL); } }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+  // Chuyển ảnh thủ công rồi khởi động lại đồng hồ 8s
+  function go(fn) { fn(); play(); }
+
+  if (multi) {
+    el.querySelector(".hero-nav.next").addEventListener("click", () => go(next));
+    el.querySelector(".hero-nav.prev").addEventListener("click", () => go(prev));
+    dotEls.forEach(d => d.addEventListener("click", () => go(() => show(Number(d.dataset.i)))));
+    el.addEventListener("mouseenter", stop);
+    el.addEventListener("mouseleave", play);
+    play();
+  }
+}
+
 /* ---------------- TRANG CHỦ ---------------- */
 function renderHome() {
+  renderHero();
   const doctors = Store.all("doctors").slice(0, 4);
   const news = [...Store.all("news")].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
 
@@ -247,7 +316,12 @@ function renderNews() {
       ? n.sections.map(sec => `
           ${sec.heading ? `<h3>${Fmt.esc(sec.heading)}</h3>` : ""}
           ${sec.body ? sec.body.split(/\n+/).map(p => `<p>${Fmt.esc(p)}</p>`).join("") : ""}
-          ${sec.image ? `<img class="art-img" src="${Fmt.esc(sec.image)}" alt="">` : ""}`).join("")
+          ${sec.image ? `<img class="art-img" src="${Fmt.esc(sec.image)}" alt="">` : ""}
+          ${(sec.pdfPages && sec.pdfPages.length) ? `
+            <div class="art-pdf">
+              ${sec.pdfName ? `<div class="art-pdf-name">📄 ${Fmt.esc(sec.pdfName)}</div>` : ""}
+              ${sec.pdfPages.map(p => `<img class="art-pdf-page" src="${p}" alt="Trang tài liệu">`).join("")}
+            </div>` : ""}`).join("")
       : (n ? n.content.split(/\n+/).map(p => `<p>${Fmt.esc(p)}</p>`).join("") : "");
 
     const attachHTML = (n && n.attachments && n.attachments.length) ? `
@@ -270,8 +344,47 @@ function renderNews() {
   }
 
   const news = [...Store.all("news")].sort((a, b) => b.date.localeCompare(a.date));
-  document.getElementById("news-list").innerHTML =
-    news.length ? news.map(newsCardHTML).join("") : `<div class="empty-note">Chưa có tin tức.</div>`;
+
+  // Danh sách chuyên mục (theo thứ tự xuất hiện)
+  const cats = [];
+  for (const n of news) if (n.cat && !cats.includes(n.cat)) cats.push(n.cat);
+
+  listEl.innerHTML = `
+    <div class="news-filter">
+      <input id="news-search" placeholder="🔍 Tìm bài viết theo tiêu đề hoặc từ khóa...">
+      <div class="news-cats" id="news-cats">
+        <button class="news-cat active" data-cat="">Tất cả</button>
+        ${cats.map(c => `<button class="news-cat" data-cat="${Fmt.esc(c)}">${Fmt.esc(c)}</button>`).join("")}
+      </div>
+    </div>
+    <div class="news-grid" id="news-list"></div>`;
+
+  let curCat = "";
+  const searchEl = document.getElementById("news-search");
+  const catWrap = document.getElementById("news-cats");
+
+  const draw = () => {
+    const q = searchEl.value.trim().toLowerCase();
+    const list = news.filter(n => {
+      if (curCat && n.cat !== curCat) return false;
+      if (!q) return true;
+      const hay = `${n.title} ${n.summary || ""} ${n.content || ""}`.toLowerCase();
+      return hay.includes(q);
+    });
+    document.getElementById("news-list").innerHTML =
+      list.length ? list.map(newsCardHTML).join("")
+                  : `<div class="empty-note">Không tìm thấy bài viết phù hợp.</div>`;
+  };
+
+  catWrap.addEventListener("click", (ev) => {
+    const btn = ev.target.closest(".news-cat");
+    if (!btn) return;
+    curCat = btn.dataset.cat;
+    catWrap.querySelectorAll(".news-cat").forEach(b => b.classList.toggle("active", b === btn));
+    draw();
+  });
+  searchEl.addEventListener("input", draw);
+  draw();
 }
 
 /* ---------------- ĐẶT LỊCH KHÁM ---------------- */
