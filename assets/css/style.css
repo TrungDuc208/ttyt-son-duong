@@ -85,6 +85,49 @@ nav.main-nav a.nav-book { background: var(--blue); color: #fff; font-weight: 600
 nav.main-nav a.nav-book:hover { background: var(--blue-dark); }
 .nav-toggle { display: none; }
 
+/* ---------- Nút burger + menu điện thoại (kiểu overlay) ---------- */
+.burger {
+  display: none; align-items: center; justify-content: center;
+  width: 44px; height: 42px; flex-shrink: 0;
+  border: 1px solid var(--border); border-radius: 10px;
+  background: #fff; color: var(--blue-dark); font-size: 20px; cursor: pointer;
+}
+.burger:hover { background: var(--blue-light); }
+
+.mobile-menu {
+  position: fixed; inset: 0; z-index: 300;
+  background: #fff; display: none; flex-direction: column;
+}
+.mobile-menu.open { display: flex; }
+.mm-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+}
+.mm-head .logo-img { width: 38px; height: 38px; }
+.mm-head strong { flex: 1; font-size: 13.5px; color: var(--ink); line-height: 1.3; }
+.mm-close {
+  width: 46px; height: 42px; flex-shrink: 0; border: none; cursor: pointer;
+  background: var(--blue); color: #fff; font-size: 18px; border-radius: 8px;
+}
+.mm-list { list-style: none; flex: 1 1 auto; overflow-y: auto; }
+.mm-list li + li { border-top: 1px solid var(--border); }
+.mm-list a {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 17px 20px; font-size: 15.5px; font-weight: 500; color: var(--ink);
+}
+.mm-list a:hover { background: var(--bg); text-decoration: none; }
+.mm-list a.active { color: var(--blue); }
+.mm-chev { color: var(--muted); font-size: 20px; line-height: 1; }
+.mm-actions { display: flex; border-top: 1px solid var(--border); background: #fff; }
+.mm-actions a {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 14px 6px; font-size: 12px; font-weight: 600; color: var(--blue-dark);
+  border-right: 1px solid var(--border); text-align: center;
+}
+.mm-actions a:last-child { border-right: none; }
+.mm-actions a:hover { background: var(--blue-light); text-decoration: none; }
+.mm-ic { font-size: 22px; }
+
 /* ---------- Dòng thông báo ---------- */
 .announce {
   background: var(--blue-light);
@@ -495,7 +538,8 @@ input:focus, select:focus, textarea:focus {
 
 /* ---------- Footer ---------- */
 footer.site-footer { background: #0a3a3f; color: #a8c5c8; margin-top: 64px; }
-.footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px; padding: 48px 0; }
+/* Chỉ đệm dọc — chừa lề ngang cho .container để nội dung không dính sát mép */
+.footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px; padding-top: 44px; padding-bottom: 40px; }
 .footer-grid h5 { color: #fff; font-size: 14px; font-weight: 700; margin-bottom: 14px; }
 .footer-grid p, .footer-grid li { font-size: 13.5px; margin-bottom: 9px; }
 .footer-grid ul { list-style: none; }
@@ -506,7 +550,8 @@ footer.site-footer { background: #0a3a3f; color: #a8c5c8; margin-top: 64px; }
 .footer-logo strong { color: #fff; font-size: 14px; line-height: 1.4; }
 .footer-bottom {
   border-top: 1px solid rgba(255,255,255,.1);
-  padding: 16px 0; font-size: 12.5px; text-align: center; color: #7fa3a7;
+  padding-top: 18px; padding-bottom: 18px;
+  font-size: 12.5px; text-align: center; color: #7fa3a7;
 }
 
 /* ---------- Toast ---------- */
@@ -542,23 +587,25 @@ footer.site-footer { background: #0a3a3f; color: #a8c5c8; margin-top: 64px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-card:nth-child(odd) { border-left: none; }
   .stat-card:nth-child(n+3) { border-top: 1px solid var(--border); }
-  .footer-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; gap: 24px; padding-top: 34px; padding-bottom: 28px; }
   .form-grid { grid-template-columns: 1fr; }
   .header-main { gap: 10px; padding: 10px 0 8px; }
   .logo-img { width: 42px; height: 42px; }
   .brand h1 { font-size: 14.5px; }
   .brand p { display: none; }                 /* ẩn khẩu hiệu cho gọn trên điện thoại */
-  .header-book { padding: 8px 14px; font-size: 13px; }
-  .footer-grid { padding: 36px 0; gap: 26px; }
+  .header-book { padding: 8px 12px; font-size: 13px; }
+  .header-book .hb-text { display: none; }     /* nút Đặt lịch chỉ còn icon 📅 cạnh burger */
   section.block { padding: 44px 0; }
 
-  .nav-toggle {
-    display: block; background: var(--bg); border: 1px solid var(--border);
-    border-radius: 8px; color: var(--ink); font-family: inherit;
-    font-size: 14px; font-weight: 600; padding: 8px 14px; margin: 4px 0 8px; cursor: pointer;
-  }
-  nav.main-nav ul { display: none; flex-direction: column; align-items: stretch; padding-bottom: 10px; }
-  nav.main-nav ul.open { display: flex; }
+  /* Ẩn thanh menu ngang, dùng nút burger mở menu overlay */
+  nav.main-nav { display: none; }
+  .burger { display: flex; }
+}
+
+/* Trên màn hình lớn luôn ẩn menu overlay/burger dù trạng thái mở còn sót */
+@media (min-width: 861px) {
+  .mobile-menu { display: none !important; }
+  .burger { display: none !important; }
 }
 
 /* ---------- Điện thoại nhỏ ---------- */

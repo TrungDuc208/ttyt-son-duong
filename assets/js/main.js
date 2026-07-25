@@ -48,18 +48,48 @@ function renderLayout(activePage) {
       </div>
       <div class="header-cta">
         <a href="dat-lich.html" class="btn btn-primary header-book ${activePage === "booking" ? "active" : ""}" aria-label="Đặt lịch khám">📅<span class="hb-text"> Đặt lịch khám</span></a>
+        <button class="burger" id="burger" type="button" aria-label="Mở menu">☰</button>
       </div>
     </div>
     <nav class="main-nav">
-      <div class="container" style="display:flex;align-items:center">
-        <button class="nav-toggle" onclick="document.getElementById('nav-menu').classList.toggle('open')">☰ Menu</button>
-        <ul id="nav-menu">
+      <div class="container">
+        <ul>
           ${nav.map(([href, label, key]) =>
             `<li><a href="${href}" class="${key === activePage ? "active" : ""}">${label}</a></li>`).join("")}
         </ul>
       </div>
     </nav>
-    ${s.announcement ? `<div class="announce"><span>📢 ${Fmt.esc(s.announcement)}</span></div>` : ""}`;
+    ${s.announcement ? `<div class="announce"><span>📢 ${Fmt.esc(s.announcement)}</span></div>` : ""}
+
+    <!-- Menu điện thoại (mở bằng nút burger) -->
+    <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+      <div class="mm-head">
+        <img src="img/logo.jpg" alt="Logo" class="logo-img">
+        <strong>${Fmt.esc(s.siteName)}</strong>
+        <button class="mm-close" id="mm-close" type="button" aria-label="Đóng menu">✕</button>
+      </div>
+      <ul class="mm-list">
+        ${nav.map(([href, label, key]) =>
+          `<li><a href="${href}" class="${key === activePage ? "active" : ""}">${label}<span class="mm-chev">›</span></a></li>`).join("")}
+      </ul>
+      <div class="mm-actions">
+        <a href="tel:${Fmt.esc(s.hotline.replace(/\s/g, ""))}"><span class="mm-ic">📞</span>Gọi tổng đài</a>
+        <a href="dat-lich.html"><span class="mm-ic">📅</span>Đặt lịch hẹn</a>
+        <a href="bac-si.html"><span class="mm-ic">👨‍⚕️</span>Tìm bác sĩ</a>
+      </div>
+    </div>`;
+
+  // Đóng/mở menu điện thoại
+  const mm = document.getElementById("mobile-menu");
+  const setMenu = (open) => {
+    mm.classList.toggle("open", open);
+    mm.setAttribute("aria-hidden", open ? "false" : "true");
+    document.body.style.overflow = open ? "hidden" : "";
+  };
+  document.getElementById("burger").addEventListener("click", () => setMenu(true));
+  document.getElementById("mm-close").addEventListener("click", () => setMenu(false));
+  mm.querySelectorAll(".mm-list a, .mm-actions a").forEach(a =>
+    a.addEventListener("click", () => setMenu(false)));
 
   document.getElementById("site-footer").innerHTML = `
     <div class="container footer-grid">
