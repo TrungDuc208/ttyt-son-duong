@@ -144,7 +144,7 @@ function initDoctorCardReveal(containerId) {
 }
 
 function newsCardHTML(n) {
-  const icons = { "Thông báo": "📢", "Hoạt động": "🏥", "Y tế dự phòng": "🛡️", "Kỹ thuật mới": "🔬" };
+  const icons = { "Thông báo": "📢", "Hoạt động": "🏥", "Y tế dự phòng": "🛡️", "Kỹ thuật mới": "🔬", "Đấu thầu": "📋" };
   return `
     <div class="news-card">
       <div class="news-thumb">${icons[n.cat] || "📰"}</div>
@@ -396,8 +396,9 @@ function renderNews() {
 
   const news = [...Store.all("news")].sort((a, b) => b.date.localeCompare(a.date));
 
-  // Danh sách chuyên mục (theo thứ tự xuất hiện)
-  const cats = [];
+  // Chuyên mục: luôn hiện các chuyên mục đã định nghĩa (kể cả Đấu thầu chưa có bài),
+  // rồi bổ sung chuyên mục lạ nếu bài viết có
+  const cats = [...(typeof NEWS_CATEGORIES !== "undefined" ? NEWS_CATEGORIES : [])];
   for (const n of news) if (n.cat && !cats.includes(n.cat)) cats.push(n.cat);
 
   listEl.innerHTML = `

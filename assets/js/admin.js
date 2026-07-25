@@ -462,6 +462,19 @@ function featMove(id, dir) {
   renderFeaturedTable();
 }
 
+/* Xuất dòng cấu hình để dán vào data.js (settings) -> đưa danh sách này lên web thật */
+function featCopyForPublish() {
+  const ids = featuredIds();
+  const names = ids.map(id => (Store.get("doctors", id) || {}).name).filter(Boolean).join(", ");
+  const line = `    featuredDoctors: ${JSON.stringify(ids)},  // ${names}`;
+  const done = () => toast("Đã sao chép dòng cấu hình. Dán vào data.js (mục settings) rồi commit để đưa lên web.");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(line).then(done, () => prompt("Sao chép dòng dưới đây vào data.js (mục settings):", line));
+  } else {
+    prompt("Sao chép dòng dưới đây vào data.js (mục settings):", line);
+  }
+}
+
 /* ================= BÁC SĨ ================= */
 function renderDoctorTable() {
   const list = Store.all("doctors");
@@ -809,7 +822,7 @@ let newsDraft = { sections: [], attachments: [] };
 
 function openNewsModal(id) {
   const n = id ? Store.get("news", id) : {};
-  const cats = ["Thông báo", "Hoạt động", "Y tế dự phòng", "Kỹ thuật mới"];
+  const cats = NEWS_CATEGORIES;
 
   // Bài cũ chỉ có content dạng text -> chuyển thành 1 phần để sửa tiếp
   newsDraft = {

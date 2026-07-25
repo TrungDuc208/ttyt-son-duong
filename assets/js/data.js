@@ -2612,3 +2612,6 @@ const TIME_SLOTS = [
   "13:30 - 14:00", "14:00 - 14:30", "14:30 - 15:00", "15:00 - 15:30",
   "15:30 - 16:00", "16:00 - 16:30"
 ];
+
+// Chuyên mục tin tức (hiện ở trang Tin tức + ô chọn khi soạn bài trong quản trị)
+const NEWS_CATEGORIES = ["Thông báo", "Hoạt động", "Y tế dự phòng", "Kỹ thuật mới", "Đấu thầu"];
