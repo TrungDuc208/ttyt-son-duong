@@ -1045,6 +1045,50 @@ function fillSettingsForms() {
   hf.elements.endpoint.value = s.his.endpoint || "";
   hf.elements.apiKey.value = s.his.apiKey || "";
   hf.elements.facilityCode.value = s.his.facilityCode || "";
+
+  aboutDraft = JSON.parse(JSON.stringify(s.aboutSections || []));
+  renderAboutEditor();
+}
+
+/* ---------- Trình sửa nội dung trang Giới thiệu ---------- */
+let aboutDraft = [];
+
+function renderAboutEditor() {
+  const wrap = document.getElementById("about-editor");
+  if (!wrap) return;
+  wrap.innerHTML = aboutDraft.map((s, i) => `
+    <div class="ns-item">
+      <div class="ns-head">
+        <strong>Phần ${i + 1}</strong>
+        <span class="row-actions">
+          <button type="button" class="icon-btn" title="Chuyển lên" onclick="abMove(${i},-1)" ${i === 0 ? "disabled" : ""}>↑</button>
+          <button type="button" class="icon-btn" title="Chuyển xuống" onclick="abMove(${i},1)" ${i === aboutDraft.length - 1 ? "disabled" : ""}>↓</button>
+          <button type="button" class="icon-btn danger" title="Xóa phần" onclick="abRemove(${i})">🗑</button>
+        </span>
+      </div>
+      <input placeholder="Tiêu đề phần (không bắt buộc)" value="${Fmt.esc(s.heading)}"
+             oninput="aboutDraft[${i}].heading = this.value">
+      <textarea rows="4" placeholder="Nội dung phần này..."
+                oninput="aboutDraft[${i}].body = this.value">${Fmt.esc(s.body)}</textarea>
+    </div>`).join("") ||
+    `<div class="empty-note">Chưa có nội dung. Bấm "Thêm phần" để tạo.</div>`;
+}
+function abAdd() { aboutDraft.push({ heading: "", body: "" }); renderAboutEditor(); }
+function abRemove(i) { aboutDraft.splice(i, 1); renderAboutEditor(); }
+function abMove(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= aboutDraft.length) return;
+  [aboutDraft[i], aboutDraft[j]] = [aboutDraft[j], aboutDraft[i]];
+  renderAboutEditor();
+}
+function abSave() {
+  const clean = aboutDraft
+    .map(s => ({ heading: s.heading.trim(), body: s.body.trim() }))
+    .filter(s => s.heading || s.body);
+  Store.saveSettings({ aboutSections: clean });
+  aboutDraft = JSON.parse(JSON.stringify(clean));
+  renderAboutEditor();
+  toast("Đã lưu nội dung trang Giới thiệu.");
 }
 
 document.getElementById("settings-form").onsubmit = (ev) => {

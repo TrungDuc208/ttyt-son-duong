@@ -47,7 +47,7 @@ function renderLayout(activePage) {
         <p>${Fmt.esc(s.slogan)}</p>
       </div>
       <div class="header-cta">
-        <a href="dat-lich.html" class="btn btn-primary header-book ${activePage === "booking" ? "active" : ""}">📅 Đặt lịch khám</a>
+        <a href="dat-lich.html" class="btn btn-primary header-book ${activePage === "booking" ? "active" : ""}" aria-label="Đặt lịch khám">📅<span class="hb-text"> Đặt lịch khám</span></a>
       </div>
     </div>
     <nav class="main-nav">
@@ -226,7 +226,7 @@ function renderHero() {
   }
 }
 
-/* ---------------- BÁC SĨ TIÊU BIỂU: TRÌNH CHIẾU 4 NGƯỜI/SLIDE ---------------- */
+/* ---------------- BÁC SĨ TIÊU BIỂU: TRÌNH CHIẾU (4 desktop · 2 tablet · 1 điện thoại) ---------------- */
 function renderFeaturedDoctors() {
   const container = document.getElementById("home-doctors");
   if (!container) return;
@@ -235,44 +235,51 @@ function renderFeaturedDoctors() {
   let docs = ids.map(id => Store.get("doctors", id)).filter(Boolean);
   if (!docs.length) docs = Store.all("doctors").slice(0, 8);   // dự phòng khi chưa chọn
 
-  // Chia thành các slide, mỗi slide 4 bác sĩ
-  const slides = [];
-  for (let i = 0; i < docs.length; i += 4) slides.push(docs.slice(i, i + 4));
-  const multi = slides.length > 1;
-
+  // Mỗi bác sĩ là 1 ô; số ô/khung do CSS quyết định theo bề rộng màn hình
   container.innerHTML = `
     <div class="fd-carousel">
       <div class="fd-viewport">
         <div class="fd-track">
-          ${slides.map(group => `
-            <div class="fd-slide">
-              <div class="doctor-grid">${group.map(d => doctorCardHTML(d, true)).join("")}</div>
-            </div>`).join("")}
+          ${docs.map(d => `<div class="fd-item">${doctorCardHTML(d, true)}</div>`).join("")}
         </div>
       </div>
-      ${multi ? `
-        <button class="fd-nav prev" type="button" aria-label="Bác sĩ trước">‹</button>
-        <button class="fd-nav next" type="button" aria-label="Bác sĩ sau">›</button>
-        <div class="fd-dots">
-          ${slides.map((_, i) => `<button type="button" class="fd-dot${i === 0 ? " active" : ""}" data-i="${i}" aria-label="Nhóm ${i + 1}"></button>`).join("")}
-        </div>` : ""}
+      <button class="fd-nav prev" type="button" aria-label="Bác sĩ trước">‹</button>
+      <button class="fd-nav next" type="button" aria-label="Bác sĩ sau">›</button>
+      <div class="fd-dots"></div>
     </div>`;
 
   initDoctorCardReveal("home-doctors");
-  if (!multi) return;
 
   const track = container.querySelector(".fd-track");
-  const dots = [...container.querySelectorAll(".fd-dot")];
-  const n = slides.length;
+  const dotsWrap = container.querySelector(".fd-dots");
+  const prevBtn = container.querySelector(".fd-nav.prev");
+  const nextBtn = container.querySelector(".fd-nav.next");
+  const total = docs.length;
   let cur = 0;
-  function show(i) {
-    cur = (i + n) % n;
+
+  // Số bác sĩ hiển thị mỗi khung — khớp với breakpoint trong CSS
+  const perView = () => { const w = window.innerWidth; return w <= 560 ? 1 : w <= 860 ? 2 : 4; };
+  const pageCount = () => Math.max(1, Math.ceil(total / perView()));
+
+  function render() {
+    const pages = pageCount();
+    if (cur > pages - 1) cur = pages - 1;
+    if (cur < 0) cur = 0;
     track.style.transform = `translateX(${-cur * 100}%)`;
-    dots.forEach((d, k) => d.classList.toggle("active", k === cur));
+    const many = pages > 1;
+    prevBtn.style.display = nextBtn.style.display = many ? "" : "none";
+    dotsWrap.innerHTML = many
+      ? Array.from({ length: pages }, (_, i) =>
+          `<button type="button" class="fd-dot${i === cur ? " active" : ""}" data-i="${i}" aria-label="Trang ${i + 1}"></button>`).join("")
+      : "";
   }
-  container.querySelector(".fd-nav.next").addEventListener("click", () => show(cur + 1));
-  container.querySelector(".fd-nav.prev").addEventListener("click", () => show(cur - 1));
-  dots.forEach(d => d.addEventListener("click", () => show(Number(d.dataset.i))));
+  function show(i) { const p = pageCount(); cur = (i + p) % p; render(); }
+
+  nextBtn.addEventListener("click", () => show(cur + 1));
+  prevBtn.addEventListener("click", () => show(cur - 1));
+  dotsWrap.addEventListener("click", (e) => { const b = e.target.closest(".fd-dot"); if (b) show(Number(b.dataset.i)); });
+  window.addEventListener("resize", render);
+  render();
 }
 
 /* ---------------- TRANG CHỦ ---------------- */
@@ -544,6 +551,21 @@ function renderBooking() {
   };
 }
 
+/* ---------------- GIỚI THIỆU ---------------- */
+function renderAbout() {
+  const s = Store.settings();
+  const titleEl = document.getElementById("about-title");
+  const bodyEl = document.getElementById("about-content");
+  if (!bodyEl) return;
+  if (titleEl) titleEl.textContent = s.siteName;
+  const secs = s.aboutSections || [];
+  bodyEl.innerHTML = secs.map(sec => {
+    const paras = (sec.body || "").split(/\n{2,}/)
+      .map(p => `<p>${Fmt.esc(p).replace(/\n/g, "<br>")}</p>`).join("");
+    return `${sec.heading ? `<h3>${Fmt.esc(sec.heading)}</h3>` : ""}${paras}`;
+  }).join("");
+}
+
 /* ---------------- LIÊN HỆ ---------------- */
 function renderContact() {
   const s = Store.settings();
@@ -569,6 +591,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderLayout(page);
   const renderers = {
     home: renderHome,
+    about: renderAbout,
     departments: renderDepartments,
     doctors: renderDoctors,
     services: renderServices,

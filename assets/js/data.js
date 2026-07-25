@@ -20,6 +20,14 @@ const SEED = {
     announcement: "Trung tâm triển khai đăng ký khám bệnh trực tuyến - Quý khách vui lòng đặt lịch trước để giảm thời gian chờ đợi.",
     // Danh sách bác sĩ tiêu biểu hiện ở trang chủ (theo thứ tự). Mỗi slide 4 bác sĩ.
     featuredDoctors: ["bs1", "bs2", "bs3", "bs4", "bs5", "bs6", "bs7", "bs8"],
+    // Nội dung trang "Giới thiệu" - sửa được trong trang quản trị
+    aboutSections: [
+      { heading: "", body: "Trung tâm Y tế khu vực Sơn Dương là đơn vị sự nghiệp y tế công lập trực thuộc Sở Y tế tỉnh Tuyên Quang, thực hiện chức năng khám chữa bệnh, y tế dự phòng, dân số và chăm sóc sức khỏe ban đầu cho nhân dân trên địa bàn khu vực Sơn Dương.\n\nVới quy mô hơn 150 giường bệnh, 9 khoa phòng chuyên môn cùng hệ thống trạm y tế xã, thị trấn trực thuộc, Trung tâm hằng năm tiếp nhận khám và điều trị cho hàng trăm nghìn lượt người bệnh." },
+      { heading: "Sứ mệnh", body: "Chăm sóc, bảo vệ và nâng cao sức khỏe nhân dân bằng y đức, chuyên môn và sự tận tâm; đưa dịch vụ y tế chất lượng đến gần dân nhất với chi phí hợp lý." },
+      { heading: "Tầm nhìn", body: "Trở thành trung tâm y tế khu vực kiểu mẫu của tỉnh Tuyên Quang: hiện đại về trang thiết bị, chuẩn hóa về quy trình, chuyển đổi số toàn diện trong quản lý và khám chữa bệnh." },
+      { heading: "Giá trị cốt lõi", body: "🩺 Tận tâm - Người bệnh là trung tâm của mọi hoạt động.\n🤝 Trách nhiệm - Làm đúng, làm đủ, làm tốt nhất trong khả năng.\n📚 Học hỏi - Liên tục cập nhật kỹ thuật và phác đồ mới.\n⚖️ Minh bạch - Công khai giá dịch vụ, quy trình và quyền lợi người bệnh." },
+      { heading: "Chức năng, nhiệm vụ chính", body: "• Khám, cấp cứu, điều trị nội trú và ngoại trú các bệnh thường gặp.\n• Triển khai công tác y tế dự phòng, tiêm chủng mở rộng, phòng chống dịch bệnh.\n• Quản lý sức khỏe cộng đồng, khám sức khỏe định kỳ, quản lý bệnh không lây nhiễm.\n• Chỉ đạo tuyến và hỗ trợ chuyên môn cho các trạm y tế xã, thị trấn.\n• Truyền thông giáo dục sức khỏe cho nhân dân." }
+    ],
     his: {
       mode: "mock",                 // "mock" = demo | "real" = kết nối HIS thật
       endpoint: "https://his.ttytsonduong.vn/api/v1",
@@ -2523,6 +2531,10 @@ const Store = {
     // Danh sách bác sĩ tiêu biểu: nếu DB cũ chưa có -> lấy tạm 8 bác sĩ đầu
     if (this._cache.settings && !Array.isArray(this._cache.settings.featuredDoctors)) {
       this._cache.settings.featuredDoctors = (this._cache.doctors || []).slice(0, 8).map(d => d.id);
+    }
+    // Nội dung trang Giới thiệu: nạp bù từ SEED nếu DB cũ chưa có
+    if (this._cache.settings && !Array.isArray(this._cache.settings.aboutSections)) {
+      this._cache.settings.aboutSections = JSON.parse(JSON.stringify(SEED.settings.aboutSections));
     }
     return this._cache;
   },

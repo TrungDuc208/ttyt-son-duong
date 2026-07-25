@@ -220,6 +220,18 @@
         </div>
 
         <div class="card">
+          <div class="card-head">
+            <h3>Nội dung trang Giới thiệu</h3>
+            <button class="btn btn-ghost btn-sm" type="button" onclick="abAdd()">➕ Thêm phần</button>
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px">
+            Mỗi phần gồm tiêu đề (không bắt buộc) và nội dung. Xuống dòng 1 lần để ngắt dòng, cách 1 dòng trống để sang đoạn mới.
+          </p>
+          <div id="about-editor"></div>
+          <div class="form-actions"><button class="btn btn-blue" type="button" onclick="abSave()">💾 Lưu nội dung giới thiệu</button></div>
+        </div>
+
+        <div class="card">
           <div class="card-head"><h3>Kết nối phần mềm HIS</h3></div>
           <form id="his-form">
             <div class="form-grid">

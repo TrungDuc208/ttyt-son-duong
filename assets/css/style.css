@@ -250,9 +250,9 @@ section.block.soft {
 .fd-carousel { position: relative; padding: 0 46px; }
 .fd-viewport { overflow: hidden; }
 .fd-track { display: flex; transition: transform .5s cubic-bezier(.65, 0, .35, 1); will-change: transform; }
-.fd-slide { flex: 0 0 100%; min-width: 0; }
-/* Mỗi slide hiển thị đúng 4 bác sĩ trên 1 hàng (thu gọn dần theo màn hình) */
-.fd-slide .doctor-grid { grid-template-columns: repeat(4, 1fr); }
+/* Mỗi bác sĩ là 1 ô; số ô hiển thị/khung tùy kích thước màn hình
+   (desktop 4 · tablet 2 · điện thoại 1) -> thẻ không bị bóp méo */
+.fd-item { flex: 0 0 25%; box-sizing: border-box; padding: 0 8px; min-width: 0; }
 .fd-nav {
   position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
   width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
@@ -481,11 +481,17 @@ input:focus, select:focus, textarea:focus {
   background: var(--blue-light);
   display: flex; align-items: center; justify-content: center;
 }
-.map-placeholder {
-  height: 260px; background: var(--bg); border: 1px dashed #c3d2d4;
-  border-radius: var(--radius); display: flex; align-items: center;
-  justify-content: center; color: var(--muted); font-size: 14px; text-align: center;
+.map-embed {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
 }
+.map-embed iframe { display: block; width: 100%; height: 340px; border: 0; }
+.map-link {
+  display: block; padding: 12px 18px; font-size: 14px; font-weight: 600;
+  color: var(--blue-dark); background: var(--blue-light);
+  border-top: 1px solid var(--border);
+}
+.map-link:hover { background: #d3ecee; text-decoration: none; }
 
 /* ---------- Footer ---------- */
 footer.site-footer { background: #0a3a3f; color: #a8c5c8; margin-top: 64px; }
@@ -529,7 +535,7 @@ footer.site-footer { background: #0a3a3f; color: #a8c5c8; margin-top: 64px; }
   .hero-nav.prev { left: 8px; }
   .hero-nav.next { right: 8px; }
   .fd-carousel { padding: 0 34px; }
-  .fd-slide .doctor-grid { grid-template-columns: repeat(2, 1fr); }
+  .fd-item { flex-basis: 50%; }              /* tablet: 2 bác sĩ/khung */
   .fd-nav { width: 34px; height: 34px; font-size: 20px; }
   .contact-grid { grid-template-columns: 1fr; }
   .action-grid { grid-template-columns: 1fr; }
@@ -538,8 +544,12 @@ footer.site-footer { background: #0a3a3f; color: #a8c5c8; margin-top: 64px; }
   .stat-card:nth-child(n+3) { border-top: 1px solid var(--border); }
   .footer-grid { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
+  .header-main { gap: 10px; padding: 10px 0 8px; }
+  .logo-img { width: 42px; height: 42px; }
   .brand h1 { font-size: 14.5px; }
+  .brand p { display: none; }                 /* ẩn khẩu hiệu cho gọn trên điện thoại */
   .header-book { padding: 8px 14px; font-size: 13px; }
+  .footer-grid { padding: 36px 0; gap: 26px; }
   section.block { padding: 44px 0; }
 
   .nav-toggle {
@@ -549,4 +559,16 @@ footer.site-footer { background: #0a3a3f; color: #a8c5c8; margin-top: 64px; }
   }
   nav.main-nav ul { display: none; flex-direction: column; align-items: stretch; padding-bottom: 10px; }
   nav.main-nav ul.open { display: flex; }
+}
+
+/* ---------- Điện thoại nhỏ ---------- */
+@media (max-width: 560px) {
+  .container { padding: 0 16px; }
+  .fd-item { flex-basis: 100%; }              /* điện thoại: 1 bác sĩ/khung, thẻ không méo */
+  .fd-carousel { padding: 0 30px; }
+  .header-book .hb-text { display: none; }     /* chỉ còn icon 📅 cho gọn */
+  .header-book { padding: 9px 13px; font-size: 15px; }
+  .map-embed iframe { height: 280px; }
+  .article { padding: 22px 18px; }
+  .page-head { padding: 26px 0; }
 }
