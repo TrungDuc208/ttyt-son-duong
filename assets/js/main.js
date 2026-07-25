@@ -94,6 +94,9 @@ function renderLayout(activePage) {
 
 /* ---------------- CÁC KHỐI TÁI SỬ DỤNG ---------------- */
 function doctorCardHTML(d, interactive = false) {
+  // Chỉ ghép các thông tin có thật (bỏ qua trường trống) -> tránh hiện "—" hay dấu chấm thừa
+  const meta = [d.position, d.dept ? deptName(d.dept) : ""].filter(Boolean).join(" · ");
+  const fullName = [d.title, d.name].filter(Boolean).join(". ");
   // Lớp phủ ảnh: dùng d.photo nếu có, không thì nền màu + chữ cái đầu
   const photoStyle = d.photo
     ? `background-image:url('${Fmt.esc(d.photo)}')`
@@ -102,22 +105,23 @@ function doctorCardHTML(d, interactive = false) {
       <div class="dc-overlay">
         <div class="dc-photo" style="${photoStyle}">${d.photo ? "" : Fmt.initials(d.name)}</div>
         <div class="dc-info">
-          <strong>${Fmt.esc(d.title)}. ${Fmt.esc(d.name)}</strong>
-          <span>${Fmt.esc(d.position)} · ${Fmt.esc(deptName(d.dept))}</span>
+          <strong>${Fmt.esc(fullName)}</strong>
+          ${meta ? `<span>${Fmt.esc(meta)}</span>` : ""}
         </div>
       </div>` : "";
   // Avatar tròn: ảnh thật nếu có, không thì nền màu + chữ cái đầu
   const avatarHTML = d.avatar
     ? `<img class="avatar avatar-img" src="${Fmt.esc(d.avatar)}" alt="${Fmt.esc(d.name)}">`
     : `<div class="avatar" style="background:${Fmt.avatarColor(d.name)}">${Fmt.initials(d.name)}</div>`;
+  const metaLine = [Fmt.esc(meta), d.exp ? `Kinh nghiệm: ${d.exp} năm` : ""].filter(Boolean).join("<br>");
   return `
     <div class="doctor-card${interactive ? " flip" : ""}">
       ${avatarHTML}
-      <div class="title">${Fmt.esc(d.title)}</div>
+      ${d.title ? `<div class="title">${Fmt.esc(d.title)}</div>` : ""}
       <h4>${Fmt.esc(d.name)}</h4>
-      <div class="meta">${Fmt.esc(d.position)} · ${Fmt.esc(deptName(d.dept))}<br>Kinh nghiệm: ${d.exp} năm</div>
-      <p class="intro">${Fmt.esc(d.intro)}</p>
-      <span class="chip">🗓 ${Fmt.esc(d.schedule)}</span>${overlay}
+      ${metaLine ? `<div class="meta">${metaLine}</div>` : ""}
+      ${d.intro ? `<p class="intro">${Fmt.esc(d.intro)}</p>` : ""}
+      ${d.schedule ? `<span class="chip">🗓 ${Fmt.esc(d.schedule)}</span>` : ""}${overlay}
     </div>`;
 }
 
