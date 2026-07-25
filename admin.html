@@ -49,6 +49,7 @@
         <button data-panel="dashboard" class="active">📊 Tổng quan</button>
         <button data-panel="appointments">📅 Lịch hẹn khám</button>
         <button data-panel="doctors">👨‍⚕️ Bác sĩ</button>
+        <button data-panel="featured">⭐ BS tiêu biểu</button>
         <button data-panel="departments">🏥 Khoa phòng</button>
         <button data-panel="services">💰 Dịch vụ & giá</button>
         <button data-panel="news">📰 Tin tức</button>
@@ -106,6 +107,26 @@
             <button class="btn btn-primary btn-sm" onclick="openDoctorModal()">➕ Thêm bác sĩ</button>
           </div>
           <div class="table-wrap" style="box-shadow:none" id="doctor-table"></div>
+        </div>
+      </div>
+
+      <!-- Bác sĩ tiêu biểu (trang chủ) -->
+      <div class="panel" id="panel-featured">
+        <div class="card">
+          <div class="card-head">
+            <h3>Bác sĩ tiêu biểu (hiện ở trang chủ)</h3>
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px">
+            Chọn các bác sĩ hiển thị ở mục "Đội ngũ bác sĩ tiêu biểu" trên trang chủ.
+            Mỗi slide hiện <strong>4 bác sĩ</strong>; khách bấm nút ‹ › để xem nhóm tiếp theo.
+            Kéo ⬆️⬇️ để đổi thứ tự.
+          </p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+            <select id="feat-add-select" style="max-width:320px"></select>
+            <button class="btn btn-primary btn-sm" onclick="featAddSelected()">➕ Thêm vào danh sách</button>
+            <span id="feat-count" style="font-size:13px;color:var(--muted)"></span>
+          </div>
+          <div class="table-wrap" style="box-shadow:none" id="featured-table"></div>
         </div>
       </div>
 

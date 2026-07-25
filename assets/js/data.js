@@ -18,6 +18,8 @@ const SEED = {
     email: "ttytsonduong@tuyenquang.gov.vn",
     workingHours: "Thứ 2 - Thứ 6: 7h00 - 17h00 | Cấp cứu 24/7",
     announcement: "Trung tâm triển khai đăng ký khám bệnh trực tuyến - Quý khách vui lòng đặt lịch trước để giảm thời gian chờ đợi.",
+    // Danh sách bác sĩ tiêu biểu hiện ở trang chủ (theo thứ tự). Mỗi slide 4 bác sĩ.
+    featuredDoctors: ["bs1", "bs2", "bs3", "bs4", "bs5", "bs6", "bs7", "bs8"],
     his: {
       mode: "mock",                 // "mock" = demo | "real" = kết nối HIS thật
       endpoint: "https://his.ttytsonduong.vn/api/v1",
@@ -2517,6 +2519,10 @@ const Store = {
     // Nạp bù các collection mới cho DB cũ đã lưu trước đây (vd: hero)
     if (!Array.isArray(this._cache.hero)) {
       this._cache.hero = JSON.parse(JSON.stringify(SEED.hero));
+    }
+    // Danh sách bác sĩ tiêu biểu: nếu DB cũ chưa có -> lấy tạm 8 bác sĩ đầu
+    if (this._cache.settings && !Array.isArray(this._cache.settings.featuredDoctors)) {
+      this._cache.settings.featuredDoctors = (this._cache.doctors || []).slice(0, 8).map(d => d.id);
     }
     return this._cache;
   },

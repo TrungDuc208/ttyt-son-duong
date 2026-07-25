@@ -226,14 +226,61 @@ function renderHero() {
   }
 }
 
+/* ---------------- BÁC SĨ TIÊU BIỂU: TRÌNH CHIẾU 4 NGƯỜI/SLIDE ---------------- */
+function renderFeaturedDoctors() {
+  const container = document.getElementById("home-doctors");
+  if (!container) return;
+
+  const ids = Store.settings().featuredDoctors || [];
+  let docs = ids.map(id => Store.get("doctors", id)).filter(Boolean);
+  if (!docs.length) docs = Store.all("doctors").slice(0, 8);   // dự phòng khi chưa chọn
+
+  // Chia thành các slide, mỗi slide 4 bác sĩ
+  const slides = [];
+  for (let i = 0; i < docs.length; i += 4) slides.push(docs.slice(i, i + 4));
+  const multi = slides.length > 1;
+
+  container.innerHTML = `
+    <div class="fd-carousel">
+      <div class="fd-viewport">
+        <div class="fd-track">
+          ${slides.map(group => `
+            <div class="fd-slide">
+              <div class="doctor-grid">${group.map(d => doctorCardHTML(d, true)).join("")}</div>
+            </div>`).join("")}
+        </div>
+      </div>
+      ${multi ? `
+        <button class="fd-nav prev" type="button" aria-label="Bác sĩ trước">‹</button>
+        <button class="fd-nav next" type="button" aria-label="Bác sĩ sau">›</button>
+        <div class="fd-dots">
+          ${slides.map((_, i) => `<button type="button" class="fd-dot${i === 0 ? " active" : ""}" data-i="${i}" aria-label="Nhóm ${i + 1}"></button>`).join("")}
+        </div>` : ""}
+    </div>`;
+
+  initDoctorCardReveal("home-doctors");
+  if (!multi) return;
+
+  const track = container.querySelector(".fd-track");
+  const dots = [...container.querySelectorAll(".fd-dot")];
+  const n = slides.length;
+  let cur = 0;
+  function show(i) {
+    cur = (i + n) % n;
+    track.style.transform = `translateX(${-cur * 100}%)`;
+    dots.forEach((d, k) => d.classList.toggle("active", k === cur));
+  }
+  container.querySelector(".fd-nav.next").addEventListener("click", () => show(cur + 1));
+  container.querySelector(".fd-nav.prev").addEventListener("click", () => show(cur - 1));
+  dots.forEach(d => d.addEventListener("click", () => show(Number(d.dataset.i))));
+}
+
 /* ---------------- TRANG CHỦ ---------------- */
 function renderHome() {
   renderHero();
-  const doctors = Store.all("doctors").slice(0, 4);
   const news = [...Store.all("news")].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
 
-  document.getElementById("home-doctors").innerHTML = doctors.map(d => doctorCardHTML(d, true)).join("");
-  initDoctorCardReveal("home-doctors");
+  renderFeaturedDoctors();
   document.getElementById("home-news").innerHTML = news.map(newsCardHTML).join("");
 
   document.getElementById("home-stats").innerHTML = `

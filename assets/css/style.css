@@ -245,6 +245,32 @@ section.block.soft {
 
 /* ---------- Card bác sĩ ---------- */
 .doctor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+
+/* ---------- Bác sĩ tiêu biểu: trình chiếu 4 người/slide ---------- */
+.fd-carousel { position: relative; padding: 0 46px; }
+.fd-viewport { overflow: hidden; }
+.fd-track { display: flex; transition: transform .5s cubic-bezier(.65, 0, .35, 1); will-change: transform; }
+.fd-slide { flex: 0 0 100%; min-width: 0; }
+/* Mỗi slide hiển thị đúng 4 bác sĩ trên 1 hàng (thu gọn dần theo màn hình) */
+.fd-slide .doctor-grid { grid-template-columns: repeat(4, 1fr); }
+.fd-nav {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
+  width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+  border: 1px solid var(--border); background: #fff; color: var(--blue-dark);
+  font-size: 24px; line-height: 1; display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow); transition: background .15s, color .15s;
+}
+.fd-nav:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+.fd-nav.prev { left: 0; }
+.fd-nav.next { right: 0; }
+.fd-dots { display: flex; gap: 8px; justify-content: center; margin-top: 18px; }
+.fd-dot {
+  width: 10px; height: 10px; border-radius: 50%; border: none; cursor: pointer; padding: 0;
+  background: #cfe0e2; transition: background .2s, width .2s;
+}
+.fd-dot:hover { background: var(--blue); }
+.fd-dot.active { background: var(--blue); width: 24px; border-radius: 5px; }
+
 .doctor-card {
   background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
   padding: 26px 22px; text-align: center;
@@ -502,6 +528,9 @@ footer.site-footer { background: #0a3a3f; color: #a8c5c8; margin-top: 64px; }
   .hero-nav { width: 38px; height: 38px; font-size: 22px; }
   .hero-nav.prev { left: 8px; }
   .hero-nav.next { right: 8px; }
+  .fd-carousel { padding: 0 34px; }
+  .fd-slide .doctor-grid { grid-template-columns: repeat(2, 1fr); }
+  .fd-nav { width: 34px; height: 34px; font-size: 20px; }
   .contact-grid { grid-template-columns: 1fr; }
   .action-grid { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }

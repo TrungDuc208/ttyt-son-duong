@@ -56,6 +56,7 @@ document.getElementById("btn-logout").onclick = (ev) => {
 /* ================= ĐIỀU HƯỚNG PANEL ================= */
 const PANEL_TITLES = {
   dashboard: "Tổng quan", appointments: "Lịch hẹn khám", doctors: "Quản lý bác sĩ",
+  featured: "Bác sĩ tiêu biểu (trang chủ)",
   departments: "Quản lý khoa phòng", services: "Dịch vụ & bảng giá",
   news: "Quản lý tin tức", hero: "Ảnh Hero — trình chiếu đầu trang chủ",
   files: "Kho tệp — thư mục nhận file",
@@ -394,6 +395,71 @@ function openHeroModal(id) {
       toast(id ? "Đã cập nhật ảnh hero." : "Đã thêm ảnh hero.");
       closeModal(); renderHeroTable();
     });
+}
+
+/* ================= BÁC SĨ TIÊU BIỂU (trang chủ) ================= */
+function featuredIds() {
+  const ids = Store.settings().featuredDoctors || [];
+  // Bỏ id của bác sĩ đã xóa
+  return ids.filter(id => Store.get("doctors", id));
+}
+function saveFeatured(ids) { Store.saveSettings({ featuredDoctors: ids }); }
+
+function renderFeaturedTable() {
+  const wrap = document.getElementById("featured-table");
+  if (!wrap) return;
+  const ids = featuredIds();
+  const docs = ids.map(id => Store.get("doctors", id));
+
+  // Ô chọn thêm: các bác sĩ chưa nằm trong danh sách
+  const sel = document.getElementById("feat-add-select");
+  if (sel) {
+    const rest = Store.all("doctors").filter(d => !ids.includes(d.id));
+    sel.innerHTML = `<option value="">— Chọn bác sĩ để thêm —</option>` +
+      rest.map(d => `<option value="${d.id}">${Fmt.esc(d.name)}${d.position ? " — " + Fmt.esc(d.position) : ""}</option>`).join("");
+  }
+  const countEl = document.getElementById("feat-count");
+  if (countEl) countEl.textContent = `${docs.length} bác sĩ · ${Math.ceil(docs.length / 4) || 0} slide (4 bác sĩ/slide)`;
+
+  wrap.innerHTML = docs.length ? `
+    <table class="data">
+      <thead><tr><th style="width:56px">#</th><th>Bác sĩ</th><th>Chức danh</th><th style="width:170px">Thao tác</th></tr></thead>
+      <tbody>${docs.map((d, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td><strong>${Fmt.esc(d.name)}</strong></td>
+          <td style="font-size:13px">${Fmt.esc(d.position || "—")}</td>
+          <td><div class="row-actions">
+            <button class="icon-btn" onclick="featMove('${d.id}',-1)" ${i === 0 ? "disabled" : ""} title="Lên">⬆️</button>
+            <button class="icon-btn" onclick="featMove('${d.id}',1)" ${i === docs.length - 1 ? "disabled" : ""} title="Xuống">⬇️</button>
+            <button class="icon-btn danger" onclick="featRemove('${d.id}')">🗑 Bỏ</button>
+          </div></td>
+        </tr>`).join("")}</tbody>
+    </table>` : `<div class="empty-note">Chưa chọn bác sĩ tiêu biểu nào. Chọn bác sĩ ở ô trên rồi bấm "Thêm vào danh sách".</div>`;
+}
+
+function featAddSelected() {
+  const sel = document.getElementById("feat-add-select");
+  const id = sel.value;
+  if (!id) { toast("Hãy chọn một bác sĩ để thêm.", true); return; }
+  const ids = featuredIds();
+  if (ids.includes(id)) return;
+  ids.push(id);
+  saveFeatured(ids);
+  renderFeaturedTable();
+  toast("Đã thêm vào danh sách tiêu biểu.");
+}
+function featRemove(id) {
+  saveFeatured(featuredIds().filter(x => x !== id));
+  renderFeaturedTable();
+}
+function featMove(id, dir) {
+  const ids = featuredIds();
+  const i = ids.indexOf(id), j = i + dir;
+  if (i < 0 || j < 0 || j >= ids.length) return;
+  [ids[i], ids[j]] = [ids[j], ids[i]];
+  saveFeatured(ids);
+  renderFeaturedTable();
 }
 
 /* ================= BÁC SĨ ================= */
@@ -1047,6 +1113,7 @@ function renderAll() {
   renderDashboard();
   renderAppointments();
   renderDoctorTable();
+  renderFeaturedTable();
   renderDeptTable();
   renderServiceTable();
   renderNewsTable();
