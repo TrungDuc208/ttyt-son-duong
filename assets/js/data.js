@@ -4,7 +4,7 @@
    Khi triển khai thật: thay Store bằng các lời gọi API backend.
    ============================================================ */
 
-const DB_KEY = "ttyt_sonduong_db_v2";
+const DB_KEY = "ttyt_sonduong_db_v3";
 
 /* ---------------- DỮ LIỆU MẪU (SEED) ---------------- */
 const SEED = {
@@ -52,17 +52,17 @@ const SEED = {
     }
   ],
 
+  // Danh mục khoa/phòng - cập nhật theo bảng nhân viên y tế thực tế (mã khoa nội bộ K..)
   departments: [
-    { id: "d1",  name: "Khoa Khám bệnh",                    icon: "🩺", desc: "Tiếp đón, khám và phân loại người bệnh; khám sức khỏe định kỳ, khám BHYT." },
-    { id: "d2",  name: "Khoa Nội tổng hợp",                 icon: "❤️", desc: "Điều trị các bệnh lý nội khoa: tim mạch, hô hấp, tiêu hóa, nội tiết, cơ xương khớp." },
-    { id: "d3",  name: "Khoa Ngoại tổng hợp",               icon: "🔪", desc: "Phẫu thuật tiêu hóa, tiết niệu, chấn thương chỉnh hình; điều trị ngoại khoa." },
-    { id: "d4",  name: "Khoa Phụ sản",                      icon: "🤰", desc: "Khám thai, quản lý thai nghén, đỡ đẻ, phẫu thuật sản phụ khoa, KHHGĐ." },
-    { id: "d5",  name: "Khoa Nhi",                          icon: "👶", desc: "Khám và điều trị bệnh lý trẻ em, tư vấn dinh dưỡng, tiêm chủng mở rộng." },
-    { id: "d6",  name: "Khoa Cấp cứu - Hồi sức tích cực",   icon: "🚑", desc: "Cấp cứu 24/7, hồi sức tích cực và chống độc." },
-    { id: "d7",  name: "Khoa Y học cổ truyền - PHCN",       icon: "🌿", desc: "Châm cứu, xoa bóp bấm huyệt, thuốc y học cổ truyền, vật lý trị liệu - phục hồi chức năng." },
-    { id: "d8",  name: "Liên chuyên khoa RHM - Mắt - TMH",  icon: "👁️", desc: "Khám chữa răng hàm mặt, mắt, tai mũi họng." },
-    { id: "d9",  name: "Khoa Chẩn đoán hình ảnh",           icon: "📷", desc: "X-quang kỹ thuật số, siêu âm màu 4D, nội soi tiêu hóa, điện tim, điện não." },
-    { id: "d10", name: "Khoa Xét nghiệm",                   icon: "🧪", desc: "Xét nghiệm huyết học, sinh hóa, vi sinh, nước tiểu; xét nghiệm nhanh." }
+    { id: "d1", code: "K01",     name: "Khoa Khám bệnh",                                 icon: "🩺", desc: "Tiếp đón, khám và phân loại người bệnh; khám BHYT, khám sức khỏe." },
+    { id: "d2", code: "K02",     name: "Khoa Cấp cứu - Hồi sức tích cực và Chống độc",     icon: "🚑", desc: "Cấp cứu 24/7, hồi sức tích cực và chống độc." },
+    { id: "d3", code: "K03",     name: "Khoa Nội tổng hợp",                              icon: "❤️", desc: "Khám, điều trị các bệnh lý nội khoa: tim mạch, hô hấp, tiêu hóa, nội tiết, cơ xương khớp." },
+    { id: "d4", code: "K19",     name: "Khoa Ngoại tổng hợp",                            icon: "🔪", desc: "Khám, phẫu thuật và điều trị ngoại khoa; chấn thương chỉnh hình." },
+    { id: "d5", code: "K18",     name: "Khoa Nhi",                                       icon: "👶", desc: "Khám, điều trị bệnh lý trẻ em; tư vấn dinh dưỡng và tiêm chủng." },
+    { id: "d6", code: "K27",     name: "Khoa Chăm sóc sức khỏe sinh sản và Dân số",       icon: "🤰", desc: "Khám thai, quản lý thai nghén, sản phụ khoa, kế hoạch hóa gia đình và dân số." },
+    { id: "d7", code: "K1631",   name: "Khoa Y học cổ truyền và Phục hồi chức năng",      icon: "🌿", desc: "Châm cứu, xoa bóp bấm huyệt, thuốc y học cổ truyền; vật lý trị liệu - phục hồi chức năng." },
+    { id: "d8", code: "K282930", name: "Khoa Răng hàm mặt - Mắt - Tai mũi họng",         icon: "👁️", desc: "Khám chữa răng hàm mặt, mắt, tai mũi họng." },
+    { id: "d9", code: "K3947",   name: "Khoa Chẩn đoán hình ảnh - Xét nghiệm",           icon: "🔬", desc: "X-quang, siêu âm, điện tim; xét nghiệm huyết học, sinh hóa, vi sinh, nước tiểu." }
   ],
 
   doctors: [
