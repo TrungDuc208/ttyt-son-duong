@@ -112,9 +112,10 @@ function renderLayout(activePage) {
         </ul>
       </div>
       <div>
-        <h5>Giờ làm việc</h5>
+        <h5>Giờ làm việc & Đường dây nóng</h5>
         <p>${Fmt.esc(s.workingHours)}</p>
-        <p>Hotline: <strong style="color:#fff">${Fmt.esc(s.hotline)}</strong></p>
+        <p>ĐDN TTYT Sơn Dương: <strong style="color:#fff">${Fmt.esc(s.hotline)}</strong></p>
+        ${s.hotlineDept ? `<p>ĐDN Sở Y tế: <strong style="color:#fff">${Fmt.esc(s.hotlineDept)}</strong></p>` : ""}
       </div>
     </div>
     <div class="footer-bottom container">
@@ -323,7 +324,7 @@ function renderHome() {
   document.getElementById("home-stats").innerHTML = `
     <div class="stat-card"><div class="num">${Store.all("departments").length}</div><div class="lbl">Khoa, phòng chuyên môn</div></div>
     <div class="stat-card"><div class="num">${Store.all("doctors").length}+</div><div class="lbl">Bác sĩ, chuyên gia</div></div>
-    <div class="stat-card"><div class="num">150+</div><div class="lbl">Giường bệnh</div></div>
+    <div class="stat-card"><div class="num">270</div><div class="lbl">Giường bệnh</div></div>
     <div class="stat-card"><div class="num">24/7</div><div class="lbl">Cấp cứu thường trực</div></div>`;
 }
 
@@ -604,7 +605,8 @@ function renderContact() {
     <div class="contact-item"><span class="ci">📍</span><div><strong>Địa chỉ</strong><br>${Fmt.esc(s.address)}</div></div>
     <div class="contact-item"><span class="ci">📞</span><div><strong>Điện thoại</strong><br>${Fmt.esc(s.phone)}</div></div>
     <div class="contact-item"><span class="ci">🚑</span><div><strong>Cấp cứu 24/7</strong><br>${Fmt.esc(s.emergency)}</div></div>
-    <div class="contact-item"><span class="ci">☎️</span><div><strong>Hotline đặt khám</strong><br>${Fmt.esc(s.hotline)}</div></div>
+    <div class="contact-item"><span class="ci">☎️</span><div><strong>Đường dây nóng TTYT Sơn Dương</strong><br>${Fmt.esc(s.hotline)}</div></div>
+    ${s.hotlineDept ? `<div class="contact-item"><span class="ci">📢</span><div><strong>Đường dây nóng Sở Y tế</strong><br>${Fmt.esc(s.hotlineDept)}</div></div>` : ""}
     <div class="contact-item"><span class="ci">✉️</span><div><strong>Email</strong><br>${Fmt.esc(s.email)}</div></div>
     <div class="contact-item"><span class="ci">🕐</span><div><strong>Giờ làm việc</strong><br>${Fmt.esc(s.workingHours)}</div></div>`;
 

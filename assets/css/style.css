@@ -295,7 +295,8 @@ section.block.soft {
 .fd-track { display: flex; transition: transform .5s cubic-bezier(.65, 0, .35, 1); will-change: transform; }
 /* Mỗi bác sĩ là 1 ô; số ô hiển thị/khung tùy kích thước màn hình
    (desktop 4 · tablet 2 · điện thoại 1) -> thẻ không bị bóp méo */
-.fd-item { flex: 0 0 25%; box-sizing: border-box; padding: 0 8px; min-width: 0; }
+.fd-item { flex: 0 0 25%; box-sizing: border-box; padding: 0 8px; min-width: 0; display: flex; }
+.fd-item > .doctor-card { flex: 1; }   /* các thẻ cùng 1 hàng cao bằng nhau */
 .fd-nav {
   position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
   width: 40px; height: 40px; border-radius: 50%; cursor: pointer;

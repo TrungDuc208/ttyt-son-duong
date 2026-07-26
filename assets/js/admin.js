@@ -1037,7 +1037,7 @@ function naRemove(i) {
 function fillSettingsForms() {
   const s = Store.settings();
   const sf = document.getElementById("settings-form");
-  for (const k of ["siteName", "slogan", "address", "phone", "hotline", "emergency", "email", "workingHours", "announcement"])
+  for (const k of ["siteName", "slogan", "address", "phone", "hotline", "hotlineDept", "emergency", "email", "workingHours", "announcement"])
     sf.elements[k].value = s[k] || "";
 
   const hf = document.getElementById("his-form");

@@ -4,7 +4,7 @@
    Khi triển khai thật: thay Store bằng các lời gọi API backend.
    ============================================================ */
 
-const DB_KEY = "ttyt_sonduong_db_v4";
+const DB_KEY = "ttyt_sonduong_db_v5";
 
 /* ---------------- DỮ LIỆU MẪU (SEED) ---------------- */
 const SEED = {
@@ -13,7 +13,8 @@ const SEED = {
     slogan: "Tận tâm chăm sóc - Vững bước niềm tin",
     address: "Tổ dân phố Tân Phúc, thị trấn Sơn Dương, huyện Sơn Dương, tỉnh Tuyên Quang",
     phone: "0207 3835 215",
-    hotline: "1900 9095",
+    hotline: "0965 301 010",          // Đường dây nóng TTYT Sơn Dương
+    hotlineDept: "0965 361 010",      // Đường dây nóng Sở Y tế Tuyên Quang
     emergency: "0207 3835 115",
     email: "ttytsonduong@tuyenquang.gov.vn",
     workingHours: "Thứ 2 - Thứ 6: 7h00 - 17h00 | Cấp cứu 24/7",
@@ -22,7 +23,7 @@ const SEED = {
     featuredDoctors: ["bs1", "bs2", "bs3", "bs4", "bs5", "bs6", "bs7", "bs8"],
     // Nội dung trang "Giới thiệu" - sửa được trong trang quản trị
     aboutSections: [
-      { heading: "", body: "Trung tâm Y tế khu vực Sơn Dương là đơn vị sự nghiệp y tế công lập trực thuộc Sở Y tế tỉnh Tuyên Quang, thực hiện chức năng khám chữa bệnh, y tế dự phòng, dân số và chăm sóc sức khỏe ban đầu cho nhân dân trên địa bàn khu vực Sơn Dương.\n\nVới quy mô hơn 150 giường bệnh, 9 khoa phòng chuyên môn cùng hệ thống trạm y tế xã, thị trấn trực thuộc, Trung tâm hằng năm tiếp nhận khám và điều trị cho hàng trăm nghìn lượt người bệnh." },
+      { heading: "", body: "Trung tâm Y tế khu vực Sơn Dương là đơn vị sự nghiệp y tế công lập trực thuộc Sở Y tế tỉnh Tuyên Quang, thực hiện chức năng khám chữa bệnh, y tế dự phòng, dân số và chăm sóc sức khỏe ban đầu cho nhân dân trên địa bàn khu vực Sơn Dương.\n\nVới quy mô hơn 270 giường bệnh, 9 khoa phòng chuyên môn cùng hệ thống trạm y tế xã, thị trấn trực thuộc, Trung tâm hằng năm tiếp nhận khám và điều trị cho hàng trăm nghìn lượt người bệnh." },
       { heading: "Sứ mệnh", body: "Chăm sóc, bảo vệ và nâng cao sức khỏe nhân dân bằng y đức, chuyên môn và sự tận tâm; đưa dịch vụ y tế chất lượng đến gần dân nhất với chi phí hợp lý." },
       { heading: "Tầm nhìn", body: "Trở thành trung tâm y tế khu vực kiểu mẫu của tỉnh Tuyên Quang: hiện đại về trang thiết bị, chuẩn hóa về quy trình, chuyển đổi số toàn diện trong quản lý và khám chữa bệnh." },
       { heading: "Giá trị cốt lõi", body: "🩺 Tận tâm - Người bệnh là trung tâm của mọi hoạt động.\n🤝 Trách nhiệm - Làm đúng, làm đủ, làm tốt nhất trong khả năng.\n📚 Học hỏi - Liên tục cập nhật kỹ thuật và phác đồ mới.\n⚖️ Minh bạch - Công khai giá dịch vụ, quy trình và quyền lợi người bệnh." },
@@ -2535,6 +2536,10 @@ const Store = {
     // Nội dung trang Giới thiệu: nạp bù từ SEED nếu DB cũ chưa có
     if (this._cache.settings && !Array.isArray(this._cache.settings.aboutSections)) {
       this._cache.settings.aboutSections = JSON.parse(JSON.stringify(SEED.settings.aboutSections));
+    }
+    // Đường dây nóng Sở Y tế: nạp bù nếu DB cũ chưa có
+    if (this._cache.settings && this._cache.settings.hotlineDept == null) {
+      this._cache.settings.hotlineDept = SEED.settings.hotlineDept;
     }
     return this._cache;
   },
