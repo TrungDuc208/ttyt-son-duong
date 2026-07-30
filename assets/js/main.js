@@ -99,7 +99,8 @@ function renderLayout(activePage) {
           <strong>${Fmt.esc(s.siteName)}</strong>
         </div>
         <p>📍 ${Fmt.esc(s.address)}</p>
-        <p>📞 Điện thoại: ${Fmt.esc(s.phone)} — Cấp cứu: ${Fmt.esc(s.emergency)}</p>
+        <p>ĐDN TTYT Sơn Dương: <strong style="color:#fff">${Fmt.esc(s.hotline)}</strong></p>
+        ${s.hotlineDept ? `<p>ĐDN Sở Y tế: <strong style="color:#fff">${Fmt.esc(s.hotlineDept)}</strong></p>` : ""}
         <p>✉️ ${Fmt.esc(s.email)}</p>
       </div>
       <div>
@@ -114,12 +115,10 @@ function renderLayout(activePage) {
       <div>
         <h5>Giờ làm việc & Đường dây nóng</h5>
         <p>${Fmt.esc(s.workingHours)}</p>
-        <p>ĐDN TTYT Sơn Dương: <strong style="color:#fff">${Fmt.esc(s.hotline)}</strong></p>
-        ${s.hotlineDept ? `<p>ĐDN Sở Y tế: <strong style="color:#fff">${Fmt.esc(s.hotlineDept)}</strong></p>` : ""}
       </div>
     </div>
     <div class="footer-bottom container">
-      © ${new Date().getFullYear()} ${Fmt.esc(s.siteName)}. Bản demo với dữ liệu giả — phục vụ trình diễn.
+      © ${new Date().getFullYear()} ${Fmt.esc(s.siteName)}
     </div>`;
 }
 
@@ -603,8 +602,6 @@ function renderContact() {
   document.getElementById("contact-info").innerHTML = `
     <h4>Thông tin liên hệ</h4>
     <div class="contact-item"><span class="ci">📍</span><div><strong>Địa chỉ</strong><br>${Fmt.esc(s.address)}</div></div>
-    <div class="contact-item"><span class="ci">📞</span><div><strong>Điện thoại</strong><br>${Fmt.esc(s.phone)}</div></div>
-    <div class="contact-item"><span class="ci">🚑</span><div><strong>Cấp cứu 24/7</strong><br>${Fmt.esc(s.emergency)}</div></div>
     <div class="contact-item"><span class="ci">☎️</span><div><strong>Đường dây nóng TTYT Sơn Dương</strong><br>${Fmt.esc(s.hotline)}</div></div>
     ${s.hotlineDept ? `<div class="contact-item"><span class="ci">📢</span><div><strong>Đường dây nóng Sở Y tế</strong><br>${Fmt.esc(s.hotlineDept)}</div></div>` : ""}
     <div class="contact-item"><span class="ci">✉️</span><div><strong>Email</strong><br>${Fmt.esc(s.email)}</div></div>
