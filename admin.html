@@ -55,6 +55,7 @@
         <button data-panel="news">📰 Tin tức</button>
         <button data-panel="hero">🖼️ Ảnh Hero</button>
         <button data-panel="files">📁 Kho tệp</button>
+        <button data-panel="users">👤 Tài khoản</button>
         <button data-panel="settings">⚙️ Cài đặt & HIS</button>
         <button data-panel="backup">💾 Sao lưu dữ liệu</button>
       </nav>
@@ -196,6 +197,26 @@
             Ảnh tự động nén về tối đa 900px. Tệp khác giới hạn 3MB.
           </p>
           <div class="table-wrap" style="box-shadow:none" id="files-table"></div>
+        </div>
+      </div>
+
+      <!-- Tài khoản (chỉ tài khoản cấp cao) -->
+      <div class="panel" id="panel-users">
+        <div class="card">
+          <div class="card-head">
+            <h3>Quản lý tài khoản</h3>
+            <button class="btn btn-primary btn-sm" onclick="openUserModal()">➕ Tạo tài khoản con</button>
+          </div>
+          <div class="warn-note" style="margin-bottom:14px">
+            ⚠️ Tài khoản &amp; phân quyền ở đây <strong>lưu trong trình duyệt</strong>, chưa phải bảo mật thật —
+            tài khoản con tạo ra chỉ dùng được trên máy này và mật khẩu nằm trong mã nguồn. Muốn phân quyền
+            an toàn, đồng bộ mọi máy thì cần <strong>backend</strong>.
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px">
+            <strong>Cấp cao (Admin):</strong> toàn quyền, tạo/sửa/xóa tài khoản con.
+            <strong>Tài khoản con:</strong> chỉ quản lý những mục được cấp quyền; không thấy Cài đặt, Sao lưu, Tài khoản.
+          </p>
+          <div class="table-wrap" style="box-shadow:none" id="users-table"></div>
         </div>
       </div>
 

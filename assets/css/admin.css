@@ -201,6 +201,12 @@ table.data td { vertical-align: top; }
 }
 .warn-note code { background: #fff; padding: 1px 5px; border-radius: 4px; }
 
+/* ---------- Lưới tích quyền cho tài khoản con ---------- */
+.perm-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; margin-top: 6px; }
+.perm-item { display: flex; align-items: center; gap: 8px; font-size: 13.5px; cursor: pointer; }
+.perm-item input { width: auto; margin: 0; }
+@media (max-width: 560px) { .perm-grid { grid-template-columns: 1fr; } }
+
 /* ---------- Trình soạn bài viết theo phần ---------- */
 .ns-item {
   border: 1px solid var(--border); border-radius: 12px;

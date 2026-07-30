@@ -4,7 +4,7 @@
    Khi triển khai thật: thay Store bằng các lời gọi API backend.
    ============================================================ */
 
-const DB_KEY = "ttyt_sonduong_db_v7";
+const DB_KEY = "ttyt_sonduong_db_v8";
 
 /* ---------------- DỮ LIỆU MẪU (SEED) ---------------- */
 const SEED = {
@@ -2488,8 +2488,10 @@ const SEED = {
   ],
 
   users: [
-    // Demo: mật khẩu lưu dạng thường. Bản thật: băm bcrypt phía server.
-    { username: "admin", password: "admin@123", fullName: "Quản trị viên", role: "admin" }
+    // Demo: mật khẩu lưu dạng thường (CHỈ hợp lệ ở bản thật khi có backend + băm bcrypt).
+    // role "superadmin" = quyền cao nhất (tạo/sửa/xóa tài khoản con, toàn quyền các mục).
+    // role "editor" = tài khoản con, chỉ quản lý các mục trong "perms".
+    { id: "u_admin", username: "Admin", password: "adminSD@2026", fullName: "Quản trị viên cấp cao", role: "superadmin", perms: [] }
   ],
 
   // Kho tệp ("thư mục nhận file" của bản demo - lưu base64 trong localStorage;
@@ -2524,6 +2526,10 @@ const Store = {
     // Đường dây nóng Sở Y tế: nạp bù nếu DB cũ chưa có
     if (this._cache.settings && this._cache.settings.hotlineDept == null) {
       this._cache.settings.hotlineDept = SEED.settings.hotlineDept;
+    }
+    // Tài khoản: đảm bảo luôn có 1 tài khoản cấp cao (superadmin)
+    if (!Array.isArray(this._cache.users) || !this._cache.users.some(u => u.role === "superadmin")) {
+      this._cache.users = JSON.parse(JSON.stringify(SEED.users));
     }
     return this._cache;
   },

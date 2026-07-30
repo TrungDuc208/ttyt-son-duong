@@ -31,10 +31,13 @@ function currentUser() {
 function showAdmin() {
   document.getElementById("login-screen").style.display = "none";
   document.getElementById("admin-shell").classList.add("active");
-  document.getElementById("admin-name").textContent = currentUser().fullName;
+  const me = currentUser();
+  document.getElementById("admin-name").textContent =
+    me.fullName + (me.role === "superadmin" ? " · Cấp cao" : " · Tài khoản con");
   document.getElementById("today-str").textContent =
     new Date().toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
   renderAll();
+  applyRolePermissions();
 }
 
 document.getElementById("login-form").onsubmit = (ev) => {
@@ -43,9 +46,39 @@ document.getElementById("login-form").onsubmit = (ev) => {
   const p = document.getElementById("login-pass").value;
   const user = Store.all("users").find(x => x.username === u && x.password === p);
   if (!user) { toast("Sai tên đăng nhập hoặc mật khẩu.", true); return; }
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ username: user.username, fullName: user.fullName, role: user.role }));
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+    username: user.username, fullName: user.fullName,
+    role: user.role || "editor", perms: user.perms || []
+  }));
   showAdmin();
 };
+
+/* ================= PHÂN QUYỀN THEO VAI TRÒ ================= */
+// Các mục tài khoản con CÓ THỂ được cấp quyền quản lý
+const GRANTABLE_PANELS = [
+  ["dashboard", "📊 Tổng quan"], ["appointments", "📅 Lịch hẹn khám"],
+  ["doctors", "👨‍⚕️ Bác sĩ"], ["featured", "⭐ BS tiêu biểu"],
+  ["departments", "🏥 Khoa phòng"], ["services", "💰 Dịch vụ & giá"],
+  ["news", "📰 Tin tức"], ["hero", "🖼️ Ảnh Hero"], ["files", "📁 Kho tệp"]
+];
+// Chỉ tài khoản cấp cao (superadmin) mới vào được
+const SUPERADMIN_ONLY = ["users", "settings", "backup"];
+
+function applyRolePermissions() {
+  const me = currentUser() || {};
+  const isSuper = me.role === "superadmin";
+  const perms = me.perms || [];
+  let firstVisible = null;
+  document.querySelectorAll("#admin-nav button[data-panel]").forEach(btn => {
+    const p = btn.dataset.panel;
+    const ok = isSuper ? true : (SUPERADMIN_ONLY.includes(p) ? false : perms.includes(p));
+    btn.style.display = ok ? "" : "none";
+    if (ok && !firstVisible) firstVisible = btn;
+  });
+  // Nếu panel đang mở bị ẩn (hoặc chưa chọn) -> nhảy về mục hợp lệ đầu tiên
+  const active = document.querySelector("#admin-nav button.active");
+  if ((!active || active.style.display === "none") && firstVisible) firstVisible.click();
+}
 
 document.getElementById("btn-logout").onclick = (ev) => {
   ev.preventDefault();
@@ -60,6 +93,7 @@ const PANEL_TITLES = {
   departments: "Quản lý khoa phòng", services: "Dịch vụ & bảng giá",
   news: "Quản lý tin tức", hero: "Ảnh Hero — trình chiếu đầu trang chủ",
   files: "Kho tệp — thư mục nhận file",
+  users: "Quản lý tài khoản",
   settings: "Cài đặt & kết nối HIS", backup: "Sao lưu dữ liệu"
 };
 
@@ -473,6 +507,97 @@ function featCopyForPublish() {
   } else {
     prompt("Sao chép dòng dưới đây vào data.js (mục settings):", line);
   }
+}
+
+/* ================= QUẢN LÝ TÀI KHOẢN (chỉ tài khoản cấp cao) ================= */
+function permLabels(perms) {
+  if (!perms || !perms.length) return "—";
+  return perms.map(p => {
+    const g = GRANTABLE_PANELS.find(x => x[0] === p);
+    return g ? g[1].replace(/^\S+\s/, "") : p;   // bỏ icon, giữ chữ
+  }).join(", ");
+}
+
+function renderUsersTable() {
+  const wrap = document.getElementById("users-table");
+  if (!wrap) return;
+  const me = currentUser() || {};
+  const list = Store.all("users");
+  wrap.innerHTML = `
+    <table class="data">
+      <thead><tr><th>Tài khoản</th><th>Họ tên</th><th>Vai trò</th><th>Được phép quản lý</th><th>Thao tác</th></tr></thead>
+      <tbody>${list.map(u => {
+        const isSuper = u.role === "superadmin";
+        return `
+        <tr>
+          <td><strong>${Fmt.esc(u.username)}</strong>${u.username === me.username ? ' <span class="cell-sub">(bạn)</span>' : ""}</td>
+          <td>${Fmt.esc(u.fullName || "")}</td>
+          <td>${isSuper ? '<span class="badge badge-danger">Cấp cao</span>' : '<span class="badge badge-info">Tài khoản con</span>'}</td>
+          <td style="font-size:12.5px">${isSuper ? "Toàn quyền" : Fmt.esc(permLabels(u.perms))}</td>
+          <td><div class="row-actions">
+            <button class="icon-btn" onclick="openUserModal('${u.id}')">✏️ ${isSuper ? "Đổi mật khẩu" : "Sửa"}</button>
+            ${isSuper ? "" : `<button class="icon-btn danger" onclick="removeUser('${u.id}')">🗑</button>`}
+          </div></td>
+        </tr>`;
+      }).join("")}</tbody>
+    </table>`;
+}
+
+function openUserModal(id) {
+  const editing = id ? Store.get("users", id) : null;
+  const isSuper = editing && editing.role === "superadmin";
+  const perms = (editing && editing.perms) || [];
+  const permChecks = GRANTABLE_PANELS.map(([key, label]) =>
+    `<label class="perm-item"><input type="checkbox" name="perm_${key}" ${perms.includes(key) ? "checked" : ""}> ${label}</label>`).join("");
+
+  openModal(editing ? (isSuper ? "Đổi mật khẩu tài khoản cấp cao" : "Sửa tài khoản con") : "Tạo tài khoản con", `
+    <div class="form-grid">
+      ${editing
+        ? `<div class="full"><label class="fld">Tên đăng nhập</label><input value="${Fmt.esc(editing.username)}" disabled></div>`
+        : fld("Tên đăng nhập", "username", "", { required: true, full: true, placeholder: "vd: bientap01" })}
+      ${fld("Họ tên hiển thị", "fullName", editing ? (editing.fullName || "") : "", { full: true })}
+      ${fld("Mật khẩu" + (editing ? " (để trống nếu giữ nguyên)" : ""), "password", "", { type: "password", full: true, required: !editing })}
+      ${isSuper ? "" : `
+        <div class="full">
+          <label class="fld">Cho phép tài khoản này quản lý các mục:</label>
+          <div class="perm-grid">${permChecks}</div>
+          <div class="form-note">Chỉ những mục được tích, tài khoản con mới thấy và sửa được. Cài đặt, Sao lưu, Tài khoản luôn thuộc riêng cấp cao.</div>
+        </div>`}
+    </div>`,
+    (f) => {
+      const fullName = f.get("fullName").trim();
+      const password = f.get("password");
+      const perms = GRANTABLE_PANELS.filter(([k]) => f.get("perm_" + k)).map(([k]) => k);
+      if (!editing) {
+        const username = f.get("username").trim();
+        if (!username) { toast("Nhập tên đăng nhập.", true); return; }
+        if (Store.all("users").some(u => u.username.toLowerCase() === username.toLowerCase())) {
+          toast("Tên đăng nhập đã tồn tại.", true); return;
+        }
+        if (!password) { toast("Nhập mật khẩu cho tài khoản con.", true); return; }
+        Store.add("users", { username, fullName, password, role: "editor", perms });
+        toast("Đã tạo tài khoản con.");
+      } else {
+        const patch = { fullName };
+        if (password) patch.password = password;
+        if (!isSuper) patch.perms = perms;   // không đổi quyền tài khoản cấp cao
+        Store.update("users", editing.id, patch);
+        toast("Đã cập nhật tài khoản.");
+      }
+      closeModal();
+      renderUsersTable();
+    });
+}
+
+function removeUser(id) {
+  const u = Store.get("users", id);
+  if (!u) return;
+  if (u.role === "superadmin") { toast("Không thể xóa tài khoản cấp cao.", true); return; }
+  if (u.username === (currentUser() || {}).username) { toast("Không thể xóa tài khoản đang đăng nhập.", true); return; }
+  if (!confirm(`Xóa tài khoản "${u.username}"?`)) return;
+  Store.remove("users", id);
+  toast("Đã xóa tài khoản.");
+  renderUsersTable();
 }
 
 /* ================= BÁC SĨ ================= */
@@ -1176,6 +1301,7 @@ function renderAll() {
   renderNewsTable();
   renderHeroTable();
   renderFilesTable();
+  renderUsersTable();
 }
 
 /* ================= KHỞI CHẠY ================= */
