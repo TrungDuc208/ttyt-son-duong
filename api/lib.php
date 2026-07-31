@@ -37,9 +37,17 @@ function db(): PDO {
     if (!is_file($cfgFile)) fail(500, 'Chưa có file cấu hình api/config.php.');
     $cfg = require $cfgFile;
 
+    // Chấp nhận cả "localhost" lẫn "localhost:3306" (PDO cần tách cổng riêng)
+    $host = (string)$cfg['host'];
+    $port = '';
+    if (strpos($host, ':') !== false) {
+        [$host, $port] = explode(':', $host, 2);
+        $port = ctype_digit($port) ? ";port=$port" : '';
+    }
+
     try {
         $pdo = new PDO(
-            "mysql:host={$cfg['host']};dbname={$cfg['name']};charset=utf8mb4",
+            "mysql:host={$host}{$port};dbname={$cfg['name']};charset=utf8mb4",
             $cfg['user'], $cfg['pass'],
             [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
