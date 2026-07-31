@@ -1278,11 +1278,28 @@ function naRemove(i) {
 }
 
 /* ================= CÀI ĐẶT ================= */
+/* Các trường cài đặt CÓ hiển thị trên website (đúng thứ tự trong form).
+   Chỉ liệt kê trường thực sự dùng — tránh tình trạng sửa xong không thấy đổi gì. */
+const SETTING_FIELDS = ["siteName", "slogan", "address", "hotline", "hotlineDept",
+                        "email", "workingHours", "announcement"];
+
+/* Xuất khối settings để dán vào data.js -> đưa thay đổi lên web thật cho mọi người */
+function settingsCopyForPublish() {
+  const s = Store.settings();
+  const lines = SETTING_FIELDS.map(k => `    ${k}: ${JSON.stringify(s[k] || "", null, 0)},`);
+  const text = lines.join("\n");
+  const done = () => toast("Đã sao chép. Dán vào data.js (mục settings) rồi commit để lên web thật.");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, () => prompt("Sao chép đoạn dưới đây vào data.js (mục settings):", text));
+  } else {
+    prompt("Sao chép đoạn dưới đây vào data.js (mục settings):", text);
+  }
+}
+
 function fillSettingsForms() {
   const s = Store.settings();
   const sf = document.getElementById("settings-form");
-  for (const k of ["siteName", "slogan", "address", "phone", "hotline", "hotlineDept", "emergency", "email", "workingHours", "announcement"])
-    sf.elements[k].value = s[k] || "";
+  for (const k of SETTING_FIELDS) sf.elements[k].value = s[k] || "";
 
   const hf = document.getElementById("his-form");
   hf.elements.mode.value = s.his.mode;

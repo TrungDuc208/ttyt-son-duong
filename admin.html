@@ -224,20 +224,26 @@
       <div class="panel" id="panel-settings">
         <div class="card">
           <div class="card-head"><h3>Thông tin website</h3></div>
+          <div class="warn-note" style="margin-bottom:14px">
+            ⚠️ Sửa ở đây chỉ áp dụng cho <strong>trình duyệt này</strong>, người khác vào web sẽ chưa thấy.
+            Muốn cập nhật cho <strong>tất cả mọi người</strong>: sửa xong bấm
+            <strong>“📋 Sao chép để đưa lên web”</strong> rồi gửi cho người quản lý mã nguồn.
+          </div>
           <form id="settings-form">
             <div class="form-grid">
               <div class="full"><label class="fld">Tên đơn vị</label><input name="siteName"></div>
               <div class="full"><label class="fld">Khẩu hiệu</label><input name="slogan"></div>
               <div class="full"><label class="fld">Địa chỉ</label><input name="address"></div>
-              <div><label class="fld">Điện thoại</label><input name="phone"></div>
-              <div><label class="fld">Số cấp cứu</label><input name="emergency"></div>
               <div><label class="fld">Đường dây nóng TTYT Sơn Dương</label><input name="hotline"></div>
               <div><label class="fld">Đường dây nóng Sở Y tế</label><input name="hotlineDept"></div>
-              <div><label class="fld">Email</label><input name="email"></div>
+              <div class="full"><label class="fld">Email</label><input name="email"></div>
               <div class="full"><label class="fld">Giờ làm việc</label><input name="workingHours"></div>
               <div class="full"><label class="fld">Dòng thông báo chạy trên trang chủ</label><input name="announcement"></div>
             </div>
-            <div class="form-actions"><button class="btn btn-blue" type="submit">💾 Lưu thông tin</button></div>
+            <div class="form-actions">
+              <button class="btn btn-blue" type="submit">💾 Lưu thông tin</button>
+              <button class="btn btn-ghost" type="button" onclick="settingsCopyForPublish()">📋 Sao chép để đưa lên web</button>
+            </div>
           </form>
         </div>
 
