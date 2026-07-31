@@ -1,3 +1,6 @@
 .claude/
 Thumbs.db
 Desktop.ini
+
+# Cấu hình CSDL - chứa mật khẩu, KHÔNG đưa lên GitHub
+api/config.php
