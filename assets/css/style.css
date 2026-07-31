@@ -489,6 +489,13 @@ input:focus, select:focus, textarea:focus {
 .article h2 { color: var(--ink); font-weight: 800; letter-spacing: -.02em; margin-bottom: 8px; }
 .article .meta { color: var(--muted); font-size: 13.5px; margin-bottom: 22px; }
 .article .content p { margin-bottom: 14px; font-size: 15px; }
+/* Liên kết trong bài viết: rõ ràng, dễ nhận biết để bấm */
+.article .content a {
+  color: var(--blue-dark); font-weight: 600;
+  text-decoration: underline; text-underline-offset: 3px;
+  word-break: break-word;
+}
+.article .content a:hover { color: var(--blue); background: var(--blue-light); }
 .article .content h3 {
   color: var(--blue-dark); font-size: 18px; font-weight: 700;
   margin: 22px 0 10px;

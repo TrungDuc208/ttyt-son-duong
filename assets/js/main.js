@@ -173,6 +173,28 @@ function initDoctorCardReveal(containerId) {
   });
 }
 
+/* Biến chữ trong bài viết thành liên kết bấm được:
+   - Cú pháp [Chữ hiển thị](đường-dẫn)  -> chữ có gạch chân, bấm vào chuyển trang
+   - Đường dẫn viết trần (https://...)  -> tự thành liên kết
+   Chỉ chấp nhận http/https và trang nội bộ (.html) để tránh mã độc (javascript:...). */
+function linkifyText(raw) {
+  const esc = Fmt.esc(raw);
+  const internal = /^[\w\-./]+\.html([?#][^\s)]*)?$/i;
+
+  // 1) [Chữ hiển thị](đường dẫn)
+  let html = esc.replace(/\[([^\]\n]+)\]\(([^\s)]+)\)/g, (m, text, url) => {
+    if (/^https?:\/\//i.test(url)) return `<a href="${url}" target="_blank" rel="noopener">${text}</a>`;
+    if (internal.test(url))        return `<a href="${url}">${text}</a>`;
+    return m;   // đường dẫn lạ -> giữ nguyên chữ, không tạo link
+  });
+
+  // 2) Đường dẫn viết trần (không nằm trong thẻ <a> vừa tạo)
+  html = html.replace(/(^|[\s(])(https?:\/\/[^\s<>"')]+)/g,
+    (m, pre, url) => `${pre}<a href="${url}" target="_blank" rel="noopener">${url}</a>`);
+
+  return html;
+}
+
 function newsCardHTML(n) {
   const icons = { "Thông báo": "📢", "Hoạt động": "🏥", "Y tế dự phòng": "🛡️", "Kỹ thuật mới": "🔬", "Đấu thầu": "📋" };
   return `
@@ -403,7 +425,7 @@ function renderNews() {
     const bodyHTML = (n && n.sections && n.sections.length)
       ? n.sections.map(sec => `
           ${sec.heading ? `<h3>${Fmt.esc(sec.heading)}</h3>` : ""}
-          ${sec.body ? sec.body.split(/\n+/).map(p => `<p>${Fmt.esc(p)}</p>`).join("") : ""}
+          ${sec.body ? sec.body.split(/\n+/).map(p => `<p>${linkifyText(p)}</p>`).join("") : ""}
           ${sec.image ? `<img class="art-img" src="${Fmt.esc(sec.image)}" alt="" loading="lazy">` : ""}
           ${sec.embed ? `
             <div class="art-embed">
@@ -416,7 +438,7 @@ function renderNews() {
               ${sec.pdfName ? `<div class="art-pdf-name">📄 ${Fmt.esc(sec.pdfName)}</div>` : ""}
               ${sec.pdfPages.map(p => `<img class="art-pdf-page" src="${p}" alt="Trang tài liệu">`).join("")}
             </div>` : ""}`).join("")
-      : (n ? n.content.split(/\n+/).map(p => `<p>${Fmt.esc(p)}</p>`).join("") : "");
+      : (n ? n.content.split(/\n+/).map(p => `<p>${linkifyText(p)}</p>`).join("") : "");
 
     const attachHTML = (n && n.attachments && n.attachments.length) ? `
       <div class="attach-list">
@@ -597,7 +619,7 @@ function renderAbout() {
   const secs = s.aboutSections || [];
   bodyEl.innerHTML = secs.map(sec => {
     const paras = (sec.body || "").split(/\n{2,}/)
-      .map(p => `<p>${Fmt.esc(p).replace(/\n/g, "<br>")}</p>`).join("");
+      .map(p => `<p>${linkifyText(p).replace(/\n/g, "<br>")}</p>`).join("");
     return `${sec.heading ? `<h3>${Fmt.esc(sec.heading)}</h3>` : ""}${paras}`;
   }).join("");
 }

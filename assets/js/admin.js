@@ -1026,13 +1026,16 @@ function nsRender() {
              oninput="newsDraft.sections[${i}].heading = this.value">
       <textarea rows="4" placeholder="Nội dung phần này (mỗi đoạn cách nhau 1 dòng trống)..."
                 oninput="newsDraft.sections[${i}].body = this.value">${Fmt.esc(s.body)}</textarea>
+      <div class="ns-hint">💡 Tạo liên kết: bấm <strong>🔗 Chèn liên kết</strong>, hoặc gõ trực tiếp
+        <code>[Chữ hiển thị](https://...)</code>. Dán link trần cũng tự thành liên kết.</div>
       <div class="ns-img-row">
         ${s.image ? `<img class="ns-thumb" src="${s.image}">` : ""}
         <button type="button" class="icon-btn" onclick="nsPickImage(${i})">📤 Ảnh minh họa</button>
         <select onchange="nsImageFromLib(${i}, this)" style="max-width:200px">${libImageOptions()}</select>
         ${s.image ? `<button type="button" class="icon-btn danger" onclick="nsSetImage(${i},'')">🗑 Bỏ ảnh</button>` : ""}
         <button type="button" class="icon-btn" onclick="nsPickPDF(${i})">📄 Chèn PDF (hiện thành ảnh)</button>
-        <button type="button" class="icon-btn" onclick="nsToEmbed(${i})">🔗 Nhúng trang web</button>
+        <button type="button" class="icon-btn" onclick="nsAddLink(${i})">🔗 Chèn liên kết</button>
+        <button type="button" class="icon-btn" onclick="nsToEmbed(${i})">📺 Nhúng khung xem (YouTube/Maps)</button>
       </div>
       ${s.embed ? `
         <div class="ns-embed-box">
@@ -1081,7 +1084,46 @@ function nsClearPDF(i) {
   nsRender();
 }
 
-/* ----- Nhúng trang web: biến đường dẫn trong nội dung thành khung xem trực tiếp ----- */
+/* ----- Chèn liên kết: biến chữ thành đường link bấm vào chuyển trang -----
+   Lưu dưới dạng [Chữ hiển thị](đường dẫn); trang công khai sẽ hiện thành link. */
+const INTERNAL_PAGES = [
+  ["dat-lich.html", "Đặt lịch khám"], ["dich-vu.html", "Bảng giá dịch vụ"],
+  ["bac-si.html", "Đội ngũ bác sĩ"], ["khoa-phong.html", "Khoa phòng"],
+  ["gioi-thieu.html", "Giới thiệu"], ["tin-tuc.html", "Tin tức"], ["lien-he.html", "Liên hệ"]
+];
+
+function nsAddLink(i) {
+  const sec = newsDraft.sections[i];
+  const goi = INTERNAL_PAGES.map((p, k) => `${k + 1}. ${p[1]}`).join("\n");
+  let url = (prompt(
+    "Dán đường dẫn cần liên kết tới.\n" +
+    "• Trang ngoài: dán đầy đủ https://...\n" +
+    "• Trang trong website: gõ số tương ứng\n" + goi,
+    findUrl(sec.body) || "https://") || "").trim();
+  if (!url) return;
+
+  const pick = INTERNAL_PAGES[Number(url) - 1];      // cho phép gõ 1..7 chọn trang nội bộ
+  if (pick) url = pick[0];
+
+  if (!/^https?:\/\//i.test(url) && !/^[\w\-./]+\.html([?#].*)?$/i.test(url)) {
+    toast("Đường dẫn không hợp lệ. Dùng https://... hoặc trang nội bộ dạng tin-tuc.html", true);
+    return;
+  }
+
+  const label = (prompt("Chữ hiển thị cho liên kết (người đọc bấm vào chữ này):",
+    pick ? pick[1] : "Xem chi tiết tại đây") || "").trim();
+  if (!label) return;
+
+  const snippet = `[${label}](${url})`;
+  // Nếu đoạn văn đang chứa đúng đường dẫn đó thì thay thế, không thì nối vào cuối
+  sec.body = (sec.body || "").includes(url)
+    ? sec.body.replace(url, snippet)
+    : ((sec.body || "").trim() ? sec.body.trim() + " " + snippet : snippet);
+  nsRender();
+  toast("Đã chèn liên kết. Người đọc bấm vào chữ sẽ chuyển trang.");
+}
+
+/* ----- Nhúng khung xem: biến đường dẫn thành khung hiển thị trực tiếp (YouTube/Maps) ----- */
 function findUrl(text) {
   const m = String(text || "").match(/https?:\/\/[^\s<>"')]+/i);
   return m ? m[0] : "";
