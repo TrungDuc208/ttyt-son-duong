@@ -63,10 +63,25 @@ Mở trình duyệt: **`https://ttytsonduong.vn/api/setup.php`**
 
 ## Bước 6 — Kiểm tra
 
-Mở `https://ttytsonduong.vn/api/auth.php?action=me`
-→ phải trả về `{"ok":true,"user":null}` (đúng: chưa đăng nhập).
+Mở **`https://ttytsonduong.vn/api/check.php`** — trang này tự dò và báo còn thiếu gì
+(phiên bản PHP, thư viện, kết nối CSDL, đủ bảng chưa, giới hạn tải tệp, quyền ghi
+thư mục uploads…). Sửa theo hướng dẫn hiện trên trang rồi tải lại.
 
-Nếu báo lỗi kết nối CSDL → xem lại `config.php` (Bước 4).
+Khi tất cả hiện ✅ là dùng được. Có thể kiểm tra thêm:
+`https://ttytsonduong.vn/api/auth.php?action=me` → trả về `{"ok":true,"user":null}`.
+
+> 🔴 Cài xong nhớ **xoá 3 file**: `api/setup.php`, `api/import.php`, `api/check.php`.
+
+## Tệp lớn (nếu cần tải tới 100MB)
+
+Mặc định PHP chỉ cho tải ~2–8MB. Muốn tải tệp lớn:
+
+> Plesk → ttytsonduong.vn → **PHP Settings**
+> - `upload_max_filesize` = **100M**
+> - `post_max_size` = **105M**
+> - `max_execution_time` = **300**
+
+Trang `check.php` sẽ báo giới hạn hiện tại đang là bao nhiêu.
 
 ---
 
