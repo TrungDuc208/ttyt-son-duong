@@ -31,8 +31,8 @@
         </div>
       </form>
       <div class="demo-hint">
-        🔑 <strong>Tài khoản demo:</strong> admin / admin@123<br>
-        Bản chính thức sẽ xác thực qua server với mật khẩu mã hóa.
+        🔑 Tài khoản quản trị: <strong>admin</strong><br>
+        Mật khẩu do quản trị viên cấp cao quản lý.
       </div>
       <p style="text-align:center;margin-top:14px;font-size:13px"><a href="index.html">← Về trang chủ</a></p>
     </div>
@@ -193,8 +193,8 @@
           </div>
           <p style="font-size:13px;color:var(--muted);margin-bottom:14px">
             Nơi tiếp nhận ảnh và tệp dùng cho website (ảnh nhân viên, ảnh bài viết, tệp đính kèm...).
-            Bản demo lưu tệp trong trình duyệt; bản chính thức tệp sẽ được tải lên thư mục <code>/uploads</code> trên máy chủ.
-            Ảnh tự động nén về tối đa 900px. Tệp khác giới hạn 3MB.
+            Ảnh tự động nén về tối đa 900px. Tệp khác cho phép tối đa 100MB.
+            <em>Lưu ý: hiện tệp lưu trong bộ nhớ trình duyệt nên dung lượng tổng bị giới hạn (~vài MB); tệp lớn cần máy chủ backend.</em>
           </p>
           <div class="table-wrap" style="box-shadow:none" id="files-table"></div>
         </div>
@@ -260,7 +260,7 @@
               <div>
                 <label class="fld">Chế độ hoạt động</label>
                 <select name="mode">
-                  <option value="mock">Mô phỏng (demo)</option>
+                  <option value="mock">Chưa kết nối (mô phỏng)</option>
                   <option value="real">Kết nối HIS thật</option>
                 </select>
               </div>
@@ -285,7 +285,7 @@
         <div class="card">
           <div class="card-head"><h3>Sao lưu / Phục hồi dữ liệu</h3></div>
           <p style="font-size:14px;color:var(--muted);margin-bottom:16px">
-            Bản demo lưu toàn bộ dữ liệu trong trình duyệt (localStorage). Có thể xuất ra file JSON để sao lưu,
+            Dữ liệu quản trị hiện lưu trong trình duyệt (localStorage). Có thể xuất ra file JSON để sao lưu,
             nhập lại từ file, hoặc khôi phục dữ liệu mẫu ban đầu.
           </p>
           <div class="form-actions" style="margin:0">

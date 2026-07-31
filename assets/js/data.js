@@ -4,7 +4,7 @@
    Khi triển khai thật: thay Store bằng các lời gọi API backend.
    ============================================================ */
 
-const DB_KEY = "ttyt_sonduong_db_v8";
+const DB_KEY = "ttyt_sonduong_db_v9";
 
 /* ---------------- DỮ LIỆU MẪU (SEED) ---------------- */
 const SEED = {
@@ -20,10 +20,10 @@ const SEED = {
     workingHours: "Thứ 2 - Thứ 6: 7h00 - 17h00 | Cấp cứu 24/7",
     announcement: "Trung tâm triển khai đăng ký khám bệnh trực tuyến - Quý khách vui lòng đặt lịch trước để giảm thời gian chờ đợi.",
     // Danh sách bác sĩ tiêu biểu hiện ở trang chủ (theo thứ tự). Mỗi slide 4 bác sĩ.
-    featuredDoctors: ["bs1", "bs2", "bs3", "bs4", "bs5", "bs6", "bs7", "bs8"],
+    featuredDoctors: ["bs1", "bs2", "bs3", "bs4", "bs5", "bs6", "bs7", "bs9"],
     // Nội dung trang "Giới thiệu" - sửa được trong trang quản trị
     aboutSections: [
-      { heading: "", body: "Trung tâm Y tế khu vực Sơn Dương là đơn vị sự nghiệp y tế công lập trực thuộc Sở Y tế tỉnh Tuyên Quang, thực hiện chức năng khám chữa bệnh, y tế dự phòng, dân số và chăm sóc sức khỏe ban đầu cho nhân dân trên địa bàn khu vực Sơn Dương.\n\nVới quy mô hơn 270 giường bệnh, 9 khoa phòng chuyên môn cùng hệ thống trạm y tế xã, thị trấn trực thuộc, Trung tâm hằng năm tiếp nhận khám và điều trị cho hàng trăm nghìn lượt người bệnh." },
+      { heading: "", body: "Trung tâm Y tế khu vực Sơn Dương là đơn vị sự nghiệp y tế công lập trực thuộc Sở Y tế tỉnh Tuyên Quang, thực hiện chức năng khám chữa bệnh, y tế dự phòng, dân số và chăm sóc sức khỏe ban đầu cho nhân dân trên địa bàn khu vực Sơn Dương.\n\nVới quy mô hơn 270 giường bệnh, 10 khoa phòng chuyên môn cùng hệ thống trạm y tế xã, thị trấn trực thuộc, Trung tâm hằng năm tiếp nhận khám và điều trị cho hàng trăm nghìn lượt người bệnh." },
       { heading: "Sứ mệnh", body: "Chăm sóc, bảo vệ và nâng cao sức khỏe nhân dân bằng y đức, chuyên môn và sự tận tâm; đưa dịch vụ y tế chất lượng đến gần dân nhất với chi phí hợp lý." },
       { heading: "Tầm nhìn", body: "Trở thành trung tâm y tế khu vực kiểu mẫu của tỉnh Tuyên Quang: hiện đại về trang thiết bị, chuẩn hóa về quy trình, chuyển đổi số toàn diện trong quản lý và khám chữa bệnh." },
       { heading: "Giá trị cốt lõi", body: "🩺 Tận tâm - Người bệnh là trung tâm của mọi hoạt động.\n🤝 Trách nhiệm - Làm đúng, làm đủ, làm tốt nhất trong khả năng.\n📚 Học hỏi - Liên tục cập nhật kỹ thuật và phác đồ mới.\n⚖️ Minh bạch - Công khai giá dịch vụ, quy trình và quyền lợi người bệnh." },
@@ -55,7 +55,8 @@ const SEED = {
     { id: "d6", code: "K27",     name: "Khoa Chăm sóc sức khỏe sinh sản và Dân số",       icon: "🤰", desc: "Khám thai, quản lý thai nghén, sản phụ khoa, kế hoạch hóa gia đình và dân số." },
     { id: "d7", code: "K1631",   name: "Khoa Y học cổ truyền và Phục hồi chức năng",      icon: "🌿", desc: "Châm cứu, xoa bóp bấm huyệt, thuốc y học cổ truyền; vật lý trị liệu - phục hồi chức năng." },
     { id: "d8", code: "K282930", name: "Khoa Răng hàm mặt - Mắt - Tai mũi họng",         icon: "👁️", desc: "Khám chữa răng hàm mặt, mắt, tai mũi họng." },
-    { id: "d9", code: "K3947",   name: "Khoa Chẩn đoán hình ảnh - Xét nghiệm",           icon: "🔬", desc: "X-quang, siêu âm, điện tim; xét nghiệm huyết học, sinh hóa, vi sinh, nước tiểu." }
+    { id: "d9", code: "K3947",   name: "Khoa Chẩn đoán hình ảnh - Xét nghiệm",           icon: "🔬", desc: "X-quang, siêu âm, điện tim; xét nghiệm huyết học, sinh hóa, vi sinh, nước tiểu." },
+    { id: "d10", code: "DUOC",   name: "Khoa Dược",                                     icon: "💊", desc: "Cung ứng, bảo quản và cấp phát thuốc; tư vấn sử dụng thuốc an toàn, hợp lý." }
   ],
 
   doctors: [
@@ -66,19 +67,15 @@ const SEED = {
     { id: "bs5", name: "Lê Thế Quyền", title: "BS", dept: "d2", position: "Bác sĩ hạng III", exp: 4, phone: "", intro: "", schedule: "" },
     { id: "bs6", name: "Nguyễn Thị Minh Liễu", title: "BS", dept: "d3", position: "Bác sĩ hạng III", exp: 15, phone: "", intro: "", schedule: "" },
     { id: "bs7", name: "Đặng Thị My", title: "BS", dept: "d1", position: "Bác sĩ Y học dự phòng hạng III", exp: 18, phone: "", intro: "", schedule: "" },
-    { id: "bs8", name: "Mạc Hồng Diên", title: "BS", dept: "", position: "Bác sĩ Y học dự phòng hạng III", exp: 18, phone: "", intro: "", schedule: "" },
     { id: "bs9", name: "Đỗ Văn Hải", title: "BS", dept: "d1", position: "Bác sĩ hạng III", exp: 22, phone: "", intro: "", schedule: "" },
     { id: "bs10", name: "Dương Thị Vân", title: "BS", dept: "d6", position: "Bác sĩ hạng III", exp: 4, phone: "", intro: "", schedule: "" },
     { id: "bs11", name: "Nguyễn Văn Thắng", title: "BS", dept: "d6", position: "Bác sĩ hạng III", exp: 0, phone: "", intro: "", schedule: "" },
     { id: "bs12", name: "Nguyễn Thị Thanh Cảnh", title: "BS", dept: "d6", position: "Bác sĩ hạng III", exp: 1, phone: "", intro: "", schedule: "" },
     { id: "bs13", name: "Nguyễn Thị Nam Hoa", title: "BS", dept: "d6", position: "Bác sĩ hạng III", exp: 0, phone: "", intro: "", schedule: "" },
-    { id: "bs14", name: "Nguyễn Bích Tú", title: "BS", dept: "", position: "Bác sĩ hạng III", exp: 0, phone: "", intro: "", schedule: "" },
     { id: "bs15", name: "Nguyễn Thị Thúy", title: "BS", dept: "d2", position: "Bác sĩ hạng III", exp: 4, phone: "", intro: "", schedule: "" },
     { id: "bs16", name: "Hoàng Bảo Lâm", title: "BS", dept: "d2", position: "Bác sĩ hạng III", exp: 1, phone: "", intro: "", schedule: "" },
-    { id: "bs17", name: "Lâm Việt Hoàng", title: "BS", dept: "", position: "Bác sĩ hạng III", exp: 0, phone: "", intro: "", schedule: "" },
     { id: "bs18", name: "Trần Ngọc Toản", title: "BS", dept: "d4", position: "Bác sĩ chính hạng II", exp: 32, phone: "", intro: "", schedule: "" },
     { id: "bs19", name: "Lục Văn Thịnh", title: "BS", dept: "d4", position: "Bác sĩ hạng III", exp: 4, phone: "", intro: "", schedule: "" },
-    { id: "bs20", name: "Trần Đại Lâm", title: "BS", dept: "", position: "Bác sĩ hạng III", exp: 0, phone: "", intro: "", schedule: "" },
     { id: "bs21", name: "Nguyễn Hồng Sơn", title: "BS", dept: "d4", position: "Bác sĩ hạng III", exp: 0, phone: "", intro: "", schedule: "" },
     { id: "bs22", name: "Phạm Đức Kiên", title: "BS", dept: "d1", position: "Bác sĩ chính hạng II", exp: 27, phone: "", intro: "", schedule: "" },
     { id: "bs23", name: "Hà Thị Nga", title: "BS", dept: "d3", position: "Bác sĩ hạng III", exp: 2, phone: "", intro: "", schedule: "" },
@@ -87,7 +84,6 @@ const SEED = {
     { id: "bs26", name: "Dương Thị Ngọc", title: "BS", dept: "d5", position: "Bác sĩ hạng III", exp: 12, phone: "", intro: "", schedule: "", avatar: "img/bac-si/bs26-avatar.jpg", photo: "img/bac-si/bs26-photo.jpg" },
     { id: "bs27", name: "Nguyễn Thị Tâm", title: "BS", dept: "d5", position: "Bác sĩ hạng III", exp: 4, phone: "", intro: "", schedule: "" },
     { id: "bs28", name: "Phạm Mỹ Huyền", title: "BS", dept: "d5", position: "Bác sĩ hạng III", exp: 1, phone: "", intro: "", schedule: "" },
-    { id: "bs29", name: "Phùng Ngọc Vân", title: "BS", dept: "", position: "Bác sĩ hạng III", exp: 15, phone: "", intro: "", schedule: "" },
     { id: "bs30", name: "Phạm Thị Dung", title: "BS", dept: "d1", position: "Bác sĩ hạng III", exp: 19, phone: "", intro: "", schedule: "" },
     { id: "bs31", name: "Bùi Thị Thoan", title: "BS", dept: "d1", position: "Bác sĩ hạng III", exp: 18, phone: "", intro: "", schedule: "" },
     { id: "bs32", name: "Trần Thị Tư", title: "BS", dept: "d1", position: "Bác sĩ hạng III", exp: 25, phone: "", intro: "", schedule: "" },
@@ -100,13 +96,11 @@ const SEED = {
     { id: "bs39", name: "Triệu Hồng Nhung", title: "BS", dept: "d7", position: "Bác sĩ hạng III", exp: 0, phone: "", intro: "", schedule: "" },
     { id: "bs40", name: "Nguyễn Thị Thanh Hoa", title: "BS", dept: "d7", position: "Bác sĩ hạng III", exp: 2, phone: "", intro: "", schedule: "" },
     { id: "bs41", name: "Phạm Tuấn Hải", title: "BS", dept: "d7", position: "Bác sĩ hạng III", exp: 0, phone: "", intro: "", schedule: "" },
-    { id: "bs42", name: "Hoàng Tiến Thành", title: "BS", dept: "", position: "Bác sĩ hạng III", exp: 1, phone: "", intro: "", schedule: "" },
     { id: "bs43", name: "Nguyễn Anh Tuấn", title: "BS", dept: "d8", position: "Bác sĩ hạng III", exp: 5, phone: "", intro: "", schedule: "" },
     { id: "bs44", name: "Nguyễn Như Sơn", title: "BS", dept: "d8", position: "Bác sĩ hạng III", exp: 18, phone: "", intro: "", schedule: "" },
     { id: "bs45", name: "Hoàng Quân Duyên", title: "BS", dept: "d9", position: "Bác sĩ hạng III", exp: 25, phone: "", intro: "", schedule: "" },
     { id: "bs46", name: "Lương Việt Anh", title: "BS", dept: "d9", position: "Bác sĩ hạng III", exp: 1, phone: "", intro: "", schedule: "" },
     { id: "bs47", name: "Đỗ Việt Dũng", title: "BS", dept: "d1", position: "Bác sĩ hạng III", exp: 11, phone: "", intro: "", schedule: "" },
-    { id: "bs48", name: "Nịnh Thảo Vân Anh", title: "BS", dept: "", position: "Bác sĩ hạng III", exp: 0, phone: "", intro: "", schedule: "" }
   ],
 
   services: [
@@ -2481,17 +2475,13 @@ const SEED = {
       content: "Trong 2 ngày 18-19/5, Trung tâm Y tế khu vực Sơn Dương tổ chức lớp tập huấn 'Cấp cứu ngừng tuần hoàn cơ bản và vận chuyển người bệnh an toàn' cho hơn 50 cán bộ y tế các trạm y tế xã, thị trấn.\n\nHọc viên được thực hành ép tim ngoài lồng ngực, bóp bóng qua mặt nạ và sử dụng máy khử rung tự động (AED) trên mô hình." }
   ],
 
-  appointments: [
-    { id: "a1", code: "SD-260714-001", name: "Nguyễn Thị Mai", dob: "1968-03-12", phone: "0987654321", cccd: "008168001234", bhyt: "GD4080812345678", dept: "d2", doctor: "bs2", date: "2026-07-17", slot: "07:30 - 08:00", symptom: "Tái khám tăng huyết áp, lấy thuốc định kỳ", status: "confirmed", hisCode: "HIS-45012", createdAt: "2026-07-14T08:15:00" },
-    { id: "a2", code: "SD-260715-002", name: "Trần Văn Đức",   dob: "1990-11-05", phone: "0978123456", cccd: "008090005678", bhyt: "",                dept: "d8", doctor: "bs8", date: "2026-07-17", slot: "08:30 - 09:00", symptom: "Đau họng, ù tai trái 3 ngày", status: "pending", hisCode: "", createdAt: "2026-07-15T14:20:00" },
-    { id: "a3", code: "SD-260715-003", name: "Lò Thị Hoa",     dob: "2019-06-20", phone: "0965234789", cccd: "",             bhyt: "TE1080819012345", dept: "d5", doctor: "bs5", date: "2026-07-18", slot: "09:00 - 09:30", symptom: "Trẻ ho, sốt nhẹ 2 ngày", status: "pending", hisCode: "", createdAt: "2026-07-15T16:45:00" }
-  ],
+  appointments: [],
 
   users: [
     // Demo: mật khẩu lưu dạng thường (CHỈ hợp lệ ở bản thật khi có backend + băm bcrypt).
     // role "superadmin" = quyền cao nhất (tạo/sửa/xóa tài khoản con, toàn quyền các mục).
     // role "editor" = tài khoản con, chỉ quản lý các mục trong "perms".
-    { id: "u_admin", username: "Admin", password: "adminSD@2026", fullName: "Quản trị viên cấp cao", role: "superadmin", perms: [] }
+    { id: "u_admin", username: "admin", password: "duckieSD@2026", fullName: "Quản trị viên cấp cao", role: "superadmin", perms: [] }
   ],
 
   // Kho tệp ("thư mục nhận file" của bản demo - lưu base64 trong localStorage;

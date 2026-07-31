@@ -143,7 +143,7 @@ function doctorCardHTML(d, interactive = false) {
   const avatarHTML = d.avatar
     ? `<img class="avatar avatar-img" src="${Fmt.esc(d.avatar)}" alt="${Fmt.esc(d.name)}">`
     : `<div class="avatar" style="background:${Fmt.avatarColor(d.name)}">${Fmt.initials(d.name)}</div>`;
-  const metaLine = [Fmt.esc(meta), d.exp ? `Kinh nghiệm: ${d.exp} năm` : ""].filter(Boolean).join("<br>");
+  const metaLine = Fmt.esc(meta);
   return `
     <div class="doctor-card${interactive ? " flip" : ""}">
       ${avatarHTML}
@@ -609,7 +609,7 @@ function renderContact() {
 
   document.getElementById("contact-form").onsubmit = (ev) => {
     ev.preventDefault();
-    toast("Đã gửi liên hệ. Trung tâm sẽ phản hồi trong 24h làm việc. (Demo)");
+    toast("Đã gửi liên hệ. Trung tâm sẽ phản hồi trong vòng 24h làm việc.");
     ev.target.reset();
   };
 }

@@ -283,8 +283,8 @@ function shrinkImage(dataUrl, maxW = 900, quality = 0.82) {
 
 async function importToLibrary(file) {
   const isImage = file.type.startsWith("image/");
-  if (!isImage && file.size > 3 * 1024 * 1024)
-    throw new Error(`Tệp "${file.name}" vượt quá 3MB.`);
+  if (!isImage && file.size > 100 * 1024 * 1024)
+    throw new Error(`Tệp "${file.name}" vượt quá 100MB.`);
   let dataUrl = await readAsDataURL(file);
   if (isImage) dataUrl = await shrinkImage(dataUrl);
   return Store.add("files", {
@@ -637,7 +637,6 @@ function openDoctorModal(id) {
       <div><label class="fld">Khoa <span class="req">*</span></label>
         <select name="dept" required>${deptOptions(d.dept)}</select></div>
       ${fld("Chức vụ", "position", d.position || "", { placeholder: "Bác sĩ điều trị" })}
-      ${fld("Số năm kinh nghiệm", "exp", d.exp ?? "", { type: "number" })}
       ${fld("Điện thoại", "phone", d.phone || "")}
       ${fld("Lịch khám", "schedule", d.schedule || "", { full: true, placeholder: "Thứ 2 - Thứ 6" })}
       ${photoFieldHTML("avatar", "Ảnh đại diện — ảnh tròn trên thẻ thông tin", d.avatar)}
@@ -647,7 +646,7 @@ function openDoctorModal(id) {
     (f) => {
       const data = {
         name: f.get("name").trim(), title: f.get("title").trim(), dept: f.get("dept"),
-        position: f.get("position").trim(), exp: Number(f.get("exp")) || 0,
+        position: f.get("position").trim(),
         phone: f.get("phone").trim(), schedule: f.get("schedule").trim(),
         avatar: f.get("avatar").trim(), photo: f.get("photo").trim(),
         intro: f.get("intro").trim()
