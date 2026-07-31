@@ -4,7 +4,7 @@
    Khi triển khai thật: thay Store bằng các lời gọi API backend.
    ============================================================ */
 
-const DB_KEY = "ttyt_sonduong_db_v11";
+const DB_KEY = "ttyt_sonduong_db_v12";
 
 /* ---------------- DỮ LIỆU MẪU (SEED) ---------------- */
 const SEED = {
@@ -2464,31 +2464,38 @@ const SEED = {
       sections: [
         { heading: "", body: "Trung tâm Y tế khu vực Sơn Dương triển khai ứng dụng trên điện thoại giúp người bệnh tra cứu kết quả khám chữa bệnh nhanh chóng, không phải chờ lấy kết quả giấy.\n\nỨng dụng hiện hỗ trợ điện thoại Android (Samsung, Oppo, Xiaomi, Vivo...). Phiên bản hiện tại: v1 (16/6/2026).", image: "" },
         { heading: "Bước 1: Tải file cài đặt", body: "Kéo xuống cuối bài viết này, bấm vào tệp đính kèm \"sonduong-datkham.apk\" để tải file cài đặt về điện thoại.\n\nLưu ý: chỉ tải ứng dụng từ website chính thức ttytsonduong.vn, không tải từ nguồn khác.", image: "" },
-        { heading: "Bước 2: Cho phép cài đặt", body: "Mở file vừa tải (trong thông báo tải xuống hoặc thư mục \"Tệp đã tải\" / \"Downloads\").\n\nNếu điện thoại hiện cảnh báo \"Không được phép cài đặt ứng dụng không xác định\", hãy bấm \"Cài đặt\" hoặc vào Cài đặt và bật \"Cho phép cài đặt từ nguồn này\" cho trình duyệt, sau đó mở lại file.", image: "" },
-        { heading: "Bước 3: Mở ứng dụng và tra cứu", body: "Sau khi cài đặt xong, mở ứng dụng và đăng nhập theo hướng dẫn để tra cứu kết quả khám chữa bệnh.\n\nNếu cần hỗ trợ cài đặt hoặc đăng nhập, vui lòng liên hệ quầy tiếp đón khi đến khám, hoặc gọi đường dây nóng của Trung tâm: 0965 301 010.", image: "" }
+        { heading: "Bước 2: Cho phép cài đặt", body: "Mở file vừa tải (trong thông báo tải xuống hoặc thư mục \"Tệp đã tải\" / \"Downloads\").\n\nNếu điện thoại hiện cảnh báo \"Không được phép cài đặt ứng dụng không xác định\", hãy vào Cài đặt  và bật \"Cho phép cài đặt từ nguồn này\" cho trình duyệt rồi mở lại file. Nếu điện thoại thông báo chặn hãy vào \"Cài đặt\"-> \"Bảo mật và riêng tư\" -> bỏ tích \"Tự động chặn\" , sau đó mở lại file.", image: "" },
+        { heading: "Bước 3: Mở ứng dụng và tra cứu", body: "Sau khi cài đặt xong, mở ứng dụng và đăng nhập theo hướng dẫn để tra cứu kết quả khám chữa bệnh.\n\nHướng dẫn xem tại:\nhttps://ttytsonduong.vn/tin-tuc.html?id=nems8fg84a584\n\nNếu cần hỗ trợ cài đặt hoặc đăng nhập, vui lòng liên hệ quầy tiếp đón khi đến khám.", image: "" }
       ],
       attachments: [
         { name: "sonduong-datkham.apk", src: "app/sonduong-datkham.apk" }
       ],
-      content: "Hướng dẫn tải và cài đặt ứng dụng tra cứu kết quả khám bệnh của Trung tâm Y tế khu vực Sơn Dương trên điện thoại Android. Tải file cài đặt đính kèm cuối bài, cho phép cài đặt từ nguồn không xác định, mở ứng dụng và đăng nhập để tra cứu kết quả." },
-    { id: "n1", cat: "Thông báo",     date: "2026-07-10", title: "Triển khai đăng ký khám bệnh trực tuyến từ tháng 7/2026",
+      content: "Trung tâm Y tế khu vực Sơn Dương triển khai ứng dụng trên điện thoại giúp người bệnh tra cứu kết quả khám chữa bệnh nhanh chóng, không phải chờ lấy kết quả giấy.\n\nỨng dụng hiện hỗ trợ điện thoại Android (Samsung, Oppo, Xiaomi, Vivo...). Phiên bản hiện tại: v1 (16/6/2026).\n\nBước 1: Tải file cài đặt\nKéo xuống cuối bài viết này, bấm vào tệp đính kèm \"sonduong-datkham.apk\" để tải file cài đặt về điện thoại.\n\nLưu ý: chỉ tải ứng dụng từ website chính thức ttytsonduong.vn, không tải từ nguồn khác.\n\nBước 2: Cho phép cài đặt\nMở file vừa tải (trong thông báo tải xuống hoặc thư mục \"Tệp đã tải\" / \"Downloads\").\n\nNếu điện thoại hiện cảnh báo \"Không được phép cài đặt ứng dụng không xác định\", hãy vào Cài đặt  và bật \"Cho phép cài đặt từ nguồn này\" cho trình duyệt rồi mở lại file. Nếu điện thoại thông báo chặn hãy vào \"Cài đặt\"-> \"Bảo mật và riêng tư\" -> bỏ tích \"Tự động chặn\" , sau đó mở lại file.\n\nBước 3: Mở ứng dụng và tra cứu\nSau khi cài đặt xong, mở ứng dụng và đăng nhập theo hướng dẫn để tra cứu kết quả khám chữa bệnh.\n\nHướng dẫn xem tại:\nhttps://ttytsonduong.vn/tin-tuc.html?id=nems8fg84a584\n\nNếu cần hỗ trợ cài đặt hoặc đăng nhập, vui lòng liên hệ quầy tiếp đón khi đến khám." },
+    { id: "n8", cat: "Thông báo", date: "2026-07-30",
+      title: "Hướng dẫn cách đăng ký tài khoản và tra cứu thông tin khám bệnh",
+      summary: "Hướng dẫn chi tiết từng bước cách đăng ký tài khoản và tra cứu thông tin khám bệnh trên phần mềm Trung tâm y tế khu vực Sơn Dương - Tuyên Quang",
+      sections: [
+        { heading: "", body: "Bước 1: Mở ứng dụng tra cứu Trung tâm Y tế Sơn Dương - Tuyên Quang", image: "" },
+        { heading: "", body: "Bước 2: Ở màn hình chính, nhấn nút đăng ký để đăng ký tài khoản cá nhân", image: "img/tin-tuc/huong-dan-tra-cuu-01.jpg" },
+        { heading: "", body: "Bước 3: Ở màn hình đăng ký, điền các thông tin cá nhân vào từng trường thông tin và nhấn nút \"đăng ký\" (Các ô màu đỏ là các trường thông tin bắt buộc cần phải nhập)", image: "img/tin-tuc/huong-dan-tra-cuu-02.jpg" },
+        { heading: "", body: "", image: "img/tin-tuc/huong-dan-tra-cuu-03.jpg" },
+        { heading: "", body: "", image: "img/tin-tuc/huong-dan-tra-cuu-04.jpg" },
+        { heading: "", body: "Bước 4: Sau khi đăng ký xong quý bệnh nhân sẽ được đưa về màn hình đăng nhập, tại đây, nhập các thông tin tài khoản và mật khẩu vừa tạo (Tên đăng nhập là số điện thoại bạn vừa đăng ký)", image: "img/tin-tuc/huong-dan-tra-cuu-05.jpg" },
+        { heading: "", body: "Bước 5: Quý bệnh nhân đi tới quầy tiếp đón và yêu cầu nhân y tế cấp tài khoản theo mã bệnh nhân đã được đăng ký, sau khi có thông tin tài khoản và mật khẩu, quý bệnh nhân vào tài khoản -> liên kết tài khoản -> nhập thông tin mã bệnh nhân của mình và mật khẩu vừa được cấp.", image: "img/tin-tuc/huong-dan-tra-cuu-06.jpg" },
+        { heading: "", body: "", image: "img/tin-tuc/huong-dan-tra-cuu-07.jpg" },
+        { heading: "", body: "", image: "img/tin-tuc/huong-dan-tra-cuu-08.jpg" },
+        { heading: "", body: "", image: "img/tin-tuc/huong-dan-tra-cuu-09.jpg" },
+        { heading: "", body: "", image: "img/tin-tuc/huong-dan-tra-cuu-10.jpg" },
+        { heading: "", body: "Bước 6: Sau khi hoàn thành tất cả các bước trên, quý bệnh nhân đã có thể tra cứu lịch sử khám của mình bằng cách nhấn vào nút bệnh án ở trên phần mềm của mình.", image: "img/tin-tuc/huong-dan-tra-cuu-11.jpg" }
+      ],
+      content: "Bước 1: Mở ứng dụng tra cứu Trung tâm Y tế Sơn Dương - Tuyên Quang\n\nBước 2: Ở màn hình chính, nhấn nút đăng ký để đăng ký tài khoản cá nhân\n\nBước 3: Ở màn hình đăng ký, điền các thông tin cá nhân vào từng trường thông tin và nhấn nút \"đăng ký\" (Các ô màu đỏ là các trường thông tin bắt buộc cần phải nhập)\n\n\n\n\n\nBước 4: Sau khi đăng ký xong quý bệnh nhân sẽ được đưa về màn hình đăng nhập, tại đây, nhập các thông tin tài khoản và mật khẩu vừa tạo (Tên đăng nhập là số điện thoại bạn vừa đăng ký)\n\nBước 5: Quý bệnh nhân đi tới quầy tiếp đón và yêu cầu nhân y tế cấp tài khoản theo mã bệnh nhân đã được đăng ký, sau khi có thông tin tài khoản và mật khẩu, quý bệnh nhân vào tài khoản -> liên kết tài khoản -> nhập thông tin mã bệnh nhân của mình và mật khẩu vừa được cấp.\n\n\n\n\n\n\n\n\n\nBước 6: Sau khi hoàn thành tất cả các bước trên, quý bệnh nhân đã có thể tra cứu lịch sử khám của mình bằng cách nhấn vào nút bệnh án ở trên phần mềm của mình." },
+    { id: "n1", cat: "Thông báo", date: "2026-07-10",
+      title: "Triển khai đăng ký khám bệnh trực tuyến từ tháng 7/2026",
       summary: "Người dân có thể đặt lịch khám qua website, giảm thời gian chờ đợi tại quầy tiếp đón.",
-      content: "Từ ngày 15/7/2026, Trung tâm Y tế khu vực Sơn Dương chính thức triển khai hệ thống đăng ký khám bệnh trực tuyến kết nối với phần mềm quản lý bệnh viện (HIS).\n\nNgười dân chỉ cần truy cập website, chọn khoa khám, bác sĩ và khung giờ mong muốn. Hệ thống sẽ cấp mã hồ sơ và số thứ tự, khi đến khám chỉ cần đọc mã tại quầy tiếp đón.\n\nViệc này giúp giảm 60-70% thời gian chờ đợi, đặc biệt hữu ích cho người cao tuổi và người bệnh mạn tính tái khám định kỳ." },
-    { id: "n2", cat: "Hoạt động",     date: "2026-07-05", title: "Khám bệnh, cấp thuốc miễn phí cho gia đình chính sách",
-      summary: "Nhân kỷ niệm Ngày Thương binh - Liệt sĩ 27/7, Trung tâm tổ chức khám và cấp thuốc miễn phí.",
-      content: "Hướng tới kỷ niệm Ngày Thương binh - Liệt sĩ 27/7, Trung tâm Y tế khu vực Sơn Dương phối hợp với các xã, thị trấn tổ chức chương trình khám bệnh, tư vấn sức khỏe và cấp thuốc miễn phí cho hơn 300 người thuộc gia đình chính sách, người có công với cách mạng trên địa bàn.\n\nChương trình gồm: khám nội tổng quát, đo huyết áp, thử đường máu, siêu âm ổ bụng và cấp thuốc điều trị các bệnh thông thường." },
-    { id: "n3", cat: "Y tế dự phòng", date: "2026-06-28", title: "Tăng cường phòng chống sốt xuất huyết mùa mưa",
-      summary: "Khuyến cáo người dân diệt lăng quăng, ngủ màn và đến cơ sở y tế ngay khi sốt cao liên tục.",
-      content: "Mùa mưa là thời điểm dịch sốt xuất huyết dễ bùng phát. Trung tâm Y tế khu vực Sơn Dương khuyến cáo người dân:\n\n1. Đậy kín các dụng cụ chứa nước, thả cá diệt lăng quăng.\n2. Lật úp các vật dụng phế thải đọng nước quanh nhà.\n3. Ngủ màn kể cả ban ngày, mặc quần áo dài tay.\n4. Khi có dấu hiệu sốt cao đột ngột 2-7 ngày, đau đầu, đau hốc mắt, cần đến ngay cơ sở y tế, không tự ý truyền dịch tại nhà." },
-    { id: "n4", cat: "Kỹ thuật mới",  date: "2026-06-15", title: "Đưa vào hoạt động hệ thống nội soi tiêu hóa thế hệ mới",
-      summary: "Hệ thống nội soi độ phân giải cao giúp phát hiện sớm tổn thương và ung thư đường tiêu hóa.",
-      content: "Trung tâm vừa đưa vào sử dụng hệ thống nội soi tiêu hóa độ phân giải cao với chức năng nhuộm màu ảo (NBI), cho phép phát hiện sớm các tổn thương tiền ung thư và ung thư sớm đường tiêu hóa.\n\nKỹ thuật được thực hiện bởi ê-kíp bác sĩ đã được đào tạo tại Bệnh viện Bạch Mai. Người bệnh có BHYT được quỹ BHYT chi trả theo quy định." },
-    { id: "n5", cat: "Thông báo",     date: "2026-06-01", title: "Lịch tiêm chủng mở rộng tháng 6/2026",
-      summary: "Tiêm chủng mở rộng cho trẻ em được tổ chức vào các ngày 5, 15 và 25 hằng tháng.",
-      content: "Trung tâm Y tế khu vực Sơn Dương thông báo lịch tiêm chủng mở rộng tháng 6/2026 tại Trung tâm và các trạm y tế xã:\n\n- Ngày 05/6: Tiêm vắc xin 5 trong 1, bại liệt (IPV), viêm gan B.\n- Ngày 15/6: Tiêm vắc xin sởi, sởi - rubella (MR).\n- Ngày 25/6: Tiêm vét cho trẻ hoãn tiêm các đợt trước.\n\nPhụ huynh mang theo sổ tiêm chủng và cho trẻ ăn no trước khi tiêm." },
-    { id: "n6", cat: "Hoạt động",     date: "2026-05-20", title: "Tập huấn cấp cứu ngừng tuần hoàn cho y tế cơ sở",
-      summary: "Hơn 50 cán bộ trạm y tế xã được tập huấn kỹ năng cấp cứu ngừng tuần hoàn cơ bản.",
-      content: "Trong 2 ngày 18-19/5, Trung tâm Y tế khu vực Sơn Dương tổ chức lớp tập huấn 'Cấp cứu ngừng tuần hoàn cơ bản và vận chuyển người bệnh an toàn' cho hơn 50 cán bộ y tế các trạm y tế xã, thị trấn.\n\nHọc viên được thực hành ép tim ngoài lồng ngực, bóp bóng qua mặt nạ và sử dụng máy khử rung tự động (AED) trên mô hình." }
+      sections: [
+        { heading: "", body: "Từ ngày 15/7/2026, Trung tâm Y tế khu vực Sơn Dương chính thức triển khai hệ thống đăng ký khám bệnh trực tuyến kết nối với phần mềm quản lý bệnh viện (HIS).\n\nNgười dân chỉ cần truy cập website, chọn khoa khám, bác sĩ và khung giờ mong muốn. Hệ thống sẽ cấp mã hồ sơ và số thứ tự, khi đến khám chỉ cần đọc mã tại quầy tiếp đón.\n\nViệc này giúp giảm 60-70% thời gian chờ đợi, đặc biệt hữu ích cho người cao tuổi và người bệnh mạn tính tái khám định kỳ.", image: "" }
+      ],
+      content: "Từ ngày 15/7/2026, Trung tâm Y tế khu vực Sơn Dương chính thức triển khai hệ thống đăng ký khám bệnh trực tuyến kết nối với phần mềm quản lý bệnh viện (HIS).\n\nNgười dân chỉ cần truy cập website, chọn khoa khám, bác sĩ và khung giờ mong muốn. Hệ thống sẽ cấp mã hồ sơ và số thứ tự, khi đến khám chỉ cần đọc mã tại quầy tiếp đón.\n\nViệc này giúp giảm 60-70% thời gian chờ đợi, đặc biệt hữu ích cho người cao tuổi và người bệnh mạn tính tái khám định kỳ." }
   ],
 
   appointments: [],
