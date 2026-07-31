@@ -4,7 +4,7 @@
    Khi triển khai thật: thay Store bằng các lời gọi API backend.
    ============================================================ */
 
-const DB_KEY = "ttyt_sonduong_db_v10";
+const DB_KEY = "ttyt_sonduong_db_v11";
 
 /* ---------------- DỮ LIỆU MẪU (SEED) ---------------- */
 const SEED = {
@@ -2458,6 +2458,19 @@ const SEED = {
   ],
 
   news: [
+    { id: "n7", cat: "Thông báo", date: "2026-07-31",
+      title: "Hướng dẫn tải và cài đặt ứng dụng tra cứu kết quả khám bệnh",
+      summary: "Người bệnh có thể tải ứng dụng chính thức của Trung tâm về điện thoại Android để tra cứu kết quả khám chữa bệnh. File cài đặt đính kèm cuối bài.",
+      sections: [
+        { heading: "", body: "Trung tâm Y tế khu vực Sơn Dương triển khai ứng dụng trên điện thoại giúp người bệnh tra cứu kết quả khám chữa bệnh nhanh chóng, không phải chờ lấy kết quả giấy.\n\nỨng dụng hiện hỗ trợ điện thoại Android (Samsung, Oppo, Xiaomi, Vivo...). Phiên bản hiện tại: v1 (16/6/2026).", image: "" },
+        { heading: "Bước 1: Tải file cài đặt", body: "Kéo xuống cuối bài viết này, bấm vào tệp đính kèm \"sonduong-datkham.apk\" để tải file cài đặt về điện thoại.\n\nLưu ý: chỉ tải ứng dụng từ website chính thức ttytsonduong.vn, không tải từ nguồn khác.", image: "" },
+        { heading: "Bước 2: Cho phép cài đặt", body: "Mở file vừa tải (trong thông báo tải xuống hoặc thư mục \"Tệp đã tải\" / \"Downloads\").\n\nNếu điện thoại hiện cảnh báo \"Không được phép cài đặt ứng dụng không xác định\", hãy bấm \"Cài đặt\" hoặc vào Cài đặt và bật \"Cho phép cài đặt từ nguồn này\" cho trình duyệt, sau đó mở lại file.", image: "" },
+        { heading: "Bước 3: Mở ứng dụng và tra cứu", body: "Sau khi cài đặt xong, mở ứng dụng và đăng nhập theo hướng dẫn để tra cứu kết quả khám chữa bệnh.\n\nNếu cần hỗ trợ cài đặt hoặc đăng nhập, vui lòng liên hệ quầy tiếp đón khi đến khám, hoặc gọi đường dây nóng của Trung tâm: 0965 301 010.", image: "" }
+      ],
+      attachments: [
+        { name: "sonduong-datkham.apk", src: "app/sonduong-datkham.apk" }
+      ],
+      content: "Hướng dẫn tải và cài đặt ứng dụng tra cứu kết quả khám bệnh của Trung tâm Y tế khu vực Sơn Dương trên điện thoại Android. Tải file cài đặt đính kèm cuối bài, cho phép cài đặt từ nguồn không xác định, mở ứng dụng và đăng nhập để tra cứu kết quả." },
     { id: "n1", cat: "Thông báo",     date: "2026-07-10", title: "Triển khai đăng ký khám bệnh trực tuyến từ tháng 7/2026",
       summary: "Người dân có thể đặt lịch khám qua website, giảm thời gian chờ đợi tại quầy tiếp đón.",
       content: "Từ ngày 15/7/2026, Trung tâm Y tế khu vực Sơn Dương chính thức triển khai hệ thống đăng ký khám bệnh trực tuyến kết nối với phần mềm quản lý bệnh viện (HIS).\n\nNgười dân chỉ cần truy cập website, chọn khoa khám, bác sĩ và khung giờ mong muốn. Hệ thống sẽ cấp mã hồ sơ và số thứ tự, khi đến khám chỉ cần đọc mã tại quầy tiếp đón.\n\nViệc này giúp giảm 60-70% thời gian chờ đợi, đặc biệt hữu ích cho người cao tuổi và người bệnh mạn tính tái khám định kỳ." },
