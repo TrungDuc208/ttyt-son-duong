@@ -493,10 +493,28 @@ input:focus, select:focus, textarea:focus {
   color: var(--blue-dark); font-size: 18px; font-weight: 700;
   margin: 22px 0 10px;
 }
+/* Ảnh minh họa: không kéo giãn: ảnh ngang tối đa hết cột, ảnh dọc (chụp màn hình
+   điện thoại) bị giới hạn chiều cao để không chiếm trọn màn hình. Luôn căn giữa. */
 .art-img {
-  display: block; width: 100%; border-radius: 12px;
-  border: 1px solid var(--border); margin: 6px 0 18px;
+  display: block;
+  width: auto; height: auto;
+  max-width: 100%; max-height: 560px;
+  border-radius: 12px; border: 1px solid var(--border);
+  margin: 6px auto 18px;
 }
+
+/* Nhúng trang web (iframe) trong bài viết */
+.art-embed {
+  margin: 10px 0 20px; border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden; background: #fff;
+}
+.art-embed iframe { display: block; width: 100%; height: 460px; border: 0; }
+.art-embed-link {
+  display: block; padding: 10px 16px; font-size: 13.5px; font-weight: 600;
+  color: var(--blue-dark); background: var(--blue-light);
+  border-top: 1px solid var(--border);
+}
+.art-embed-link:hover { background: #d3ecee; text-decoration: none; }
 /* Tài liệu PDF hiển thị dạng ảnh từng trang */
 .art-pdf { margin: 10px 0 20px; }
 .art-pdf-name { font-size: 13.5px; font-weight: 600; color: var(--blue-dark); margin-bottom: 10px; }
@@ -617,6 +635,8 @@ footer.site-footer { background: #0a3a3f; color: #a8c5c8; margin-top: 64px; }
   .header-book .hb-text { display: none; }     /* chỉ còn icon 📅 cho gọn */
   .header-book { padding: 9px 13px; font-size: 15px; }
   .map-embed iframe { height: 280px; }
+  .art-img { max-height: 420px; }        /* ảnh dọc không chiếm trọn màn hình điện thoại */
+  .art-embed iframe { height: 320px; }
   .article { padding: 22px 18px; }
   .page-head { padding: 26px 0; }
 }

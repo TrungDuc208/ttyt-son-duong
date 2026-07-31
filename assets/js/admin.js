@@ -262,11 +262,13 @@ function readAsDataURL(file) {
 }
 
 /* Nén ảnh về tối đa 900px, JPEG - tránh đầy localStorage */
-function shrinkImage(dataUrl, maxW = 900, quality = 0.82) {
+function shrinkImage(dataUrl, maxW = 900, quality = 0.82, maxH = 1200) {
   return new Promise((res) => {
     const img = new Image();
     img.onload = () => {
-      const scale = Math.min(1, maxW / img.width);
+      // Giới hạn CẢ chiều rộng và chiều cao -> ảnh dọc (chụp màn hình điện thoại)
+      // không bị lưu ở kích thước quá lớn
+      const scale = Math.min(1, maxW / img.width, maxH / img.height);
       const c = document.createElement("canvas");
       c.width = Math.round(img.width * scale);
       c.height = Math.round(img.height * scale);
@@ -984,9 +986,10 @@ function openNewsModal(id) {
         .map(s => {
           const sec = { heading: s.heading.trim(), body: s.body.trim(), image: s.image };
           if (s.pdfPages && s.pdfPages.length) { sec.pdfPages = s.pdfPages; sec.pdfName = s.pdfName || ""; }
+          if (s.embed) sec.embed = s.embed;
           return sec;
         })
-        .filter(s => s.heading || s.body || s.image || (s.pdfPages && s.pdfPages.length));
+        .filter(s => s.heading || s.body || s.image || s.embed || (s.pdfPages && s.pdfPages.length));
       if (!sections.length) { toast("Bài viết cần ít nhất một phần có nội dung.", true); return; }
       const data = {
         title: f.get("title").trim(), cat: f.get("cat"), date: f.get("date"),
@@ -1029,7 +1032,14 @@ function nsRender() {
         <select onchange="nsImageFromLib(${i}, this)" style="max-width:200px">${libImageOptions()}</select>
         ${s.image ? `<button type="button" class="icon-btn danger" onclick="nsSetImage(${i},'')">🗑 Bỏ ảnh</button>` : ""}
         <button type="button" class="icon-btn" onclick="nsPickPDF(${i})">📄 Chèn PDF (hiện thành ảnh)</button>
+        <button type="button" class="icon-btn" onclick="nsToEmbed(${i})">🔗 Nhúng trang web</button>
       </div>
+      ${s.embed ? `
+        <div class="ns-embed-box">
+          <span class="ns-embed-label">🔗 Đang nhúng trang:</span>
+          <a href="${Fmt.esc(s.embed)}" target="_blank" rel="noopener">${Fmt.esc(s.embed)}</a>
+          <button type="button" class="icon-btn danger" onclick="nsClearEmbed(${i})">🗑 Bỏ nhúng</button>
+        </div>` : ""}
       ${(s.pdfPages && s.pdfPages.length) ? `
         <div class="ns-pdf-box">
           <span class="ns-pdf-name">📄 ${Fmt.esc(s.pdfName || "Tài liệu PDF")} — ${s.pdfPages.length} trang</span>
@@ -1068,6 +1078,74 @@ const PDF_MAX_PAGES = 20;   // giới hạn số trang để tránh đầy bộ 
 function nsClearPDF(i) {
   delete newsDraft.sections[i].pdfPages;
   delete newsDraft.sections[i].pdfName;
+  nsRender();
+}
+
+/* ----- Nhúng trang web: biến đường dẫn trong nội dung thành khung xem trực tiếp ----- */
+function findUrl(text) {
+  const m = String(text || "").match(/https?:\/\/[^\s<>"')]+/i);
+  return m ? m[0] : "";
+}
+
+/* Chuyển link xem thường -> link nhúng được (YouTube, Google Maps, Google Drive/Docs) */
+function toEmbedUrl(url) {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\./, "").toLowerCase();
+
+    if (host === "youtu.be") {
+      const id = u.pathname.slice(1);
+      if (id) return "https://www.youtube.com/embed/" + id;
+    }
+    if (host.endsWith("youtube.com")) {
+      const id = u.searchParams.get("v");
+      if (id) return "https://www.youtube.com/embed/" + id;
+      if (u.pathname.startsWith("/embed/")) return u.href;
+    }
+    if (host.endsWith("google.com") && u.pathname.startsWith("/maps")) {
+      if (!u.searchParams.get("output")) u.searchParams.set("output", "embed");
+      return u.href;
+    }
+    if (host === "drive.google.com" || host === "docs.google.com") {
+      return u.href.replace(/\/(view|edit)(\?.*)?$/, "/preview");
+    }
+    return u.href;
+  } catch {
+    return "";
+  }
+}
+
+function nsToEmbed(i) {
+  const sec = newsDraft.sections[i];
+  let url = findUrl(sec.body);
+  if (!url) {
+    url = (prompt("Phần này chưa có đường dẫn trong nội dung.\nDán đường dẫn trang web cần nhúng:", "https://") || "").trim();
+  }
+  if (!url) return;
+
+  const embed = toEmbedUrl(url);
+  if (!embed || !/^https?:\/\//i.test(embed)) {
+    toast("Đường dẫn không hợp lệ. Cần bắt đầu bằng http:// hoặc https://", true);
+    return;
+  }
+  if (/^http:\/\//i.test(embed) &&
+      !confirm("Đường dẫn dùng http:// (không bảo mật) nên trình duyệt có thể chặn hiển thị trong trang https.\nVẫn nhúng?")) return;
+
+  sec.embed = embed;
+  // Bỏ đường dẫn khỏi phần chữ vì nó đã trở thành khung nhúng
+  const original = findUrl(sec.body);
+  if (original) {
+    sec.body = sec.body.replace(original, "")
+      .replace(/[ \t]{2,}/g, " ")      // gộp khoảng trắng thừa chỗ vừa gỡ link
+      .replace(/ +([.,;!?])/g, "$1")   // tránh dấu câu bị tách rời
+      .replace(/\n{3,}/g, "\n\n").trim();
+  }
+  nsRender();
+  toast("Đã chuyển đường dẫn thành khung nhúng trang web.");
+}
+
+function nsClearEmbed(i) {
+  delete newsDraft.sections[i].embed;
   nsRender();
 }
 

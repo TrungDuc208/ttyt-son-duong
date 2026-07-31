@@ -404,7 +404,13 @@ function renderNews() {
       ? n.sections.map(sec => `
           ${sec.heading ? `<h3>${Fmt.esc(sec.heading)}</h3>` : ""}
           ${sec.body ? sec.body.split(/\n+/).map(p => `<p>${Fmt.esc(p)}</p>`).join("") : ""}
-          ${sec.image ? `<img class="art-img" src="${Fmt.esc(sec.image)}" alt="">` : ""}
+          ${sec.image ? `<img class="art-img" src="${Fmt.esc(sec.image)}" alt="" loading="lazy">` : ""}
+          ${sec.embed ? `
+            <div class="art-embed">
+              <iframe src="${Fmt.esc(sec.embed)}" title="Nội dung nhúng từ ${Fmt.esc(sec.embed)}"
+                      loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+              <a class="art-embed-link" href="${Fmt.esc(sec.embed)}" target="_blank" rel="noopener">🔗 Mở trang này trong tab mới →</a>
+            </div>` : ""}
           ${(sec.pdfPages && sec.pdfPages.length) ? `
             <div class="art-pdf">
               ${sec.pdfName ? `<div class="art-pdf-name">📄 ${Fmt.esc(sec.pdfName)}</div>` : ""}
