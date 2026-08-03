@@ -4,7 +4,7 @@
    Khi triển khai thật: thay Store bằng các lời gọi API backend.
    ============================================================ */
 
-const DB_KEY = "ttyt_sonduong_db_v14";
+const DB_KEY = "ttyt_sonduong_db_v15";
 
 /* ---------------- DỮ LIỆU MẪU (SEED) ---------------- */
 const SEED = {
@@ -12,96 +12,95 @@ const SEED = {
     siteName: "Trung tâm Y tế khu vực Sơn Dương",
     slogan: "Tận tâm chăm sóc - Vững bước niềm tin",
     address: "Thôn Quyết Tiến, xã Sơn Dương, tỉnh Tuyên Quang",
-    hotline: "0965 301 010",          // Đường dây nóng TTYT Sơn Dương
-    hotlineDept: "0965 361 010",      // Đường dây nóng Sở Y tế Tuyên Quang
+    hotline: "0965 301 010",
+    hotlineDept: "0965 361 010",
     email: "bvsonduong@gmail.com",
     workingHours: "Thứ 2 - Thứ 7: 7h00 - 17h00 | Cấp cứu 24/7",
     announcement: "Trung tâm triển khai đăng ký khám bệnh trực tuyến - Quý khách vui lòng đặt lịch trước để giảm thời gian chờ đợi.",
-    // Danh sách bác sĩ tiêu biểu hiện ở trang chủ (theo thứ tự). Mỗi slide 4 bác sĩ.
-    featuredDoctors: ["bs1", "bs2", "bs3", "bs4", "bs5", "bs6", "bs7", "bs9"],
-    // Nội dung trang "Giới thiệu" - sửa được trong trang quản trị
+    // Bác sĩ tiêu biểu hiện ở trang chủ (theo thứ tự)
+    featuredDoctors: ["bs1", "bs2", "bs35", "bs4", "bs22", "bs18", "bs7", "bs28", "bs26", "bs10", "bs45", "bs43", "bs15", "bs30", "bs27"],
+    // Nội dung trang Giới thiệu
     aboutSections: [
-      { heading: "", body: "Trung tâm Y tế khu vực Sơn Dương là đơn vị sự nghiệp y tế công lập trực thuộc Sở Y tế tỉnh Tuyên Quang, thực hiện chức năng khám chữa bệnh, y tế dự phòng, dân số và chăm sóc sức khỏe ban đầu cho nhân dân trên địa bàn khu vực Sơn Dương.\n\nVới quy mô hơn 270 giường bệnh, 12 khoa phòng chuyên môn cùng hệ thống trạm y tế xã, thị trấn trực thuộc, Trung tâm hằng năm tiếp nhận khám và điều trị cho hàng trăm nghìn lượt người bệnh." },
+      { heading: "", body: "Trung tâm Y tế khu vực Sơn Dương là đơn vị sự nghiệp y tế công lập trực thuộc Sở Y tế tỉnh Tuyên Quang, thực hiện chức năng khám chữa bệnh, y tế dự phòng, dân số và chăm sóc sức khỏe ban đầu cho nhân dân trên địa bàn khu vực Sơn Dương.\n\nVới quy mô hơn 270 giường bệnh, 12 khoa phòng chuyên môn, Trung tâm hằng năm tiếp nhận khám và điều trị cho hàng trăm nghìn lượt người bệnh." },
       { heading: "Sứ mệnh", body: "Chăm sóc, bảo vệ và nâng cao sức khỏe nhân dân bằng y đức, chuyên môn và sự tận tâm; đưa dịch vụ y tế chất lượng đến gần dân nhất với chi phí hợp lý." },
       { heading: "Tầm nhìn", body: "Trở thành trung tâm y tế khu vực kiểu mẫu của tỉnh Tuyên Quang: hiện đại về trang thiết bị, chuẩn hóa về quy trình, chuyển đổi số toàn diện trong quản lý và khám chữa bệnh." },
       { heading: "Giá trị cốt lõi", body: "🩺 Tận tâm - Người bệnh là trung tâm của mọi hoạt động.\n🤝 Trách nhiệm - Làm đúng, làm đủ, làm tốt nhất trong khả năng.\n📚 Học hỏi - Liên tục cập nhật kỹ thuật và phác đồ mới.\n⚖️ Minh bạch - Công khai giá dịch vụ, quy trình và quyền lợi người bệnh." },
       { heading: "Chức năng, nhiệm vụ chính", body: "• Khám, cấp cứu, điều trị nội trú và ngoại trú các bệnh thường gặp.\n• Triển khai công tác y tế dự phòng, tiêm chủng mở rộng, phòng chống dịch bệnh.\n• Quản lý sức khỏe cộng đồng, khám sức khỏe định kỳ, quản lý bệnh không lây nhiễm.\n• Chỉ đạo tuyến và hỗ trợ chuyên môn cho các trạm y tế xã, thị trấn.\n• Truyền thông giáo dục sức khỏe cho nhân dân." }
     ],
     his: {
-      mode: "mock",                 // "mock" = demo | "real" = kết nối HIS thật
+      mode: "mock",
       endpoint: "https://his.ttytsonduong.vn/api/v1",
       apiKey: "",
-      facilityCode: "08014",        // Mã cơ sở KCB
+      facilityCode: "08303",
       timeout: 15000
     }
   },
 
-  // Ảnh trình chiếu đầu trang chủ (hero). Mỗi ảnh là 1 "slide".
-  // image: đường dẫn hoặc dữ liệu base64; position: căn nền (object background-position).
+  // Ảnh trình chiếu đầu trang chủ
   hero: [
     { id: "h1", image: "img/hero/hero-1.jpg", position: "center 70%", title: "Tận tâm chăm sóc sức khỏe nhân dân khu vực Sơn Dương", subtitle: "Đội ngũ y bác sĩ giàu kinh nghiệm, trang thiết bị hiện đại, quy trình khám chữa bệnh nhanh gọn. Đặt lịch khám trực tuyến để không phải chờ đợi.", btn1Text: "Đặt lịch khám ngay", btn1Link: "dat-lich.html", btn2Text: "Xem bảng giá dịch vụ", btn2Link: "dich-vu.html" },
     { id: "h2", image: "img/hero/hero-2.jpg", position: "center 30%", title: "Đặt lịch khám trực tuyến — không phải xếp hàng chờ đợi", subtitle: "Chọn khoa, bác sĩ và khung giờ mong muốn; nhận ngay mã hồ sơ và số thứ tự dự kiến. Tiện lợi cho người cao tuổi và người bệnh tái khám định kỳ.", btn1Text: "Đặt lịch ngay", btn1Link: "dat-lich.html", btn2Text: "Tìm bác sĩ", btn2Link: "bac-si.html" }
   ],
 
-  // Danh mục khoa/phòng - cập nhật theo bảng nhân viên y tế thực tế (mã khoa nội bộ K..)
+  // Khoa/phòng (mã khoa nội bộ K..)
   departments: [
-    { id: "d1", code: "K01",     name: "Khoa Khám bệnh",                                 icon: "🩺", desc: "Tiếp đón, khám và phân loại người bệnh; khám BHYT, khám sức khỏe." },
-    { id: "d2", code: "K02",     name: "Khoa Cấp cứu - Hồi sức tích cực và Chống độc",     icon: "🚑", desc: "Cấp cứu 24/7, hồi sức tích cực và chống độc." },
-    { id: "d3", code: "K03",     name: "Khoa Nội tổng hợp",                              icon: "❤️", desc: "Khám, điều trị các bệnh lý nội khoa: tim mạch, hô hấp, tiêu hóa, nội tiết, cơ xương khớp." },
-    { id: "d4", code: "K19",     name: "Khoa Ngoại tổng hợp",                            icon: "🔪", desc: "Khám, phẫu thuật và điều trị ngoại khoa; chấn thương chỉnh hình." },
-    { id: "d5", code: "K18",     name: "Khoa Nhi",                                       icon: "👶", desc: "Khám, điều trị bệnh lý trẻ em; tư vấn dinh dưỡng và tiêm chủng." },
-    { id: "d6", code: "K27",     name: "Khoa Phụ sản và Chăm sóc sức khỏe sinh sản",       icon: "🤰", desc: "Khám thai, quản lý thai nghén, đỡ đẻ, sản phụ khoa và chăm sóc sức khỏe sinh sản." },
-    { id: "d7", code: "K1631",   name: "Khoa Y học cổ truyền và Phục hồi chức năng",      icon: "🌿", desc: "Châm cứu, xoa bóp bấm huyệt, thuốc y học cổ truyền; vật lý trị liệu - phục hồi chức năng." },
-    { id: "d8", code: "K282930", name: "Khoa Răng hàm mặt - Mắt - Tai mũi họng",         icon: "👁️", desc: "Khám chữa răng hàm mặt, mắt, tai mũi họng." },
-    { id: "d9", code: "K3947",   name: "Khoa Chẩn đoán hình ảnh - Xét nghiệm",           icon: "🔬", desc: "X-quang, siêu âm, điện tim; xét nghiệm huyết học, sinh hóa, vi sinh, nước tiểu." },
-    { id: "d11", code: "KSBT",   name: "Khoa Kiểm soát bệnh tật, HIV/AIDS - YTCC - Dân số và Phát triển", icon: "🛡️", desc: "Phòng chống dịch bệnh, HIV/AIDS; y tế công cộng; công tác dân số và phát triển." },
-    { id: "d12", code: "ATTP",   name: "Khoa An toàn thực phẩm, Dinh dưỡng, Tư vấn và Điều trị nghiện chất", icon: "🥗", desc: "An toàn thực phẩm; tư vấn dinh dưỡng; tư vấn và điều trị nghiện chất." },
-    { id: "d10", code: "DUOC",   name: "Khoa Dược",                                     icon: "💊", desc: "Cung ứng, bảo quản và cấp phát thuốc; tư vấn sử dụng thuốc an toàn, hợp lý." }
+    { id: "d1", code: "K01", name: "Khoa Khám bệnh", icon: "🩺", desc: "Tiếp đón, khám và phân loại người bệnh; khám BHYT, khám sức khỏe." },
+    { id: "d2", code: "K02", name: "Khoa Cấp cứu - Hồi sức tích cực và Chống độc", icon: "🚑", desc: "Cấp cứu 24/7, hồi sức tích cực và chống độc." },
+    { id: "d3", code: "K03", name: "Khoa Nội tổng hợp", icon: "❤️", desc: "Khám, điều trị các bệnh lý nội khoa: tim mạch, hô hấp, tiêu hóa, nội tiết, cơ xương khớp." },
+    { id: "d4", code: "K19", name: "Khoa Ngoại tổng hợp", icon: "🔪", desc: "Khám, phẫu thuật và điều trị ngoại khoa; chấn thương chỉnh hình." },
+    { id: "d5", code: "K18", name: "Khoa Nhi", icon: "👶", desc: "Khám, điều trị bệnh lý trẻ em; tư vấn dinh dưỡng và tiêm chủng." },
+    { id: "d6", code: "K27", name: "Khoa Phụ sản và Chăm sóc sức khỏe sinh sản", icon: "🤰", desc: "Khám thai, quản lý thai nghén, đỡ đẻ, sản phụ khoa và chăm sóc sức khỏe sinh sản." },
+    { id: "d7", code: "K1631", name: "Khoa Y học cổ truyền và Phục hồi chức năng", icon: "🌿", desc: "Châm cứu, xoa bóp bấm huyệt, thuốc y học cổ truyền; vật lý trị liệu - phục hồi chức năng." },
+    { id: "d8", code: "K282930", name: "Khoa Răng hàm mặt - Mắt - Tai mũi họng", icon: "👁️", desc: "Khám chữa răng hàm mặt, mắt, tai mũi họng." },
+    { id: "d9", code: "K3947", name: "Khoa Chẩn đoán hình ảnh - Xét nghiệm", icon: "🔬", desc: "X-quang, siêu âm, điện tim; xét nghiệm huyết học, sinh hóa, vi sinh, nước tiểu." },
+    { id: "d11", code: "KSBT", name: "Khoa Kiểm soát bệnh tật, HIV/AIDS - YTCC - Dân số và Phát triển", icon: "🛡️", desc: "Phòng chống dịch bệnh, HIV/AIDS; y tế công cộng; công tác dân số và phát triển." },
+    { id: "d12", code: "ATTP", name: "Khoa An toàn thực phẩm, Dinh dưỡng, Tư vấn và Điều trị nghiện chất", icon: "🥗", desc: "An toàn thực phẩm; tư vấn dinh dưỡng; tư vấn và điều trị nghiện chất." },
+    { id: "d10", code: "DUOC", name: "Khoa Dược", icon: "💊", desc: "Cung ứng, bảo quản và cấp phát thuốc; tư vấn sử dụng thuốc an toàn, hợp lý." }
   ],
 
   doctors: [
-    { id: "bs1", name: "Nguyễn Kim Cương", title: "BSCKII", dept: "d4", position: "Giám đốc", exp: 29, phone: "", intro: "", schedule: "" },
-    { id: "bs2", name: "Ngô Cao Lâm", title: "BSCKII", dept: "d11", position: "Phó Giám đốc", exp: 36, phone: "", intro: "", schedule: "" },
-    { id: "bs3", name: "Hoàng Thu Thảo", title: "BS", dept: "d5", position: "", exp: 2, phone: "", intro: "", schedule: "" },
-    { id: "bs4", name: "Đặng Quế Phương", title: "BSCKI", dept: "d8", position: "Phụ trách Phòng KHNV - TT&GDSK - TCKT", exp: 2, phone: "", intro: "", schedule: "", avatar: "img/bac-si/bs4-avatar.jpg", photo: "img/bac-si/bs4-photo.jpg" },
-    { id: "bs5", name: "Lê Thế Quyền", title: "BS", dept: "d2", position: "", exp: 4, phone: "", intro: "", schedule: "" },
-    { id: "bs6", name: "Nguyễn Thị Minh Liễu", title: "BS", dept: "d3", position: "", exp: 15, phone: "", intro: "", schedule: "" },
-    { id: "bs7", name: "Đặng Thị My", title: "BS", dept: "d12", position: "Trưởng khoa", exp: 18, phone: "", intro: "", schedule: "" },
-    { id: "bs9", name: "Đỗ Văn Hải", title: "BSCKI", dept: "d11", position: "", exp: 22, phone: "", intro: "", schedule: "" },
-    { id: "bs10", name: "Dương Thị Vân", title: "BS", dept: "d6", position: "Phụ trách khoa", exp: 4, phone: "", intro: "", schedule: "" },
-    { id: "bs11", name: "Nguyễn Văn Thắng", title: "BS", dept: "d6", position: "", exp: 0, phone: "", intro: "", schedule: "" },
-    { id: "bs12", name: "Nguyễn Thị Thanh Cảnh", title: "BSCKI", dept: "d6", position: "", exp: 1, phone: "", intro: "", schedule: "" },
-    { id: "bs13", name: "Nguyễn Thị Nam Hoa", title: "BSCKI", dept: "d6", position: "", exp: 0, phone: "", intro: "", schedule: "" },
-    { id: "bs15", name: "Nguyễn Thị Thúy", title: "BS", dept: "d2", position: "Phụ trách khoa", exp: 4, phone: "", intro: "", schedule: "" },
-    { id: "bs16", name: "Hoàng Bảo Lâm", title: "BS", dept: "d2", position: "", exp: 1, phone: "", intro: "", schedule: "" },
-    { id: "bs17", name: "Lâm Việt Hoàng", title: "BS", dept: "d2", position: "", exp: 0, phone: "", intro: "", schedule: "" },
-    { id: "bs18", name: "Trần Ngọc Toản", title: "BSCKI", dept: "d4", position: "Trưởng khoa", exp: 32, phone: "", intro: "", schedule: "" },
-    { id: "bs19", name: "Lục Văn Thịnh", title: "BS", dept: "d4", position: "", exp: 4, phone: "", intro: "", schedule: "" },
-    { id: "bs21", name: "Nguyễn Hồng Sơn", title: "BS", dept: "d4", position: "", exp: 0, phone: "", intro: "", schedule: "" },
-    { id: "bs22", name: "Phạm Đức Kiên", title: "BSCKI", dept: "d3", position: "Trưởng khoa", exp: 27, phone: "", intro: "", schedule: "" },
-    { id: "bs23", name: "Hà Thị Nga", title: "BS", dept: "d3", position: "", exp: 2, phone: "", intro: "", schedule: "" },
-    { id: "bs24", name: "Hoàng Thị Hồng Khôi", title: "BS", dept: "d3", position: "", exp: 4, phone: "", intro: "", schedule: "" },
-    { id: "bs25", name: "Đỗ Thị Bích Vân", title: "ThS.BS", dept: "d3", position: "", exp: 0, phone: "", intro: "", schedule: "" },
-    { id: "bs26", name: "Dương Thị Ngọc", title: "BSCKI", dept: "d5", position: "", exp: 12, phone: "", intro: "", schedule: "", avatar: "img/bac-si/bs26-avatar.jpg", photo: "img/bac-si/bs26-photo.jpg" },
-    { id: "bs27", name: "Nguyễn Thị Tâm", title: "BS", dept: "d5", position: "Phụ trách điều hành khoa", exp: 4, phone: "", intro: "", schedule: "" },
-    { id: "bs28", name: "Phạm Mỹ Huyền", title: "BS", dept: "d5", position: "", exp: 1, phone: "", intro: "", schedule: "" },
-    { id: "bs30", name: "Phạm Thị Dung", title: "BS", dept: "d1", position: "Phó trưởng khoa", exp: 19, phone: "", intro: "", schedule: "" },
-    { id: "bs31", name: "Bùi Thị Thoan", title: "BS", dept: "d1", position: "", exp: 18, phone: "", intro: "", schedule: "" },
-    { id: "bs32", name: "Trần Thị Tư", title: "BS", dept: "d1", position: "", exp: 25, phone: "", intro: "", schedule: "" },
-    { id: "bs33", name: "Trương Thị Sâm", title: "BS", dept: "d1", position: "", exp: 0, phone: "", intro: "", schedule: "" },
-    { id: "bs34", name: "Lê Hữu Tư", title: "BSCKII", dept: "d1", position: "", exp: 0, phone: "", intro: "", schedule: "" },
-    { id: "bs35", name: "Nguyễn Thanh Chuyền", title: "BS", dept: "d7", position: "Trưởng khoa", exp: 34, phone: "", intro: "", schedule: "" },
-    { id: "bs36", name: "Trần Trung Kiên", title: "BS.YHCT", dept: "d7", position: "", exp: 4, phone: "", intro: "", schedule: "" },
-    { id: "bs37", name: "Vi Thị Thúy Tươi", title: "BSCKI", dept: "d7", position: "", exp: 4, phone: "", intro: "", schedule: "" },
-    { id: "bs38", name: "Hoàng Thúy Loan", title: "BS.YHCT", dept: "d7", position: "", exp: 1, phone: "", intro: "", schedule: "" },
-    { id: "bs39", name: "Triệu Hồng Nhung", title: "BS.YHCT", dept: "d7", position: "", exp: 0, phone: "", intro: "", schedule: "" },
-    { id: "bs40", name: "Nguyễn Thị Thanh Hoa", title: "BS.YHCT", dept: "d7", position: "", exp: 2, phone: "", intro: "", schedule: "" },
-    { id: "bs41", name: "Phạm Tuấn Hải", title: "BS.YHCT", dept: "d7", position: "", exp: 0, phone: "", intro: "", schedule: "" },
-    { id: "bs43", name: "Nguyễn Anh Tuấn", title: "BSCKI", dept: "d8", position: "Phụ trách khoa", exp: 5, phone: "", intro: "", schedule: "" },
-    { id: "bs44", name: "Nguyễn Như Sơn", title: "BSCKI", dept: "d8", position: "", exp: 18, phone: "", intro: "", schedule: "" },
-    { id: "bs45", name: "Hoàng Quân Duyên", title: "BSCKI", dept: "d9", position: "Phụ trách khoa", exp: 25, phone: "", intro: "", schedule: "" },
-    { id: "bs46", name: "Lương Việt Anh", title: "BS", dept: "d9", position: "", exp: 1, phone: "", intro: "", schedule: "" },
-    { id: "bs47", name: "Đỗ Việt Dũng", title: "BS", dept: "d9", position: "", exp: 11, phone: "", intro: "", schedule: "" },
+    { id: "bs1", name: "Nguyễn Kim Cương", title: "BSCKII", dept: "d4", position: "Giám đốc", phone: "", intro: "", schedule: "" },
+    { id: "bs2", name: "Ngô Cao Lâm", title: "BSCKII", dept: "d11", position: "Phó Giám đốc", phone: "", intro: "", schedule: "" },
+    { id: "bs3", name: "Hoàng Thu Thảo", title: "BS", dept: "d5", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs4", name: "Đặng Quế Phương", title: "BSCKI", dept: "d8", position: "Phụ trách Phòng KHNV - TT&GDSK - TCKT", phone: "", intro: "", schedule: "", avatar: "img/bac-si/bs4-avatar.jpg", photo: "img/bac-si/bs4-photo.jpg" },
+    { id: "bs5", name: "Lê Thế Quyền", title: "BS", dept: "d2", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs6", name: "Nguyễn Thị Minh Liễu", title: "BS", dept: "d3", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs7", name: "Đặng Thị My", title: "BS", dept: "d12", position: "Trưởng khoa", phone: "", intro: "", schedule: "" },
+    { id: "bs9", name: "Đỗ Văn Hải", title: "BSCKI", dept: "d11", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs10", name: "Dương Thị Vân", title: "BS", dept: "d6", position: "Phụ trách khoa", phone: "", intro: "", schedule: "" },
+    { id: "bs11", name: "Nguyễn Văn Thắng", title: "BS", dept: "d6", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs12", name: "Nguyễn Thị Thanh Cảnh", title: "BSCKI", dept: "d6", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs13", name: "Nguyễn Thị Nam Hoa", title: "BSCKI", dept: "d6", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs15", name: "Nguyễn Thị Thúy", title: "BS", dept: "d2", position: "Phụ trách khoa", phone: "", intro: "", schedule: "" },
+    { id: "bs16", name: "Hoàng Bảo Lâm", title: "BS", dept: "d2", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs17", name: "Lâm Việt Hoàng", title: "BS", dept: "d2", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs18", name: "Trần Ngọc Toản", title: "BSCKI", dept: "d4", position: "Trưởng khoa", phone: "", intro: "", schedule: "" },
+    { id: "bs19", name: "Lục Văn Thịnh", title: "BS", dept: "d4", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs21", name: "Nguyễn Hồng Sơn", title: "BS", dept: "d4", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs22", name: "Phạm Đức Kiên", title: "BSCKI", dept: "d3", position: "Trưởng khoa", phone: "", intro: "", schedule: "" },
+    { id: "bs23", name: "Hà Thị Nga", title: "BS", dept: "d3", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs24", name: "Hoàng Thị Hồng Khôi", title: "BS", dept: "d3", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs25", name: "Đỗ Thị Bích Vân", title: "ThS.BS", dept: "d3", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs26", name: "Dương Thị Ngọc", title: "BSCKI", dept: "d5", position: "", phone: "", intro: "", schedule: "", avatar: "img/bac-si/bs26-avatar.jpg", photo: "img/bac-si/bs26-photo.jpg" },
+    { id: "bs27", name: "Nguyễn Thị Tâm", title: "BS", dept: "d5", position: "Phụ trách điều hành khoa", phone: "", intro: "", schedule: "" },
+    { id: "bs28", name: "Phạm Mỹ Huyền", title: "BS", dept: "d5", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs30", name: "Phạm Thị Dung", title: "BS", dept: "d1", position: "Phó trưởng khoa", phone: "", intro: "", schedule: "" },
+    { id: "bs31", name: "Bùi Thị Thoan", title: "BS", dept: "d1", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs32", name: "Trần Thị Tư", title: "BS", dept: "d1", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs33", name: "Trương Thị Sâm", title: "BS", dept: "d1", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs34", name: "Lê Hữu Tư", title: "BSCKII", dept: "d1", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs35", name: "Nguyễn Thanh Chuyền", title: "BS", dept: "d7", position: "Trưởng khoa", phone: "", intro: "", schedule: "" },
+    { id: "bs36", name: "Trần Trung Kiên", title: "BS.YHCT", dept: "d7", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs37", name: "Vi Thị Thúy Tươi", title: "BSCKI", dept: "d7", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs38", name: "Hoàng Thúy Loan", title: "BS.YHCT", dept: "d7", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs39", name: "Triệu Hồng Nhung", title: "BS.YHCT", dept: "d7", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs40", name: "Nguyễn Thị Thanh Hoa", title: "BS.YHCT", dept: "d7", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs41", name: "Phạm Tuấn Hải", title: "BS.YHCT", dept: "d7", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs43", name: "Nguyễn Anh Tuấn", title: "BSCKI", dept: "d8", position: "Phụ trách khoa", phone: "", intro: "", schedule: "" },
+    { id: "bs44", name: "Nguyễn Như Sơn", title: "BSCKI", dept: "d8", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs45", name: "Hoàng Quân Duyên", title: "BSCKI", dept: "d9", position: "Phụ trách khoa", phone: "", intro: "", schedule: "" },
+    { id: "bs46", name: "Lương Việt Anh", title: "BS", dept: "d9", position: "", phone: "", intro: "", schedule: "" },
+    { id: "bs47", name: "Đỗ Việt Dũng", title: "BS", dept: "d9", position: "", phone: "", intro: "", schedule: "" }
   ],
 
   services: [
@@ -2456,13 +2455,6 @@ const SEED = {
   ],
 
   news: [
-    { id: "n9", cat: "Đấu thầu", date: "2026-08-03",
-      title: "THƯ MỜI CHÀO GIÁ : Cung cấp dịch vụ Tư vấn đấu thầu  Gói thầu số 01: Mua sắm linh kiện, phụ kiện y tế của Trung tâm Y tế khu  vực Sơn Dương tỉnh Tuyên Quang lần 2 năm 2026",
-      summary: "Hiên tại, Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang có nhu cầu thuê 02 dịch vụ tư vấn đấu thầu gồm: - 01 đơn vị Tư vấn đấu thầu lập E-HSMT và đánh giá E-HSDT. - 01 đơn vị Tư vấn đấu thầu thẩm định E-HSMT và thẩm định kết quả lựa chọn nhà thầu cho Gói thầu số 01: Mua sắm linh kiện, phụ kiện y tế của Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang lần 2 năm 2026.",
-      sections: [
-        { heading: "", body: "", image: "", pdfPages: ["img/tin-tuc/thu-moi-chao-gia-0308-01.jpg", "img/tin-tuc/thu-moi-chao-gia-0308-02.jpg"], pdfName: "779.TM-TTYT ngày 03.8.2026. Thư mời tư vấn đấu thầu (Khối tạo cao áp).pdf" }
-      ],
-      content: "Hiên tại, Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang có nhu cầu thuê 02 dịch vụ tư vấn đấu thầu gồm: - 01 đơn vị Tư vấn đấu thầu lập E-HSMT và đánh giá E-HSDT. - 01 đơn vị Tư vấn đấu thầu thẩm định E-HSMT và thẩm định kết quả lựa chọn nhà thầu cho Gói thầu số 01: Mua sắm linh kiện, phụ kiện y tế của Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang lần 2 năm 2026." },
     { id: "n7", cat: "Thông báo", date: "2026-07-31",
       title: "Hướng dẫn tải và cài đặt ứng dụng tra cứu kết quả khám bệnh",
       summary: "Người bệnh có thể tải ứng dụng chính thức của Trung tâm về điện thoại Android để tra cứu kết quả khám chữa bệnh. File cài đặt đính kèm cuối bài.",
@@ -2470,50 +2462,55 @@ const SEED = {
         { heading: "", body: "Trung tâm Y tế khu vực Sơn Dương triển khai ứng dụng trên điện thoại giúp người bệnh tra cứu kết quả khám chữa bệnh nhanh chóng, không phải chờ lấy kết quả giấy.\n\nỨng dụng hiện hỗ trợ điện thoại Android (Samsung, Oppo, Xiaomi, Vivo...). Phiên bản hiện tại: v1 (16/6/2026).", image: "" },
         { heading: "Bước 1: Tải file cài đặt", body: "Kéo xuống cuối bài viết này, bấm vào tệp đính kèm \"sonduong-datkham.apk\" để tải file cài đặt về điện thoại.\n\nLưu ý: chỉ tải ứng dụng từ website chính thức ttytsonduong.vn, không tải từ nguồn khác.", image: "" },
         { heading: "Bước 2: Cho phép cài đặt", body: "Mở file vừa tải (trong thông báo tải xuống hoặc thư mục \"Tệp đã tải\" / \"Downloads\").\n\nNếu điện thoại hiện cảnh báo \"Không được phép cài đặt ứng dụng không xác định\", hãy vào Cài đặt  và bật \"Cho phép cài đặt từ nguồn này\" cho trình duyệt rồi mở lại file. Nếu điện thoại thông báo chặn hãy vào \"Cài đặt\"-> \"Bảo mật và riêng tư\" -> bỏ tích \"Tự động chặn\" , sau đó mở lại file.", image: "" },
-        { heading: "Bước 3: Mở ứng dụng và tra cứu", body: "Sau khi cài đặt xong, mở ứng dụng và đăng nhập theo hướng dẫn để tra cứu kết quả khám chữa bệnh.\n\nHướng dẫn xem tại:\nhttps://ttytsonduong.vn/tin-tuc.html?id=nems8fg84a584\n\nNếu cần hỗ trợ cài đặt hoặc đăng nhập, vui lòng liên hệ quầy tiếp đón khi đến khám.", image: "" }
+        { heading: "Bước 3: Mở ứng dụng và tra cứu", body: "Sau khi cài đặt xong, mở ứng dụng và đăng nhập theo hướng dẫn để tra cứu kết quả khám chữa bệnh.\n\nHướng dẫn xem tại:\n[https://ttytsonduong.vn/tin-tuc.html?id=n8](https://ttytsonduong.vn/tin-tuc.html?id=n8)\n\nNếu cần hỗ trợ cài đặt hoặc đăng nhập, vui lòng liên hệ quầy tiếp đón khi đến khám.", image: "" }
       ],
       attachments: [
         { name: "sonduong-datkham.apk", src: "app/sonduong-datkham.apk" }
       ],
-      content: "Trung tâm Y tế khu vực Sơn Dương triển khai ứng dụng trên điện thoại giúp người bệnh tra cứu kết quả khám chữa bệnh nhanh chóng, không phải chờ lấy kết quả giấy.\n\nỨng dụng hiện hỗ trợ điện thoại Android (Samsung, Oppo, Xiaomi, Vivo...). Phiên bản hiện tại: v1 (16/6/2026).\n\nBước 1: Tải file cài đặt\nKéo xuống cuối bài viết này, bấm vào tệp đính kèm \"sonduong-datkham.apk\" để tải file cài đặt về điện thoại.\n\nLưu ý: chỉ tải ứng dụng từ website chính thức ttytsonduong.vn, không tải từ nguồn khác.\n\nBước 2: Cho phép cài đặt\nMở file vừa tải (trong thông báo tải xuống hoặc thư mục \"Tệp đã tải\" / \"Downloads\").\n\nNếu điện thoại hiện cảnh báo \"Không được phép cài đặt ứng dụng không xác định\", hãy vào Cài đặt  và bật \"Cho phép cài đặt từ nguồn này\" cho trình duyệt rồi mở lại file. Nếu điện thoại thông báo chặn hãy vào \"Cài đặt\"-> \"Bảo mật và riêng tư\" -> bỏ tích \"Tự động chặn\" , sau đó mở lại file.\n\nBước 3: Mở ứng dụng và tra cứu\nSau khi cài đặt xong, mở ứng dụng và đăng nhập theo hướng dẫn để tra cứu kết quả khám chữa bệnh.\n\nHướng dẫn xem tại:\nhttps://ttytsonduong.vn/tin-tuc.html?id=nems8fg84a584\n\nNếu cần hỗ trợ cài đặt hoặc đăng nhập, vui lòng liên hệ quầy tiếp đón khi đến khám." },
+      content: "Trung tâm Y tế khu vực Sơn Dương triển khai ứng dụng trên điện thoại giúp người bệnh tra cứu kết quả khám chữa bệnh nhanh chóng, không phải chờ lấy kết quả giấy.\n\nỨng dụng hiện hỗ trợ điện thoại Android (Samsung, Oppo, Xiaomi, Vivo...). Phiên bản hiện tại: v1 (16/6/2026).\n\nBước 1: Tải file cài đặt\nKéo xuống cuối bài viết này, bấm vào tệp đính kèm \"sonduong-datkham.apk\" để tải file cài đặt về điện thoại.\n\nLưu ý: chỉ tải ứng dụng từ website chính thức ttytsonduong.vn, không tải từ nguồn khác.\n\nBước 2: Cho phép cài đặt\nMở file vừa tải (trong thông báo tải xuống hoặc thư mục \"Tệp đã tải\" / \"Downloads\").\n\nNếu điện thoại hiện cảnh báo \"Không được phép cài đặt ứng dụng không xác định\", hãy vào Cài đặt  và bật \"Cho phép cài đặt từ nguồn này\" cho trình duyệt rồi mở lại file. Nếu điện thoại thông báo chặn hãy vào \"Cài đặt\"-> \"Bảo mật và riêng tư\" -> bỏ tích \"Tự động chặn\" , sau đó mở lại file.\n\nBước 3: Mở ứng dụng và tra cứu\nSau khi cài đặt xong, mở ứng dụng và đăng nhập theo hướng dẫn để tra cứu kết quả khám chữa bệnh.\n\nHướng dẫn xem tại:\n[https://ttytsonduong.vn/tin-tuc.html?id=n8](https://ttytsonduong.vn/tin-tuc.html?id=n8)\n\nNếu cần hỗ trợ cài đặt hoặc đăng nhập, vui lòng liên hệ quầy tiếp đón khi đến khám." },
     { id: "n8", cat: "Thông báo", date: "2026-07-30",
       title: "Hướng dẫn cách đăng ký tài khoản và tra cứu thông tin khám bệnh",
       summary: "Hướng dẫn chi tiết từng bước cách đăng ký tài khoản và tra cứu thông tin khám bệnh trên phần mềm Trung tâm y tế khu vực Sơn Dương - Tuyên Quang",
       sections: [
-        { heading: "", body: "Bước 1: Mở ứng dụng tra cứu Trung tâm Y tế Sơn Dương - Tuyên Quang", image: "" },
-        { heading: "", body: "Bước 2: Ở màn hình chính, nhấn nút đăng ký để đăng ký tài khoản cá nhân", image: "img/tin-tuc/huong-dan-tra-cuu-01.jpg" },
-        { heading: "", body: "Bước 3: Ở màn hình đăng ký, điền các thông tin cá nhân vào từng trường thông tin và nhấn nút \"đăng ký\" (Các ô màu đỏ là các trường thông tin bắt buộc cần phải nhập)", image: "img/tin-tuc/huong-dan-tra-cuu-02.jpg" },
+        { heading: "", body: "Bước 1: Mở ứng dụng tra cứu của Trung tâm Y tế Sơn Dương.", image: "" },
+        { heading: "", body: "Bước 2: Tại màn hình chính, nhấn Đăng ký.", image: "img/tin-tuc/huong-dan-tra-cuu-01.jpg" },
+        { heading: "", body: "Bước 3: Điền đầy đủ thông tin cá nhân (ô màu đỏ là bắt buộc), sau đó nhấn Đăng ký.", image: "img/tin-tuc/huong-dan-tra-cuu-02.jpg" },
         { heading: "", body: "", image: "img/tin-tuc/huong-dan-tra-cuu-03.jpg" },
         { heading: "", body: "", image: "img/tin-tuc/huong-dan-tra-cuu-04.jpg" },
-        { heading: "", body: "Bước 4: Sau khi đăng ký xong quý bệnh nhân sẽ được đưa về màn hình đăng nhập, tại đây, nhập các thông tin tài khoản và mật khẩu vừa tạo (Tên đăng nhập là số điện thoại bạn vừa đăng ký)", image: "img/tin-tuc/huong-dan-tra-cuu-05.jpg" },
-        { heading: "", body: "Bước 5: Quý bệnh nhân đi tới quầy tiếp đón và yêu cầu nhân y tế cấp tài khoản theo mã bệnh nhân đã được đăng ký, sau khi có thông tin tài khoản và mật khẩu, quý bệnh nhân vào tài khoản -> liên kết tài khoản -> nhập thông tin mã bệnh nhân của mình và mật khẩu vừa được cấp.", image: "img/tin-tuc/huong-dan-tra-cuu-06.jpg" },
+        { heading: "", body: "Bước 4: Hệ thống chuyển về màn hình đăng nhập: nhập số điện thoại vừa đăng ký làm tên đăng nhập và mật khẩu đã tạo.", image: "img/tin-tuc/huong-dan-tra-cuu-05.jpg" },
+        { heading: "", body: "Bước 5: Đến quầy tiếp đón để được nhân viên y tế cấp mã bệnh nhân và mật khẩu. Sau đó vào Tài khoản → Liên kết tài khoản và nhập hai thông tin này.", image: "img/tin-tuc/huong-dan-tra-cuu-06.jpg" },
         { heading: "", body: "", image: "img/tin-tuc/huong-dan-tra-cuu-07.jpg" },
         { heading: "", body: "", image: "img/tin-tuc/huong-dan-tra-cuu-08.jpg" },
         { heading: "", body: "", image: "img/tin-tuc/huong-dan-tra-cuu-09.jpg" },
         { heading: "", body: "", image: "img/tin-tuc/huong-dan-tra-cuu-10.jpg" },
-        { heading: "", body: "Bước 6: Sau khi hoàn thành tất cả các bước trên, quý bệnh nhân đã có thể tra cứu lịch sử khám của mình bằng cách nhấn vào nút bệnh án ở trên phần mềm của mình.", image: "img/tin-tuc/huong-dan-tra-cuu-11.jpg" }
+        { heading: "", body: "Bước 6: Hoàn tất. Nhấn Bệnh án để tra cứu lịch sử khám.", image: "img/tin-tuc/huong-dan-tra-cuu-11.jpg" }
       ],
-      content: "Bước 1: Mở ứng dụng tra cứu Trung tâm Y tế Sơn Dương - Tuyên Quang\n\nBước 2: Ở màn hình chính, nhấn nút đăng ký để đăng ký tài khoản cá nhân\n\nBước 3: Ở màn hình đăng ký, điền các thông tin cá nhân vào từng trường thông tin và nhấn nút \"đăng ký\" (Các ô màu đỏ là các trường thông tin bắt buộc cần phải nhập)\n\n\n\n\n\nBước 4: Sau khi đăng ký xong quý bệnh nhân sẽ được đưa về màn hình đăng nhập, tại đây, nhập các thông tin tài khoản và mật khẩu vừa tạo (Tên đăng nhập là số điện thoại bạn vừa đăng ký)\n\nBước 5: Quý bệnh nhân đi tới quầy tiếp đón và yêu cầu nhân y tế cấp tài khoản theo mã bệnh nhân đã được đăng ký, sau khi có thông tin tài khoản và mật khẩu, quý bệnh nhân vào tài khoản -> liên kết tài khoản -> nhập thông tin mã bệnh nhân của mình và mật khẩu vừa được cấp.\n\n\n\n\n\n\n\n\n\nBước 6: Sau khi hoàn thành tất cả các bước trên, quý bệnh nhân đã có thể tra cứu lịch sử khám của mình bằng cách nhấn vào nút bệnh án ở trên phần mềm của mình." },
+      content: "Bước 1: Mở ứng dụng tra cứu của Trung tâm Y tế Sơn Dương.\n\nBước 2: Tại màn hình chính, nhấn Đăng ký.\n\nBước 3: Điền đầy đủ thông tin cá nhân (ô màu đỏ là bắt buộc), sau đó nhấn Đăng ký.\n\n\n\n\n\nBước 4: Hệ thống chuyển về màn hình đăng nhập: nhập số điện thoại vừa đăng ký làm tên đăng nhập và mật khẩu đã tạo.\n\nBước 5: Đến quầy tiếp đón để được nhân viên y tế cấp mã bệnh nhân và mật khẩu. Sau đó vào Tài khoản → Liên kết tài khoản và nhập hai thông tin này.\n\n\n\n\n\n\n\n\n\nBước 6: Hoàn tất. Nhấn Bệnh án để tra cứu lịch sử khám." },
     { id: "n1", cat: "Thông báo", date: "2026-07-10",
       title: "Triển khai đăng ký khám bệnh trực tuyến từ tháng 7/2026",
       summary: "Người dân có thể đặt lịch khám qua website, giảm thời gian chờ đợi tại quầy tiếp đón.",
       sections: [
         { heading: "", body: "Từ ngày 15/7/2026, Trung tâm Y tế khu vực Sơn Dương chính thức triển khai hệ thống đăng ký khám bệnh trực tuyến kết nối với phần mềm quản lý bệnh viện (HIS).\n\nNgười dân chỉ cần truy cập website, chọn khoa khám, bác sĩ và khung giờ mong muốn. Hệ thống sẽ cấp mã hồ sơ và số thứ tự, khi đến khám chỉ cần đọc mã tại quầy tiếp đón.\n\nViệc này giúp giảm 60-70% thời gian chờ đợi, đặc biệt hữu ích cho người cao tuổi và người bệnh mạn tính tái khám định kỳ.", image: "" }
       ],
-      content: "Từ ngày 15/7/2026, Trung tâm Y tế khu vực Sơn Dương chính thức triển khai hệ thống đăng ký khám bệnh trực tuyến kết nối với phần mềm quản lý bệnh viện (HIS).\n\nNgười dân chỉ cần truy cập website, chọn khoa khám, bác sĩ và khung giờ mong muốn. Hệ thống sẽ cấp mã hồ sơ và số thứ tự, khi đến khám chỉ cần đọc mã tại quầy tiếp đón.\n\nViệc này giúp giảm 60-70% thời gian chờ đợi, đặc biệt hữu ích cho người cao tuổi và người bệnh mạn tính tái khám định kỳ." }
+      content: "Từ ngày 15/7/2026, Trung tâm Y tế khu vực Sơn Dương chính thức triển khai hệ thống đăng ký khám bệnh trực tuyến kết nối với phần mềm quản lý bệnh viện (HIS).\n\nNgười dân chỉ cần truy cập website, chọn khoa khám, bác sĩ và khung giờ mong muốn. Hệ thống sẽ cấp mã hồ sơ và số thứ tự, khi đến khám chỉ cần đọc mã tại quầy tiếp đón.\n\nViệc này giúp giảm 60-70% thời gian chờ đợi, đặc biệt hữu ích cho người cao tuổi và người bệnh mạn tính tái khám định kỳ." },
+    { id: "n9", cat: "Đấu thầu", date: "2026-08-03",
+      title: "THƯ MỜI CHÀO GIÁ : Cung cấp dịch vụ Tư vấn đấu thầu Gói thầu số 01: Mua sắm linh kiện, phụ kiện y tế của Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang lần 2 năm 2026",
+      summary: "Hiên tại, Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang có nhu cầu thuê 02 dịch vụ tư vấn đấu thầu gồm: - 01 đơn vị Tư vấn đấu thầu lập E-HSMT và đánh giá E-HSDT. - 01 đơn vị Tư vấn đấu thầu thẩm định E-HSMT và thẩm định kết quả lựa chọn nhà thầu cho Gói thầu số 01: Mua sắm linh kiện, phụ kiện y tế của Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang lần 2 năm 2026.",
+      sections: [
+        { heading: "", body: "", image: "", pdfPages: ["img/tin-tuc/thu-moi-chao-gia-0308-01.jpg", "img/tin-tuc/thu-moi-chao-gia-0308-02.jpg"], pdfName: "779.TM-TTYT ngày 03.8.2026. Thư mời tư vấn đấu thầu (Khối tạo cao áp).pdf" }
+      ],
+      content: "Hiên tại, Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang có nhu cầu thuê 02 dịch vụ tư vấn đấu thầu gồm: - 01 đơn vị Tư vấn đấu thầu lập E-HSMT và đánh giá E-HSDT. - 01 đơn vị Tư vấn đấu thầu thẩm định E-HSMT và thẩm định kết quả lựa chọn nhà thầu cho Gói thầu số 01: Mua sắm linh kiện, phụ kiện y tế của Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang lần 2 năm 2026." }
   ],
 
   appointments: [],
 
+  // Tài khoản quản trị (bản tạm dùng trình duyệt; sẽ chuyển sang CSDL khi backend chạy)
   users: [
-    // Demo: mật khẩu lưu dạng thường (CHỈ hợp lệ ở bản thật khi có backend + băm bcrypt).
-    // role "superadmin" = quyền cao nhất (tạo/sửa/xóa tài khoản con, toàn quyền các mục).
-    // role "editor" = tài khoản con, chỉ quản lý các mục trong "perms".
-    { id: "u_admin", username: "admin", password: "duckieSD@2026", fullName: "Quản trị viên cấp cao", role: "superadmin", perms: [] }
+    { id: "u_admin", username: "admin", password: "duckieSD@2026", fullName: "Quản trị viên cấp cao", role: "superadmin", perms: [] },
+    { id: "usms8n1m74849", username: "dauthau", password: "Sonduong@2026", fullName: "Dược - vật tư y tế", role: "editor", perms: ["news"] },
+    { id: "usms8ndwbl394", username: "bientap", password: "Sonduong@2026", fullName: "Niên Thị Thiện Mỹ", role: "editor", perms: ["dashboard", "doctors", "featured", "departments", "news", "hero"] }
   ],
 
-  // Kho tệp ("thư mục nhận file" của bản demo - lưu base64 trong localStorage;
-  // bản thật: file lưu vào thư mục /uploads trên server)
   files: []
 };
 
