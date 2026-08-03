@@ -4,20 +4,18 @@
    Khi triển khai thật: thay Store bằng các lời gọi API backend.
    ============================================================ */
 
-const DB_KEY = "ttyt_sonduong_db_v13";
+const DB_KEY = "ttyt_sonduong_db_v14";
 
 /* ---------------- DỮ LIỆU MẪU (SEED) ---------------- */
 const SEED = {
   settings: {
     siteName: "Trung tâm Y tế khu vực Sơn Dương",
     slogan: "Tận tâm chăm sóc - Vững bước niềm tin",
-    address: "Tổ dân phố Tân Phúc, thị trấn Sơn Dương, huyện Sơn Dương, tỉnh Tuyên Quang",
-    phone: "0207 3835 215",
+    address: "Thôn Quyết Tiến, xã Sơn Dương, tỉnh Tuyên Quang",
     hotline: "0965 301 010",          // Đường dây nóng TTYT Sơn Dương
     hotlineDept: "0965 361 010",      // Đường dây nóng Sở Y tế Tuyên Quang
-    emergency: "0207 3835 115",
-    email: "ttytsonduong@tuyenquang.gov.vn",
-    workingHours: "Thứ 2 - Thứ 6: 7h00 - 17h00 | Cấp cứu 24/7",
+    email: "bvsonduong@gmail.com",
+    workingHours: "Thứ 2 - Thứ 7: 7h00 - 17h00 | Cấp cứu 24/7",
     announcement: "Trung tâm triển khai đăng ký khám bệnh trực tuyến - Quý khách vui lòng đặt lịch trước để giảm thời gian chờ đợi.",
     // Danh sách bác sĩ tiêu biểu hiện ở trang chủ (theo thứ tự). Mỗi slide 4 bác sĩ.
     featuredDoctors: ["bs1", "bs2", "bs3", "bs4", "bs5", "bs6", "bs7", "bs9"],
