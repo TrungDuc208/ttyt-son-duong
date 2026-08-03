@@ -4,7 +4,7 @@
    Khi triển khai thật: thay Store bằng các lời gọi API backend.
    ============================================================ */
 
-const DB_KEY = "ttyt_sonduong_db_v12";
+const DB_KEY = "ttyt_sonduong_db_v13";
 
 /* ---------------- DỮ LIỆU MẪU (SEED) ---------------- */
 const SEED = {
@@ -2458,6 +2458,13 @@ const SEED = {
   ],
 
   news: [
+    { id: "n9", cat: "Đấu thầu", date: "2026-08-03",
+      title: "THƯ MỜI CHÀO GIÁ : Cung cấp dịch vụ Tư vấn đấu thầu  Gói thầu số 01: Mua sắm linh kiện, phụ kiện y tế của Trung tâm Y tế khu  vực Sơn Dương tỉnh Tuyên Quang lần 2 năm 2026",
+      summary: "Hiên tại, Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang có nhu cầu thuê 02 dịch vụ tư vấn đấu thầu gồm: - 01 đơn vị Tư vấn đấu thầu lập E-HSMT và đánh giá E-HSDT. - 01 đơn vị Tư vấn đấu thầu thẩm định E-HSMT và thẩm định kết quả lựa chọn nhà thầu cho Gói thầu số 01: Mua sắm linh kiện, phụ kiện y tế của Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang lần 2 năm 2026.",
+      sections: [
+        { heading: "", body: "", image: "", pdfPages: ["img/tin-tuc/thu-moi-chao-gia-0308-01.jpg", "img/tin-tuc/thu-moi-chao-gia-0308-02.jpg"], pdfName: "779.TM-TTYT ngày 03.8.2026. Thư mời tư vấn đấu thầu (Khối tạo cao áp).pdf" }
+      ],
+      content: "Hiên tại, Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang có nhu cầu thuê 02 dịch vụ tư vấn đấu thầu gồm: - 01 đơn vị Tư vấn đấu thầu lập E-HSMT và đánh giá E-HSDT. - 01 đơn vị Tư vấn đấu thầu thẩm định E-HSMT và thẩm định kết quả lựa chọn nhà thầu cho Gói thầu số 01: Mua sắm linh kiện, phụ kiện y tế của Trung tâm Y tế khu vực Sơn Dương tỉnh Tuyên Quang lần 2 năm 2026." },
     { id: "n7", cat: "Thông báo", date: "2026-07-31",
       title: "Hướng dẫn tải và cài đặt ứng dụng tra cứu kết quả khám bệnh",
       summary: "Người bệnh có thể tải ứng dụng chính thức của Trung tâm về điện thoại Android để tra cứu kết quả khám chữa bệnh. File cài đặt đính kèm cuối bài.",
