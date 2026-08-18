@@ -271,8 +271,16 @@ document.getElementById("modal-form").onsubmit = (ev) => {
   ev.preventDefault();
   if (modalSubmit) modalSubmit(new FormData(ev.target));
 };
+/* Chỉ đóng khi bấm THẢ chuột ra ngoài (không phải khi kéo chọn chữ/kéo thanh trượt
+   từ bên trong form rồi lỡ thả tay ra ngoài rìa — trước đây làm vậy là mất hết
+   dữ liệu đang nhập). Phải bắt đầu VÀ kết thúc cú nhấp đều ở lớp nền mới đóng. */
+let modalMouseDownOnOverlay = false;
+document.getElementById("modal-overlay").addEventListener("mousedown", (ev) => {
+  modalMouseDownOnOverlay = ev.target.id === "modal-overlay";
+});
 document.getElementById("modal-overlay").addEventListener("click", (ev) => {
-  if (ev.target.id === "modal-overlay") closeModal();
+  if (ev.target.id === "modal-overlay" && modalMouseDownOnOverlay) closeModal();
+  modalMouseDownOnOverlay = false;
 });
 
 function fld(label, name, value = "", opts = {}) {
@@ -572,7 +580,7 @@ function openHeroModal(id) {
   const h = id ? Store.get("hero", id) : {};
   openModal(id ? "Sửa ảnh Hero" : "Thêm ảnh Hero", `
     <div class="form-grid">
-      ${photoFieldHTML("image", "Ảnh nền — tải lên rồi cắt/căn vị trí cho vừa khung ngang", h.image)}
+      ${photoFieldHTML("image", "Ảnh nền — tải lên rồi cắt/căn vị trí cho vừa khung ngang", h.image, h.imageOriginal)}
       <div><label class="fld">Vị trí hiển thị ảnh</label>
         <select name="position">${heroPosOptions(h.position || "center 30%")}</select></div>
       <div></div>
@@ -588,13 +596,14 @@ function openHeroModal(id) {
     (f) => {
       const data = {
         image: f.get("image").trim(),
+        imageOriginal: f.get("imageOriginal").trim(),
         position: f.get("position"),
         title: f.get("title").trim(),
         subtitle: f.get("subtitle").trim(),
         btn1Text: f.get("btn1Text").trim(), btn1Link: f.get("btn1Link"),
         btn2Text: f.get("btn2Text").trim(), btn2Link: f.get("btn2Link")
       };
-      if (!data.image) { toast("Hãy tải ảnh nền cho hero.", true); return; }
+      if (!data.image) { alert("⚠️ Chưa lưu được.\n\nHãy tải ảnh nền cho slide Hero trước khi lưu."); return; }
       id ? Store.update("hero", id, data) : Store.add("hero", data);
       toast(id ? "Đã cập nhật ảnh hero." : "Đã thêm ảnh hero.");
       closeModal(); renderHeroTable();
@@ -751,8 +760,8 @@ function openUserModal(id) {
       try {
         if (!editing) {
           const username = f.get("username").trim();
-          if (!username) { toast("Nhập tên đăng nhập.", true); return; }
-          if (!password) { toast("Nhập mật khẩu cho tài khoản con.", true); return; }
+          if (!username) { alert("⚠️ Chưa lưu được.\n\nHãy nhập tên đăng nhập cho tài khoản con."); return; }
+          if (!password) { alert("⚠️ Chưa lưu được.\n\nHãy nhập mật khẩu cho tài khoản con (tối thiểu 10 ký tự)."); return; }
           await Api.post("users.php?action=create", { username, full_name: fullName, password, perms });
           toast("Đã tạo tài khoản con.");
         } else {
@@ -826,8 +835,8 @@ function openDoctorModal(id) {
       ${fld("Chức vụ", "position", d.position || "", { placeholder: "Bác sĩ điều trị" })}
       ${fld("Điện thoại", "phone", d.phone || "")}
       ${fld("Lịch khám", "schedule", d.schedule || "", { full: true, placeholder: "Thứ 2 - Thứ 6" })}
-      ${photoFieldHTML("avatar", "Ảnh đại diện — ảnh tròn trên thẻ thông tin", d.avatar)}
-      ${photoFieldHTML("photo", "Ảnh mở rộng — phủ toàn thẻ khi trỏ/click (trang chủ)", d.photo)}
+      ${photoFieldHTML("avatar", "Ảnh đại diện — ảnh tròn trên thẻ thông tin", d.avatar, d.avatarOriginal)}
+      ${photoFieldHTML("photo", "Ảnh mở rộng — phủ toàn thẻ khi trỏ/click (trang chủ)", d.photo, d.photoOriginal)}
       ${fld("Giới thiệu ngắn", "intro", d.intro || "", { type: "textarea", rows: 3, full: true })}
     </div>`,
     (f) => {
@@ -836,6 +845,7 @@ function openDoctorModal(id) {
         position: f.get("position").trim(),
         phone: f.get("phone").trim(), schedule: f.get("schedule").trim(),
         avatar: f.get("avatar").trim(), photo: f.get("photo").trim(),
+        avatarOriginal: f.get("avatarOriginal").trim(), photoOriginal: f.get("photoOriginal").trim(),
         intro: f.get("intro").trim()
       };
       id ? Store.update("doctors", id, data) : Store.add("doctors", data);
@@ -846,12 +856,16 @@ function openDoctorModal(id) {
 
 /* ================= TRƯỜNG ẢNH CÓ CHỈNH SỬA (avatar tròn / ảnh fill thẻ) ================= */
 const PP_CONF = {
-  avatar: { mode: "avatar", empty: "👤" },  // 1:1, mặt nạ tròn
-  photo:  { mode: "card",   empty: "🖼" },  // 3:4, phủ toàn thẻ
-  image:  { mode: "hero",   empty: "🖼" }   // ~2.5:1, ảnh hero ngang
+  avatar:    { mode: "avatar", empty: "👤" },  // 1:1, mặt nạ tròn
+  photo:     { mode: "card",   empty: "🖼" },  // 3:4, phủ toàn thẻ
+  image:     { mode: "hero",   empty: "🖼" },  // ~2.5:1, ảnh hero ngang
+  thumbnail: { mode: "thumb",  empty: "🖼" }   // ~2.7:1, ảnh đại diện bài viết
 };
 
-function photoFieldHTML(key, label, value) {
+/* origValue = ảnh GỐC trước khi cắt (chưa qua crop). Lưu riêng để lần sau bấm
+   "Chỉnh sửa" có thể cắt lại từ ảnh gốc — không bị mất phần đã cắt trước đó
+   (trước đây chỉnh sửa lại là cắt tiếp trên ảnh ĐÃ cắt, càng cắt càng mất chi tiết). */
+function photoFieldHTML(key, label, value, origValue) {
   const conf = PP_CONF[key];
   return `
     <div class="full">
@@ -868,28 +882,37 @@ function photoFieldHTML(key, label, value) {
         </div>
       </div>
       <input type="hidden" name="${key}" id="pp-in-${key}" value="${Fmt.esc(value || "")}">
+      <input type="hidden" name="${key}Original" id="pp-orig-${key}" value="${Fmt.esc(origValue || "")}">
     </div>`;
 }
 
-function ppSet(key, src) {
+function ppSet(key, src, origSrc) {
   document.getElementById("pp-in-" + key).value = src;
   document.getElementById("pp-prev-" + key).innerHTML =
     src ? `<img src="${src}">` : PP_CONF[key].empty;
+  const origInp = document.getElementById("pp-orig-" + key);
+  if (origSrc !== undefined) origInp.value = origSrc;   // ảnh mới chọn -> ghi nhớ ảnh gốc
+  if (!src) origInp.value = "";                          // xoá ảnh -> xoá luôn ảnh gốc đi kèm
 }
 function ppPick(key) {
   pickFile("image/*", false, recs => {
-    if (recs[0]) cropOpen(recs[0].dataUrl, PP_CONF[key].mode, url => ppSet(key, url));
+    // recs[0].dataUrl là đường dẫn ảnh GỐC (chưa cắt) trên máy chủ -> lưu lại làm ảnh gốc
+    if (recs[0]) cropOpen(recs[0].dataUrl, PP_CONF[key].mode, url => ppSet(key, url, recs[0].dataUrl));
   });
 }
 function ppFromLib(key, sel) {
   const f = Store.get("files", sel.value);
   sel.value = "";
-  if (f) cropOpen(f.dataUrl, PP_CONF[key].mode, url => ppSet(key, url));
+  if (f) cropOpen(f.dataUrl, PP_CONF[key].mode, url => ppSet(key, url, f.dataUrl));
 }
 function ppEdit(key) {
-  const src = document.getElementById("pp-in-" + key).value;
-  if (!src) { toast("Chưa có ảnh để chỉnh sửa — hãy tải ảnh lên trước.", true); return; }
-  cropOpen(src, PP_CONF[key].mode, url => ppSet(key, url));
+  const cur = document.getElementById("pp-in-" + key).value;
+  const orig = document.getElementById("pp-orig-" + key).value;
+  if (!cur) { toast("Chưa có ảnh để chỉnh sửa — hãy tải ảnh lên trước.", true); return; }
+  // Ưu tiên cắt lại từ ảnh GỐC; ảnh cũ lưu trước khi có tính năng này thì không có ảnh gốc
+  // -> đành chỉnh trên bản đã cắt (báo cho người dùng biết).
+  if (!orig) toast("Ảnh này chưa có bản gốc lưu sẵn (thêm từ trước) — đang chỉnh sửa trên ảnh đã cắt.", false);
+  cropOpen(orig || cur, PP_CONF[key].mode, url => ppSet(key, url));  // không truyền origSrc -> giữ nguyên ảnh gốc đang có
 }
 
 /* ================= TRÌNH CHỈNH SỬA ẢNH (kéo + zoom, kiểu mạng xã hội) =================
@@ -901,7 +924,8 @@ let Crop = null;
 const CROP_VP = {
   avatar: { vw: 300, vh: 300 },
   card:   { vw: 285, vh: 380 },
-  hero:   { vw: 380, vh: 152 }
+  hero:   { vw: 380, vh: 152 },
+  thumb:  { vw: 340, vh: 125 }
 };
 
 function cropOpen(src, mode, cb) {
@@ -923,6 +947,7 @@ function cropOpen(src, mode, cb) {
     document.getElementById("crop-title").textContent =
       mode === "avatar" ? "Chỉnh sửa ảnh đại diện"
       : mode === "hero" ? "Cắt & căn vị trí ảnh Hero"
+      : mode === "thumb" ? "Cắt ảnh đại diện bài viết"
       : "Chỉnh sửa ảnh mở rộng";
     document.getElementById("crop-img").src = src;
     document.getElementById("crop-zoom").value = 100;
@@ -962,7 +987,8 @@ function cropZoomTo(zoom) {
 const CROP_OUT = {
   avatar: { w: 400,  h: 400 },
   card:   { w: 600,  h: 800 },
-  hero:   { w: 1600, h: 640 }
+  hero:   { w: 1600, h: 640 },
+  thumb:  { w: 900,  h: 330 }
 };
 
 function cropApply() {
@@ -1149,6 +1175,7 @@ function openNewsModal(id) {
         <select name="cat">${cats.map(c => `<option ${n.cat === c ? "selected" : ""}>${c}</option>`).join("")}</select></div>
       ${fld("Ngày đăng", "date", n.date || new Date().toISOString().slice(0, 10), { type: "date", required: true })}
       ${fld("Tóm tắt (hiện ở danh sách tin)", "summary", n.summary || "", { type: "textarea", rows: 2, full: true })}
+      ${photoFieldHTML("thumbnail", "Ảnh đại diện bài viết (hiện ở danh sách tin & trang chủ)", n.thumbnail, n.thumbnailOriginal)}
       <div class="full">
         <label class="fld">Nội dung bài viết — chia theo phần</label>
         <div id="ns-list"></div>
@@ -1175,10 +1202,15 @@ function openNewsModal(id) {
           return sec;
         })
         .filter(s => s.heading || s.body || s.image || s.embed || (s.pdfPages && s.pdfPages.length));
-      if (!sections.length) { toast("Bài viết cần ít nhất một phần có nội dung.", true); return; }
+      if (!sections.length) {
+        alert("⚠️ Chưa lưu được bài viết.\n\nBài viết cần ít nhất một phần có nội dung (tiêu đề phần, nội dung chữ, ảnh, PDF hoặc khung nhúng). Hãy điền vào mục \"Nội dung bài viết\" rồi bấm Lưu lại.");
+        return;
+      }
       const data = {
         title: f.get("title").trim(), cat: f.get("cat"), date: f.get("date"),
         summary: f.get("summary").trim(),
+        thumbnail: f.get("thumbnail").trim(),
+        thumbnailOriginal: f.get("thumbnailOriginal").trim(),
         sections,
         attachments: newsDraft.attachments,
         // content dạng text giữ cho tương thích cũ (tìm kiếm, tóm tắt)

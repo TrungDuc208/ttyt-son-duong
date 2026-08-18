@@ -199,7 +199,7 @@ function newsCardHTML(n) {
   const icons = { "Thông báo": "📢", "Hoạt động": "🏥", "Y tế dự phòng": "🛡️", "Kỹ thuật mới": "🔬", "Đấu thầu": "📋" };
   return `
     <div class="news-card">
-      <div class="news-thumb">${icons[n.cat] || "📰"}</div>
+      <div class="news-thumb">${n.thumbnail ? `<img src="${Fmt.esc(n.thumbnail)}" alt="" loading="lazy">` : (icons[n.cat] || "📰")}</div>
       <div class="news-body">
         <span class="cat">${Fmt.esc(n.cat)}</span>
         <h4><a href="tin-tuc.html?id=${n.id}">${Fmt.esc(n.title)}</a></h4>
