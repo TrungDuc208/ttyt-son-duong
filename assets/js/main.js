@@ -47,7 +47,6 @@ function renderLayout(activePage) {
         <p>${Fmt.esc(s.slogan)}</p>
       </div>
       <div class="header-cta">
-        <a href="dat-lich.html" class="btn btn-primary header-book ${activePage === "booking" ? "active" : ""}" aria-label="Đặt lịch khám">📅<span class="hb-text"> Đặt lịch khám</span></a>
         <button class="burger" id="burger" type="button" aria-label="Mở menu">☰</button>
       </div>
     </div>
@@ -74,7 +73,6 @@ function renderLayout(activePage) {
       </ul>
       <div class="mm-actions">
         <a href="tel:${Fmt.esc(s.hotline.replace(/\s/g, ""))}"><span class="mm-ic">📞</span>Gọi tổng đài</a>
-        <a href="dat-lich.html"><span class="mm-ic">📅</span>Đặt lịch hẹn</a>
         <a href="bac-si.html"><span class="mm-ic">👨‍⚕️</span>Tìm bác sĩ</a>
       </div>
     </div>`;
