@@ -1,11 +1,8 @@
 /* ============================================================
    TRANG QUẢN TRỊ - LOGIC
-   Toàn quyền thêm / sửa / xóa mọi dữ liệu website.
-   Demo: phiên đăng nhập lưu sessionStorage; bản thật dùng
-   xác thực phía server (JWT/session) + phân quyền.
+   Kết nối máy chủ thật (PHP + MySQL) qua api/*.php — xem assets/js/api.js.
+   Toàn quyền thêm / sửa / xóa mọi dữ liệu website theo phân quyền.
    ============================================================ */
-
-const SESSION_KEY = "ttyt_admin_session";
 
 function toast(msg, isErr = false) {
   let t = document.getElementById("toast");
@@ -23,12 +20,32 @@ function toast(msg, isErr = false) {
 function deptName(id)   { const d = Store.get("departments", id); return d ? d.name : "—"; }
 function doctorName(id) { const d = Store.get("doctors", id);     return d ? `${d.title}. ${d.name}` : "(chưa chọn)"; }
 
-/* ================= ĐĂNG NHẬP ================= */
-function currentUser() {
-  try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch { return null; }
+/* ================= ĐĂNG NHẬP (qua api/auth.php) ================= */
+let CURRENT_USER = null;
+function currentUser() { return CURRENT_USER; }
+
+/** Hỏi máy chủ xem cookie phiên hiện tại có còn hợp lệ không */
+async function refreshSession() {
+  try {
+    const r = await Api.get("auth.php?action=me");
+    CURRENT_USER = r.user || null;
+  } catch (e) {
+    CURRENT_USER = null;
+  }
+  return CURRENT_USER;
 }
 
-function showAdmin() {
+async function showAdmin() {
+  const loginBtn = document.querySelector("#login-form button[type=submit]");
+  try {
+    if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = "Đang tải dữ liệu..."; }
+    await Store.loadAll();
+  } catch (e) {
+    toast("Không tải được dữ liệu từ máy chủ: " + e.message, true);
+  } finally {
+    if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = "Đăng nhập"; }
+  }
+
   document.getElementById("login-screen").style.display = "none";
   document.getElementById("admin-shell").classList.add("active");
   const me = currentUser();
@@ -36,21 +53,151 @@ function showAdmin() {
     me.fullName + (me.role === "superadmin" ? " · Cấp cao" : " · Tài khoản con");
   document.getElementById("today-str").textContent =
     new Date().toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
+  fillSettingsForms();
   renderAll();
   applyRolePermissions();
 }
 
-document.getElementById("login-form").onsubmit = (ev) => {
+document.getElementById("login-form").onsubmit = async (ev) => {
   ev.preventDefault();
   const u = document.getElementById("login-user").value.trim();
   const p = document.getElementById("login-pass").value;
-  const user = Store.all("users").find(x => x.username === u && x.password === p);
-  if (!user) { toast("Sai tên đăng nhập hoặc mật khẩu.", true); return; }
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify({
-    username: user.username, fullName: user.fullName,
-    role: user.role || "editor", perms: user.perms || []
-  }));
-  showAdmin();
+  if (!u || !p) { toast("Nhập tên đăng nhập và mật khẩu.", true); return; }
+  try {
+    const r = await Api.post("auth.php?action=login", { username: u, password: p });
+    CURRENT_USER = r.user;
+    showAdmin();
+  } catch (e) {
+    toast(e.message, true);
+  }
+};
+
+/* ================= STORE: KẾT NỐI MÁY CHỦ THẬT (thay cho localStorage) =================
+   Gán lại biến "Store" (khai báo "let" trong data.js) bằng bản đọc/ghi qua api/*.php.
+   Các mục nội dung (departments/doctors/services/news/hero) đi qua content.php;
+   "files" đi qua upload.php; "appointments" chưa có backend (đặt lịch còn là demo,
+   chờ tích hợp HIS riêng) nên chỉ giữ tạm trong bộ nhớ, không lưu máy chủ. */
+const CONTENT_COLLECTIONS = ["departments", "doctors", "services", "news", "hero"];
+
+const DEFAULT_SETTINGS = {
+  siteName: "", slogan: "", address: "", hotline: "", hotlineDept: "",
+  email: "", workingHours: "", announcement: "",
+  featuredDoctors: [], aboutSections: [],
+  his: { mode: "mock", endpoint: "", apiKey: "", facilityCode: "", timeout: 15000 }
+};
+
+/** Chuẩn hoá bản ghi tệp từ upload.php (orig_name/stored_path/mime...) về đúng
+    hình dạng cũ (name/dataUrl/type/size/uploadedAt) để không phải sửa mọi nơi dùng nó. */
+function normalizeFile(f) {
+  return {
+    id: f.id, name: f.orig_name, type: f.mime || "application/octet-stream",
+    size: f.size_bytes, uploadedAt: f.uploaded_at, dataUrl: f.stored_path,
+  };
+}
+
+Store = {
+  _cache: {
+    settings: { ...DEFAULT_SETTINGS },
+    departments: [], doctors: [], services: [], news: [], hero: [],
+    files: [], appointments: [], users: [],
+  },
+
+  /** Tải toàn bộ dữ liệu quản trị từ máy chủ — gọi 1 lần sau khi đăng nhập */
+  async loadAll() {
+    try {
+      const r = await Api.get("content.php?action=settings");
+      this._cache.settings = { ...DEFAULT_SETTINGS, ...(r.settings || {}) };
+    } catch (e) {
+      toast("Không tải được cài đặt: " + e.message, true);
+    }
+
+    for (const col of CONTENT_COLLECTIONS) {
+      try {
+        const r = await Api.get("content.php?collection=" + col);
+        this._cache[col] = r.items || [];
+      } catch (e) {
+        toast(`Không tải được mục "${col}": ` + e.message, true);
+      }
+    }
+
+    try {
+      const r = await Api.get("upload.php");
+      this._cache.files = (r.files || []).map(normalizeFile);
+    } catch (e) {
+      // Tài khoản không có quyền "files" sẽ bị chặn (403) -> bỏ qua yên lặng
+    }
+
+    if ((currentUser() || {}).role === "superadmin") {
+      try {
+        const r = await Api.get("users.php");
+        this._cache.users = (r.users || []).map(u => ({
+          id: u.id, username: u.username, fullName: u.full_name,
+          role: u.role, perms: u.perms, isActive: u.is_active,
+        }));
+      } catch (e) {
+        toast("Không tải được danh sách tài khoản: " + e.message, true);
+      }
+    }
+  },
+
+  all(col)     { return this._cache[col] || []; },
+  get(col, id) { return this.all(col).find(x => x.id === id); },
+
+  /** Thêm mục mới — cập nhật giao diện ngay (lạc quan), lưu máy chủ chạy nền phía sau */
+  add(col, item) {
+    item.id = item.id || (col.slice(0, 2) + Date.now().toString(36) + Math.floor(Math.random() * 1000));
+    (this._cache[col] = this._cache[col] || []).push(item);
+    if (CONTENT_COLLECTIONS.includes(col)) this._persist(col, item);
+    return item;
+  },
+
+  update(col, id, patch) {
+    const item = this.get(col, id);
+    if (!item) return item;
+    Object.assign(item, patch);
+    if (CONTENT_COLLECTIONS.includes(col)) this._persist(col, item);
+    return item;
+  },
+
+  remove(col, id) {
+    this._cache[col] = (this._cache[col] || []).filter(x => x.id !== id);
+    if (CONTENT_COLLECTIONS.includes(col)) {
+      Api.post("content.php?action=delete&collection=" + col, { key: id })
+        .catch(e => toast("Không xoá được trên máy chủ: " + e.message, true));
+    } else if (col === "files") {
+      Api.post("upload.php?action=delete", { id })
+        .catch(e => toast("Không xoá được tệp trên máy chủ: " + e.message, true));
+    }
+  },
+
+  /** Lưu lại thứ tự sau khi kéo/di chuyển (vd. sắp xếp ảnh Hero) */
+  async reorder(col, keys) {
+    try {
+      await Api.post("content.php?action=reorder&collection=" + col, { keys });
+    } catch (e) {
+      toast("Không lưu được thứ tự: " + e.message, true);
+    }
+  },
+
+  _persist(col, item) {
+    Api.post("content.php?action=save&collection=" + col, { key: item.id, data: item })
+      .catch(e => toast("Không lưu được lên máy chủ: " + e.message, true));
+  },
+
+  settings() { return this._cache.settings; },
+  saveSettings(patch) {
+    Object.assign(this._cache.settings, patch);
+    Api.post("content.php?action=settings", { settings: this._cache.settings })
+      .catch(e => toast("Không lưu được cài đặt lên máy chủ: " + e.message, true));
+  },
+
+  export() { return JSON.stringify(this._cache, null, 2); },
+  reset() {
+    toast("Chức năng khôi phục dữ liệu mẫu đã tắt trên bản chính thức (an toàn dữ liệu thật).", true);
+  },
+  import() {
+    toast("Nhập từ file JSON đã tắt trên bản chính thức. Hãy sửa từng mục trong các trang quản lý.", true);
+  },
 };
 
 /* ================= PHÂN QUYỀN THEO VAI TRÒ ================= */
@@ -80,9 +227,10 @@ function applyRolePermissions() {
   if ((!active || active.style.display === "none") && firstVisible) firstVisible.click();
 }
 
-document.getElementById("btn-logout").onclick = (ev) => {
+document.getElementById("btn-logout").onclick = async (ev) => {
   ev.preventDefault();
-  sessionStorage.removeItem(SESSION_KEY);
+  try { await Api.post("auth.php?action=logout", {}); } catch (e) { /* vẫn thoát dù lỗi mạng */ }
+  CURRENT_USER = null;
   location.reload();
 };
 
@@ -283,19 +431,39 @@ function shrinkImage(dataUrl, maxW = 900, quality = 0.82, maxH = 1200) {
   });
 }
 
+/** Chuyển ảnh dạng base64 (dataURL, đã nén) thành File để gửi lên máy chủ */
+function dataUrlToFile(dataUrl, origName) {
+  const m = dataUrl.match(/^data:([^;]+);base64,(.*)$/);
+  if (!m) throw new Error("Ảnh không hợp lệ.");
+  const mime = m[1];
+  const bin = atob(m[2]);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  const ext = mime === "image/jpeg" ? "jpg" : (mime.split("/")[1] || "jpg");
+  const base = (origName || "anh").replace(/\.[^.]+$/, "").replace(/[^\w-]+/g, "-") || "anh";
+  return new File([arr], `${base}.${ext}`, { type: mime });
+}
+
+/* Ảnh: nén trước rồi tải lên máy chủ. Tệp khác: tải nguyên bản lên máy chủ.
+   File thật nằm trong /uploads trên máy chủ (không phải base64 trong trình duyệt nữa). */
 async function importToLibrary(file) {
   const isImage = file.type.startsWith("image/");
   if (!isImage && file.size > 100 * 1024 * 1024)
     throw new Error(`Tệp "${file.name}" vượt quá 100MB.`);
-  let dataUrl = await readAsDataURL(file);
-  if (isImage) dataUrl = await shrinkImage(dataUrl);
-  return Store.add("files", {
-    name: file.name,
-    type: file.type || "khác",
-    size: Math.round(dataUrl.length * 0.75), // dung lượng thực sau nén (base64 ~ 4/3)
-    uploadedAt: new Date().toISOString(),
-    dataUrl
-  });
+
+  let uploadFile = file;
+  if (isImage) uploadFile = dataUrlToFile(await shrinkImage(await readAsDataURL(file)), file.name);
+
+  const fd = new FormData();
+  fd.append("file", uploadFile, uploadFile.name);
+  const r = await Api.postForm("upload.php", fd);
+
+  const rec = {
+    id: r.id, name: r.name, type: uploadFile.type || file.type,
+    size: r.size, uploadedAt: new Date().toISOString(), dataUrl: r.url,
+  };
+  Store._cache.files.unshift(rec);
+  return rec;
 }
 
 document.getElementById("file-pick-input").onchange = async (ev) => {
@@ -396,7 +564,7 @@ function moveHero(id, dir) {
   const j = i + dir;
   if (i < 0 || j < 0 || j >= arr.length) return;
   [arr[i], arr[j]] = [arr[j], arr[i]];
-  Store._save();
+  Store.reorder("hero", arr.map(h => h.id));
   renderHeroTable();
 }
 
@@ -545,6 +713,15 @@ function renderUsersTable() {
     </table>`;
 }
 
+/** Nạp lại danh sách tài khoản từ máy chủ (sau khi tạo/sửa/xoá) */
+async function reloadUsersCache() {
+  const r = await Api.get("users.php");
+  Store._cache.users = (r.users || []).map(u => ({
+    id: u.id, username: u.username, fullName: u.full_name,
+    role: u.role, perms: u.perms, isActive: u.is_active,
+  }));
+}
+
 function openUserModal(id) {
   const editing = id ? Store.get("users", id) : null;
   const isSuper = editing && editing.role === "superadmin";
@@ -558,7 +735,8 @@ function openUserModal(id) {
         ? `<div class="full"><label class="fld">Tên đăng nhập</label><input value="${Fmt.esc(editing.username)}" disabled></div>`
         : fld("Tên đăng nhập", "username", "", { required: true, full: true, placeholder: "vd: bientap01" })}
       ${fld("Họ tên hiển thị", "fullName", editing ? (editing.fullName || "") : "", { full: true })}
-      ${fld("Mật khẩu" + (editing ? " (để trống nếu giữ nguyên)" : ""), "password", "", { type: "password", full: true, required: !editing })}
+      ${fld("Mật khẩu" + (editing ? " (để trống nếu giữ nguyên)" : "") + " — tối thiểu 10 ký tự", "password", "",
+        { type: "password", full: true, required: !editing })}
       ${isSuper ? "" : `
         <div class="full">
           <label class="fld">Cho phép tài khoản này quản lý các mục:</label>
@@ -566,40 +744,47 @@ function openUserModal(id) {
           <div class="form-note">Chỉ những mục được tích, tài khoản con mới thấy và sửa được. Cài đặt, Sao lưu, Tài khoản luôn thuộc riêng cấp cao.</div>
         </div>`}
     </div>`,
-    (f) => {
+    async (f) => {
       const fullName = f.get("fullName").trim();
       const password = f.get("password");
       const perms = GRANTABLE_PANELS.filter(([k]) => f.get("perm_" + k)).map(([k]) => k);
-      if (!editing) {
-        const username = f.get("username").trim();
-        if (!username) { toast("Nhập tên đăng nhập.", true); return; }
-        if (Store.all("users").some(u => u.username.toLowerCase() === username.toLowerCase())) {
-          toast("Tên đăng nhập đã tồn tại.", true); return;
+      try {
+        if (!editing) {
+          const username = f.get("username").trim();
+          if (!username) { toast("Nhập tên đăng nhập.", true); return; }
+          if (!password) { toast("Nhập mật khẩu cho tài khoản con.", true); return; }
+          await Api.post("users.php?action=create", { username, full_name: fullName, password, perms });
+          toast("Đã tạo tài khoản con.");
+        } else {
+          const patch = { id: editing.id, full_name: fullName };
+          if (!isSuper) patch.perms = perms;   // không đổi quyền tài khoản cấp cao
+          await Api.post("users.php?action=update", patch);
+          if (password) await Api.post("users.php?action=reset-pw", { id: editing.id, password });
+          toast("Đã cập nhật tài khoản.");
         }
-        if (!password) { toast("Nhập mật khẩu cho tài khoản con.", true); return; }
-        Store.add("users", { username, fullName, password, role: "editor", perms });
-        toast("Đã tạo tài khoản con.");
-      } else {
-        const patch = { fullName };
-        if (password) patch.password = password;
-        if (!isSuper) patch.perms = perms;   // không đổi quyền tài khoản cấp cao
-        Store.update("users", editing.id, patch);
-        toast("Đã cập nhật tài khoản.");
+        await reloadUsersCache();
+        closeModal();
+        renderUsersTable();
+      } catch (e) {
+        toast(e.message, true);
       }
-      closeModal();
-      renderUsersTable();
     });
 }
 
-function removeUser(id) {
+async function removeUser(id) {
   const u = Store.get("users", id);
   if (!u) return;
   if (u.role === "superadmin") { toast("Không thể xóa tài khoản cấp cao.", true); return; }
   if (u.username === (currentUser() || {}).username) { toast("Không thể xóa tài khoản đang đăng nhập.", true); return; }
   if (!confirm(`Xóa tài khoản "${u.username}"?`)) return;
-  Store.remove("users", id);
-  toast("Đã xóa tài khoản.");
-  renderUsersTable();
+  try {
+    await Api.post("users.php?action=delete", { id });
+    await reloadUsersCache();
+    toast("Đã xóa tài khoản.");
+    renderUsersTable();
+  } catch (e) {
+    toast(e.message, true);
+  }
 }
 
 /* ================= BÁC SĨ ================= */
@@ -1403,27 +1588,13 @@ document.getElementById("btn-export").onclick = () => {
 };
 
 document.getElementById("import-file").onchange = (ev) => {
-  const file = ev.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      Store.import(reader.result);
-      toast("Đã nhập dữ liệu từ file sao lưu.");
-      renderAll(); fillSettingsForms();
-    } catch (e) {
-      toast("File không hợp lệ: " + e.message, true);
-    }
-  };
-  reader.readAsText(file);
   ev.target.value = "";
+  toast("Nhập từ file JSON đã tắt trên bản chính thức (an toàn dữ liệu thật). "
+      + "Sửa từng mục trong các trang quản lý, hoặc nhờ hỗ trợ kỹ thuật nếu cần khôi phục hàng loạt.", true);
 };
 
 document.getElementById("btn-reset").onclick = () => {
-  if (!confirm("Xóa toàn bộ dữ liệu hiện tại và khôi phục dữ liệu mẫu ban đầu?")) return;
-  Store.reset();
-  toast("Đã khôi phục dữ liệu mẫu.");
-  renderAll(); fillSettingsForms();
+  toast("Chức năng khôi phục dữ liệu mẫu đã tắt trên bản chính thức (an toàn dữ liệu thật).", true);
 };
 
 /* ================= RENDER TỔNG ================= */
@@ -1441,7 +1612,7 @@ function renderAll() {
 }
 
 /* ================= KHỞI CHẠY ================= */
-document.addEventListener("DOMContentLoaded", () => {
-  fillSettingsForms();
-  if (currentUser()) showAdmin();
+document.addEventListener("DOMContentLoaded", async () => {
+  const me = await refreshSession();     // hỏi máy chủ xem cookie phiên còn hợp lệ không
+  if (me) showAdmin();                   // showAdmin() tự tải dữ liệu (Store.loadAll) rồi mới hiện giao diện
 });

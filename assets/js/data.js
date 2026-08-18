@@ -2514,8 +2514,11 @@ const SEED = {
   files: []
 };
 
-/* ---------------- STORE: CRUD trên localStorage ---------------- */
-const Store = {
+/* ---------------- STORE: CRUD trên localStorage ----------------
+   Lưu ý: khai báo "let" (không phải "const") để trang quản trị (admin.js)
+   có thể GÁN LẠI biến này bằng bản kết nối máy chủ thật (Store = {...}).
+   Trang công khai (main.js) không gán lại -> vẫn dùng bản localStorage này. */
+let Store = {
   _cache: null,
 
   _load() {

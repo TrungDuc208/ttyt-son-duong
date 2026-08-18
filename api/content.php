@@ -129,6 +129,22 @@ switch ($action) {
 
     /* ---------------- Cài đặt website ---------------- */
     case 'settings': {
+        // Đọc: mọi tài khoản đã đăng nhập đều xem được (form cần điền sẵn giá trị hiện tại)
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            requireLogin();
+            $out = [];
+            foreach (db()->query('SELECT k, v FROM settings')->fetchAll() as $r) {
+                $val = $r['v'];
+                if (is_string($val) && $val !== '' && ($val[0] === '[' || $val[0] === '{')) {
+                    $decoded = json_decode($val, true);
+                    if ($decoded !== null) $val = $decoded;
+                }
+                $out[$r['k']] = $val;
+            }
+            ok(['settings' => $out]);
+        }
+
+        // Ghi: chỉ tài khoản cấp cao
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') fail(405, 'Sai phương thức.');
         $me  = requireSuperadmin();          // cài đặt chung: chỉ cấp cao
         $set = input()['settings'] ?? null;
