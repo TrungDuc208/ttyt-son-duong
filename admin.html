@@ -30,10 +30,6 @@
           <button class="btn btn-blue" type="submit" style="width:100%">Đăng nhập</button>
         </div>
       </form>
-      <div class="demo-hint">
-        🔑 Tài khoản quản trị: <strong>admin</strong><br>
-        Mật khẩu do quản trị viên cấp cao quản lý.
-      </div>
       <p style="text-align:center;margin-top:14px;font-size:13px"><a href="index.html">← Về trang chủ</a></p>
     </div>
   </div>
@@ -122,14 +118,9 @@
             Mỗi slide hiện <strong>4 bác sĩ</strong>; khách bấm nút ‹ › để xem nhóm tiếp theo.
             Kéo ⬆️⬇️ để đổi thứ tự.
           </p>
-          <div class="warn-note" style="margin-bottom:14px">
-            ⚠️ Thay đổi ở đây chỉ lưu trong <strong>trình duyệt này</strong>. Để đưa lên web (mọi người thấy),
-            bấm <strong>"📋 Sao chép để đưa lên web"</strong> rồi gửi cho người quản lý mã nguồn / dán vào <code>data.js</code>.
-          </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
             <select id="feat-add-select" style="max-width:320px"></select>
             <button class="btn btn-primary btn-sm" onclick="featAddSelected()">➕ Thêm vào danh sách</button>
-            <button class="btn btn-ghost btn-sm" onclick="featCopyForPublish()">📋 Sao chép để đưa lên web</button>
             <span id="feat-count" style="font-size:13px;color:var(--muted)"></span>
           </div>
           <div class="table-wrap" style="box-shadow:none" id="featured-table"></div>
@@ -192,9 +183,8 @@
             <button class="btn btn-primary btn-sm" onclick="libUpload()">📤 Tải tệp lên</button>
           </div>
           <p style="font-size:13px;color:var(--muted);margin-bottom:14px">
-            Nơi tiếp nhận ảnh và tệp dùng cho website (ảnh nhân viên, ảnh bài viết, tệp đính kèm...).
+            Nơi tiếp nhận ảnh và tệp dùng cho website (ảnh nhân viên, ảnh bài viết, tệp đính kèm...), lưu trên máy chủ.
             Ảnh tự động nén về tối đa 900px. Tệp khác cho phép tối đa 100MB.
-            <em>Lưu ý: hiện tệp lưu trong bộ nhớ trình duyệt nên dung lượng tổng bị giới hạn (~vài MB); tệp lớn cần máy chủ backend.</em>
           </p>
           <div class="table-wrap" style="box-shadow:none" id="files-table"></div>
         </div>
@@ -206,11 +196,6 @@
           <div class="card-head">
             <h3>Quản lý tài khoản</h3>
             <button class="btn btn-primary btn-sm" onclick="openUserModal()">➕ Tạo tài khoản con</button>
-          </div>
-          <div class="warn-note" style="margin-bottom:14px">
-            ⚠️ Tài khoản &amp; phân quyền ở đây <strong>lưu trong trình duyệt</strong>, chưa phải bảo mật thật —
-            tài khoản con tạo ra chỉ dùng được trên máy này và mật khẩu nằm trong mã nguồn. Muốn phân quyền
-            an toàn, đồng bộ mọi máy thì cần <strong>backend</strong>.
           </div>
           <p style="font-size:13px;color:var(--muted);margin-bottom:14px">
             <strong>Cấp cao (Admin):</strong> toàn quyền, tạo/sửa/xóa tài khoản con.
@@ -224,11 +209,6 @@
       <div class="panel" id="panel-settings">
         <div class="card">
           <div class="card-head"><h3>Thông tin website</h3></div>
-          <div class="warn-note" style="margin-bottom:14px">
-            ⚠️ Sửa ở đây chỉ áp dụng cho <strong>trình duyệt này</strong>, người khác vào web sẽ chưa thấy.
-            Muốn cập nhật cho <strong>tất cả mọi người</strong>: sửa xong bấm
-            <strong>“📋 Sao chép để đưa lên web”</strong> rồi gửi cho người quản lý mã nguồn.
-          </div>
           <form id="settings-form">
             <div class="form-grid">
               <div class="full"><label class="fld">Tên đơn vị</label><input name="siteName"></div>
@@ -242,7 +222,6 @@
             </div>
             <div class="form-actions">
               <button class="btn btn-blue" type="submit">💾 Lưu thông tin</button>
-              <button class="btn btn-ghost" type="button" onclick="settingsCopyForPublish()">📋 Sao chép để đưa lên web</button>
             </div>
           </form>
         </div>
@@ -289,16 +268,12 @@
       <!-- Sao lưu -->
       <div class="panel" id="panel-backup">
         <div class="card">
-          <div class="card-head"><h3>Sao lưu / Phục hồi dữ liệu</h3></div>
+          <div class="card-head"><h3>Sao lưu dữ liệu</h3></div>
           <p style="font-size:14px;color:var(--muted);margin-bottom:16px">
-            Dữ liệu quản trị hiện lưu trong trình duyệt (localStorage). Có thể xuất ra file JSON để sao lưu,
-            nhập lại từ file, hoặc khôi phục dữ liệu mẫu ban đầu.
+            Xuất toàn bộ dữ liệu hiện có trên máy chủ ra file JSON để lưu trữ hoặc đối chiếu.
           </p>
           <div class="form-actions" style="margin:0">
             <button class="btn btn-blue" id="btn-export">⬇️ Xuất dữ liệu (JSON)</button>
-            <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">⬆️ Nhập từ file</button>
-            <input type="file" id="import-file" accept=".json" style="display:none">
-            <button class="btn btn-danger" id="btn-reset">♻️ Khôi phục dữ liệu mẫu</button>
           </div>
         </div>
       </div>

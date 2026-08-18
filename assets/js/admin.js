@@ -130,8 +130,11 @@ Store = {
     if ((currentUser() || {}).role === "superadmin") {
       try {
         const r = await Api.get("users.php");
+        // id máy chủ trả về là SỐ (1,2,3...) nhưng nút bấm truyền vào là CHUỖI
+        // ('1') -> phải ép cùng kiểu chuỗi, nếu không Store.get() so sánh luôn sai
+        // (1 === '1' là false) và modal "Sửa" sẽ hiện nhầm thành "Tạo tài khoản con".
         this._cache.users = (r.users || []).map(u => ({
-          id: u.id, username: u.username, fullName: u.full_name,
+          id: String(u.id), username: u.username, fullName: u.full_name,
           role: u.role, perms: u.perms, isActive: u.is_active,
         }));
       } catch (e) {
@@ -192,12 +195,6 @@ Store = {
   },
 
   export() { return JSON.stringify(this._cache, null, 2); },
-  reset() {
-    toast("Chức năng khôi phục dữ liệu mẫu đã tắt trên bản chính thức (an toàn dữ liệu thật).", true);
-  },
-  import() {
-    toast("Nhập từ file JSON đã tắt trên bản chính thức. Hãy sửa từng mục trong các trang quản lý.", true);
-  },
 };
 
 /* ================= PHÂN QUYỀN THEO VAI TRÒ ================= */
@@ -675,19 +672,6 @@ function featMove(id, dir) {
   renderFeaturedTable();
 }
 
-/* Xuất dòng cấu hình để dán vào data.js (settings) -> đưa danh sách này lên web thật */
-function featCopyForPublish() {
-  const ids = featuredIds();
-  const names = ids.map(id => (Store.get("doctors", id) || {}).name).filter(Boolean).join(", ");
-  const line = `    featuredDoctors: ${JSON.stringify(ids)},  // ${names}`;
-  const done = () => toast("Đã sao chép dòng cấu hình. Dán vào data.js (mục settings) rồi commit để đưa lên web.");
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(line).then(done, () => prompt("Sao chép dòng dưới đây vào data.js (mục settings):", line));
-  } else {
-    prompt("Sao chép dòng dưới đây vào data.js (mục settings):", line);
-  }
-}
-
 /* ================= QUẢN LÝ TÀI KHOẢN (chỉ tài khoản cấp cao) ================= */
 function permLabels(perms) {
   if (!perms || !perms.length) return "—";
@@ -714,7 +698,7 @@ function renderUsersTable() {
           <td>${isSuper ? '<span class="badge badge-danger">Cấp cao</span>' : '<span class="badge badge-info">Tài khoản con</span>'}</td>
           <td style="font-size:12.5px">${isSuper ? "Toàn quyền" : Fmt.esc(permLabels(u.perms))}</td>
           <td><div class="row-actions">
-            <button class="icon-btn" onclick="openUserModal('${u.id}')">✏️ ${isSuper ? "Đổi mật khẩu" : "Sửa"}</button>
+            <button class="icon-btn" onclick="openUserModal('${u.id}')">✏️ Chỉnh sửa</button>
             ${isSuper ? "" : `<button class="icon-btn danger" onclick="removeUser('${u.id}')">🗑</button>`}
           </div></td>
         </tr>`;
@@ -726,7 +710,7 @@ function renderUsersTable() {
 async function reloadUsersCache() {
   const r = await Api.get("users.php");
   Store._cache.users = (r.users || []).map(u => ({
-    id: u.id, username: u.username, fullName: u.full_name,
+    id: String(u.id), username: u.username, fullName: u.full_name,
     role: u.role, perms: u.perms, isActive: u.is_active,
   }));
 }
@@ -738,7 +722,7 @@ function openUserModal(id) {
   const permChecks = GRANTABLE_PANELS.map(([key, label]) =>
     `<label class="perm-item"><input type="checkbox" name="perm_${key}" ${perms.includes(key) ? "checked" : ""}> ${label}</label>`).join("");
 
-  openModal(editing ? (isSuper ? "Đổi mật khẩu tài khoản cấp cao" : "Sửa tài khoản con") : "Tạo tài khoản con", `
+  openModal(editing ? (isSuper ? "Chỉnh sửa tài khoản cấp cao" : "Chỉnh sửa tài khoản con") : "Tạo tài khoản con", `
     <div class="form-grid">
       ${editing
         ? `<div class="full"><label class="fld">Tên đăng nhập</label><input value="${Fmt.esc(editing.username)}" disabled></div>`
@@ -1500,19 +1484,6 @@ function naRemove(i) {
 const SETTING_FIELDS = ["siteName", "slogan", "address", "hotline", "hotlineDept",
                         "email", "workingHours", "announcement"];
 
-/* Xuất khối settings để dán vào data.js -> đưa thay đổi lên web thật cho mọi người */
-function settingsCopyForPublish() {
-  const s = Store.settings();
-  const lines = SETTING_FIELDS.map(k => `    ${k}: ${JSON.stringify(s[k] || "", null, 0)},`);
-  const text = lines.join("\n");
-  const done = () => toast("Đã sao chép. Dán vào data.js (mục settings) rồi commit để lên web thật.");
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(done, () => prompt("Sao chép đoạn dưới đây vào data.js (mục settings):", text));
-  } else {
-    prompt("Sao chép đoạn dưới đây vào data.js (mục settings):", text);
-  }
-}
-
 function fillSettingsForms() {
   const s = Store.settings();
   const sf = document.getElementById("settings-form");
@@ -1617,16 +1588,6 @@ document.getElementById("btn-export").onclick = () => {
   a.click();
   URL.revokeObjectURL(a.href);
   toast("Đã xuất file sao lưu.");
-};
-
-document.getElementById("import-file").onchange = (ev) => {
-  ev.target.value = "";
-  toast("Nhập từ file JSON đã tắt trên bản chính thức (an toàn dữ liệu thật). "
-      + "Sửa từng mục trong các trang quản lý, hoặc nhờ hỗ trợ kỹ thuật nếu cần khôi phục hàng loạt.", true);
-};
-
-document.getElementById("btn-reset").onclick = () => {
-  toast("Chức năng khôi phục dữ liệu mẫu đã tắt trên bản chính thức (an toàn dữ liệu thật).", true);
 };
 
 /* ================= RENDER TỔNG ================= */
